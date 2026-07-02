@@ -13,6 +13,8 @@ describe("tracking helpers", () => {
   beforeEach(() => {
     window.dataLayer = [];
     window.fbq = undefined;
+    window.__atdConsentState = undefined;
+    window.__atdMetaDispatchedEvents = undefined;
     window.__atdMetaEventIds = undefined;
   });
 
@@ -92,6 +94,71 @@ describe("tracking helpers", () => {
       { content_name: "Contact Form Submission" },
       { eventID: "atd-browser-dedupe-id" },
     );
+  });
+
+  it("lets GTM fire the Tracking Audit browser Lead once with the server event ID", () => {
+    const fbq = vi.fn();
+    window.fbq = fbq as typeof window.fbq;
+
+    pushLeadSubmissionEvent("tracking_audit_submit", {
+      event_id: "atd-tracking-audit-dedupe-id",
+      eventID: "atd-tracking-audit-dedupe-id",
+      form_id: "tracking-audit-form",
+      lead_source: "tracking_audit_offer",
+    });
+
+    expect(fbq).not.toHaveBeenCalled();
+
+    window.fbq?.("track", "Lead", {
+      content_name: "Tracking Audit Request",
+      content_category: "primary_conversion",
+      form_id: "tracking-audit-form",
+      lead_source: "tracking_audit_offer",
+    });
+
+    expect(fbq).toHaveBeenCalledTimes(1);
+    expect(fbq).toHaveBeenCalledWith(
+      "track",
+      "Lead",
+      expect.objectContaining({
+        content_name: "Tracking Audit Request",
+        form_id: "tracking-audit-form",
+        lead_source: "tracking_audit_offer",
+      }),
+      { eventID: "atd-tracking-audit-dedupe-id" },
+    );
+  });
+
+  it("does not bypass GTM consent controls with a direct Tracking Audit Lead", () => {
+    const fbq = vi.fn();
+    window.fbq = fbq as typeof window.fbq;
+    window.__atdConsentState = {
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    };
+
+    pushLeadSubmissionEvent("tracking_audit_submit", {
+      eventID: "atd-no-ad-consent",
+    });
+
+    expect(fbq).not.toHaveBeenCalled();
+  });
+
+  it("suppresses GTM attempts to initialize an already active Meta Pixel", () => {
+    const fbq = vi.fn() as typeof window.fbq;
+    if (!fbq) throw new Error("fbq mock was not created");
+    fbq.getState = () => ({
+      pixels: [{ id: "955663116586662" }],
+    });
+    window.fbq = fbq;
+
+    pushDataLayerEvent("tracking_audit_submit", {
+      eventID: "atd-existing-pixel",
+    });
+    window.fbq?.("init", "955663116586662");
+
+    expect(fbq).not.toHaveBeenCalledWith("init", "955663116586662");
   });
 
   it("adds current page context to booking click events", () => {

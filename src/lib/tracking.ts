@@ -5,6 +5,9 @@ export type DataLayerPayload = Record<string, DataLayerValue>;
 type FbqFunction = ((...args: unknown[]) => unknown) & {
   _atdEventIdWrapped?: boolean;
   _atdOriginalFbq?: FbqFunction;
+  getState?: () => {
+    pixels?: Array<{ id?: string }>;
+  };
   [key: string]: unknown;
 };
 
@@ -12,6 +15,8 @@ declare global {
   interface Window {
     dataLayer?: Array<Record<string, unknown>>;
     fbq?: FbqFunction;
+    __atdConsentState?: Record<string, string>;
+    __atdMetaDispatchedEvents?: Record<string, boolean>;
     __atdMetaEventIds?: Record<string, string>;
   }
 }
@@ -54,6 +59,25 @@ const setMetaPixelEventIdOption = (args: unknown[], optionIndex: number, eventId
   return nextArgs;
 };
 
+const getMetaPixelEventKey = (eventName: string, eventId: string) =>
+  `${eventName}:${eventId}`;
+
+const hasDispatchedMetaPixelEvent = (eventName: string, eventId: string) =>
+  Boolean(window.__atdMetaDispatchedEvents?.[getMetaPixelEventKey(eventName, eventId)]);
+
+const markMetaPixelEventDispatched = (eventName: string, eventId: string) => {
+  window.__atdMetaDispatchedEvents = window.__atdMetaDispatchedEvents || {};
+  window.__atdMetaDispatchedEvents[getMetaPixelEventKey(eventName, eventId)] = true;
+};
+
+const isMetaPixelInitialized = (fbq: FbqFunction, pixelId: string) => {
+  try {
+    return Boolean(fbq.getState?.().pixels?.some((pixel) => pixel.id === pixelId));
+  } catch {
+    return false;
+  }
+};
+
 const installMetaPixelEventIdPatch = () => {
   if (typeof window === "undefined" || typeof window.fbq !== "function") return;
   if (window.fbq._atdEventIdWrapped) return;
@@ -62,11 +86,21 @@ const installMetaPixelEventIdPatch = () => {
   const wrappedFbq: FbqFunction = (...args: unknown[]) => {
     const command = args[0];
 
+    if (
+      command === "init" &&
+      typeof args[1] === "string" &&
+      isMetaPixelInitialized(originalFbq, args[1])
+    ) {
+      return undefined;
+    }
+
     if (command === "track" && typeof args[1] === "string") {
       const eventName = args[1];
       const eventId = window.__atdMetaEventIds?.[eventName];
       if (eventId) {
         const nextArgs = args.length >= 3 ? args : [args[0], args[1], {}];
+        if (hasDispatchedMetaPixelEvent(eventName, eventId)) return undefined;
+        markMetaPixelEventDispatched(eventName, eventId);
         return originalFbq(...setMetaPixelEventIdOption(nextArgs, 3, eventId));
       }
     }
@@ -76,6 +110,8 @@ const installMetaPixelEventIdPatch = () => {
       const eventId = window.__atdMetaEventIds?.[eventName];
       if (eventId) {
         const nextArgs = args.length >= 4 ? args : [args[0], args[1], args[2], {}];
+        if (hasDispatchedMetaPixelEvent(eventName, eventId)) return undefined;
+        markMetaPixelEventDispatched(eventName, eventId);
         return originalFbq(...setMetaPixelEventIdOption(nextArgs, 4, eventId));
       }
     }
