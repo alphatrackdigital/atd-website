@@ -96,14 +96,9 @@ describe("tracking helpers", () => {
     );
   });
 
-  it("fires the Tracking Audit browser Lead once with the server event ID", () => {
+  it("lets GTM fire the Tracking Audit browser Lead once with the server event ID", () => {
     const fbq = vi.fn();
     window.fbq = fbq as typeof window.fbq;
-    window.__atdConsentState = {
-      ad_storage: "granted",
-      ad_user_data: "granted",
-      ad_personalization: "granted",
-    };
 
     pushLeadSubmissionEvent("tracking_audit_submit", {
       event_id: "atd-tracking-audit-dedupe-id",
@@ -112,7 +107,14 @@ describe("tracking helpers", () => {
       lead_source: "tracking_audit_offer",
     });
 
-    window.fbq?.("track", "Lead", { content_name: "Tracking Audit Request" });
+    expect(fbq).not.toHaveBeenCalled();
+
+    window.fbq?.("track", "Lead", {
+      content_name: "Tracking Audit Request",
+      content_category: "primary_conversion",
+      form_id: "tracking-audit-form",
+      lead_source: "tracking_audit_offer",
+    });
 
     expect(fbq).toHaveBeenCalledTimes(1);
     expect(fbq).toHaveBeenCalledWith(
@@ -127,7 +129,7 @@ describe("tracking helpers", () => {
     );
   });
 
-  it("does not fire the Tracking Audit browser Lead without advertising consent", () => {
+  it("does not bypass GTM consent controls with a direct Tracking Audit Lead", () => {
     const fbq = vi.fn();
     window.fbq = fbq as typeof window.fbq;
     window.__atdConsentState = {

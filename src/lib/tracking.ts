@@ -137,39 +137,6 @@ const rememberMetaPixelEventId = (event: string, payload: DataLayerPayload) => {
   installMetaPixelEventIdPatch();
 };
 
-export const hasMetaAdvertisingConsent = () => {
-  if (typeof window === "undefined") return false;
-
-  const consent = window.__atdConsentState;
-  return Boolean(
-    consent &&
-      consent.ad_storage === "granted" &&
-      consent.ad_user_data === "granted" &&
-      consent.ad_personalization === "granted",
-  );
-};
-
-const dispatchTrackingAuditMetaLead = (payload: DataLayerPayload) => {
-  if (!hasMetaAdvertisingConsent() || typeof window.fbq !== "function") return;
-
-  const eventId = getPayloadEventId(payload);
-  if (!eventId || hasDispatchedMetaPixelEvent("Lead", eventId)) return;
-
-  window.fbq(
-    "track",
-    "Lead",
-    {
-      content_name: "Tracking Audit Request",
-      content_category: "primary_conversion",
-      event_source: "website",
-      form_id: payload.form_id,
-      lead_source: payload.lead_source,
-      page_location: payload.page_location,
-    },
-    { eventID: eventId },
-  );
-};
-
 export const pushDataLayerEvent = (event: string, payload: DataLayerPayload = {}) => {
   if (typeof window === "undefined") return;
 
@@ -177,9 +144,6 @@ export const pushDataLayerEvent = (event: string, payload: DataLayerPayload = {}
     rememberMetaPixelEventId(event, payload);
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ event, ...payload });
-    if (event === "tracking_audit_submit") {
-      dispatchTrackingAuditMetaLead(payload);
-    }
   } catch (error) {
     console.warn("Tracking event push failed", {
       event,
