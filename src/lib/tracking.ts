@@ -158,32 +158,56 @@ const rememberMetaPixelEventId = (event: string, payload: DataLayerPayload) => {
   installMetaPixelEventIdPatch();
 };
 
-const dispatchNewsletterMetaSubscribe = (event: string, payload: DataLayerPayload) => {
+const dispatchNewsletterMetaSubscribe = (
+  event: string,
+  payload: DataLayerPayload,
+  pushToDataLayer: () => void,
+) => {
   if (
     event !== "newsletter_subscribe" ||
-    typeof window.fbq !== "function" ||
     !hasMetaAdConsent()
   ) {
-    return;
+    return false;
   }
 
   const eventId = getPayloadEventId(payload);
-  if (!eventId) return;
+  if (!eventId) return false;
 
-  // The published GTM container currently maps newsletter_subscribe to Lead.
-  // Send the canonical Subscribe event here and consume that one stale GTM Lead.
-  suppressMetaPixelEvent("Lead");
-  window.fbq(
-    "track",
-    "Subscribe",
-    {
-      content_name: "Newsletter Signup",
-      content_category: "newsletter",
-      form_id: payload.form_id,
-      lead_source: payload.lead_source,
-    },
-    { eventID: eventId },
-  );
+  let attempts = 0;
+  const tryDispatch = () => {
+    if (typeof window.fbq === "function") {
+      installMetaPixelEventIdPatch();
+
+      // The published GTM container currently maps newsletter_subscribe to Lead.
+      // Send Subscribe first, then consume the stale GTM Lead when dataLayer runs.
+      suppressMetaPixelEvent("Lead");
+      window.fbq(
+        "track",
+        "Subscribe",
+        {
+          content_name: "Newsletter Signup",
+          content_category: "newsletter",
+          form_id: payload.form_id,
+          lead_source: payload.lead_source,
+        },
+        { eventID: eventId },
+      );
+      pushToDataLayer();
+      return;
+    }
+
+    attempts += 1;
+    if (attempts < 20) {
+      window.setTimeout(tryDispatch, 100);
+      return;
+    }
+
+    // Preserve analytics delivery if Meta Pixel never becomes available.
+    pushToDataLayer();
+  };
+
+  tryDispatch();
+  return true;
 };
 
 export const pushDataLayerEvent = (event: string, payload: DataLayerPayload = {}) => {
@@ -191,9 +215,14 @@ export const pushDataLayerEvent = (event: string, payload: DataLayerPayload = {}
 
   try {
     rememberMetaPixelEventId(event, payload);
-    dispatchNewsletterMetaSubscribe(event, payload);
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event, ...payload });
+    const pushToDataLayer = () => {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event, ...payload });
+    };
+
+    if (!dispatchNewsletterMetaSubscribe(event, payload, pushToDataLayer)) {
+      pushToDataLayer();
+    }
   } catch (error) {
     console.warn("Tracking event push failed", {
       event,

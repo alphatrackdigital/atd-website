@@ -206,6 +206,44 @@ describe("tracking helpers", () => {
     );
   });
 
+  it("waits for the consented Meta Pixel before releasing the Newsletter GTM event", () => {
+    vi.useFakeTimers();
+    window.__atdConsentState = {
+      ad_storage: "granted",
+      ad_user_data: "granted",
+      ad_personalization: "granted",
+    };
+
+    pushLeadSubmissionEvent("newsletter_subscribe", {
+      eventID: "atd-newsletter-late-pixel",
+      form_id: "footer-newsletter-form",
+      lead_source: "newsletter",
+    });
+
+    expect(window.dataLayer).toEqual([]);
+
+    const fbq = vi.fn();
+    window.fbq = fbq as typeof window.fbq;
+    vi.advanceTimersByTime(100);
+
+    expect(fbq).toHaveBeenCalledWith(
+      "track",
+      "Subscribe",
+      expect.objectContaining({
+        form_id: "footer-newsletter-form",
+      }),
+      { eventID: "atd-newsletter-late-pixel" },
+    );
+    expect(window.dataLayer).toContainEqual(
+      expect.objectContaining({
+        event: "newsletter_subscribe",
+        eventID: "atd-newsletter-late-pixel",
+      }),
+    );
+
+    vi.useRealTimers();
+  });
+
   it("suppresses GTM attempts to initialize an already active Meta Pixel", () => {
     const fbq = vi.fn() as typeof window.fbq;
     if (!fbq) throw new Error("fbq mock was not created");
