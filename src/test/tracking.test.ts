@@ -16,6 +16,7 @@ describe("tracking helpers", () => {
     window.__atdConsentState = undefined;
     window.__atdMetaDispatchedEvents = undefined;
     window.__atdMetaEventIds = undefined;
+    window.__atdMetaSuppressedEvents = undefined;
   });
 
   it("maps thank-you routes to canonical conversion events", () => {
@@ -143,6 +144,66 @@ describe("tracking helpers", () => {
     });
 
     expect(fbq).not.toHaveBeenCalled();
+  });
+
+  it("sends Newsletter Subscribe directly with the server event ID and suppresses stale GTM Lead", () => {
+    const fbq = vi.fn();
+    window.fbq = fbq as typeof window.fbq;
+    window.__atdConsentState = {
+      ad_storage: "granted",
+      ad_user_data: "granted",
+      ad_personalization: "granted",
+    };
+
+    pushLeadSubmissionEvent("newsletter_subscribe", {
+      event_id: "atd-newsletter-dedupe-id",
+      eventID: "atd-newsletter-dedupe-id",
+      form_id: "footer-newsletter-form",
+      lead_source: "newsletter",
+    });
+
+    expect(fbq).toHaveBeenCalledTimes(1);
+    expect(fbq).toHaveBeenCalledWith(
+      "track",
+      "Subscribe",
+      expect.objectContaining({
+        content_name: "Newsletter Signup",
+        form_id: "footer-newsletter-form",
+        lead_source: "newsletter",
+      }),
+      { eventID: "atd-newsletter-dedupe-id" },
+    );
+
+    window.fbq?.("track", "Lead", {
+      form_id: "footer-newsletter-form",
+      lead_source: "newsletter",
+    });
+
+    expect(fbq).toHaveBeenCalledTimes(1);
+  });
+
+  it("leaves Newsletter Meta delivery to consent-aware tooling when ad consent is not granted", () => {
+    const fbq = vi.fn();
+    window.fbq = fbq as typeof window.fbq;
+    window.__atdConsentState = {
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    };
+
+    pushLeadSubmissionEvent("newsletter_subscribe", {
+      eventID: "atd-newsletter-no-consent",
+      form_id: "footer-newsletter-form",
+      lead_source: "newsletter",
+    });
+
+    expect(fbq).not.toHaveBeenCalled();
+    expect(window.dataLayer).toContainEqual(
+      expect.objectContaining({
+        event: "newsletter_subscribe",
+        eventID: "atd-newsletter-no-consent",
+      }),
+    );
   });
 
   it("suppresses GTM attempts to initialize an already active Meta Pixel", () => {

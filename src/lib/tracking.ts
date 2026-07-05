@@ -18,6 +18,7 @@ declare global {
     __atdConsentState?: Record<string, string>;
     __atdMetaDispatchedEvents?: Record<string, boolean>;
     __atdMetaEventIds?: Record<string, string>;
+    __atdMetaSuppressedEvents?: Record<string, number>;
   }
 }
 
@@ -70,6 +71,24 @@ const markMetaPixelEventDispatched = (eventName: string, eventId: string) => {
   window.__atdMetaDispatchedEvents[getMetaPixelEventKey(eventName, eventId)] = true;
 };
 
+const suppressMetaPixelEvent = (eventName: string, durationMs = 5_000) => {
+  window.__atdMetaSuppressedEvents = window.__atdMetaSuppressedEvents || {};
+  window.__atdMetaSuppressedEvents[eventName] = Date.now() + durationMs;
+};
+
+const consumeSuppressedMetaPixelEvent = (eventName: string) => {
+  const suppressedUntil = window.__atdMetaSuppressedEvents?.[eventName];
+  if (!suppressedUntil) return false;
+
+  delete window.__atdMetaSuppressedEvents?.[eventName];
+  return Date.now() <= suppressedUntil;
+};
+
+const hasMetaAdConsent = () =>
+  ["ad_storage", "ad_user_data", "ad_personalization"].every(
+    (consentType) => window.__atdConsentState?.[consentType] === "granted",
+  );
+
 const isMetaPixelInitialized = (fbq: FbqFunction, pixelId: string) => {
   try {
     return Boolean(fbq.getState?.().pixels?.some((pixel) => pixel.id === pixelId));
@@ -96,6 +115,7 @@ const installMetaPixelEventIdPatch = () => {
 
     if (command === "track" && typeof args[1] === "string") {
       const eventName = args[1];
+      if (consumeSuppressedMetaPixelEvent(eventName)) return undefined;
       const eventId = window.__atdMetaEventIds?.[eventName];
       if (eventId) {
         const nextArgs = args.length >= 3 ? args : [args[0], args[1], {}];
@@ -107,6 +127,7 @@ const installMetaPixelEventIdPatch = () => {
 
     if (command === "trackSingle" && typeof args[2] === "string") {
       const eventName = args[2];
+      if (consumeSuppressedMetaPixelEvent(eventName)) return undefined;
       const eventId = window.__atdMetaEventIds?.[eventName];
       if (eventId) {
         const nextArgs = args.length >= 4 ? args : [args[0], args[1], args[2], {}];
@@ -137,11 +158,40 @@ const rememberMetaPixelEventId = (event: string, payload: DataLayerPayload) => {
   installMetaPixelEventIdPatch();
 };
 
+const dispatchNewsletterMetaSubscribe = (event: string, payload: DataLayerPayload) => {
+  if (
+    event !== "newsletter_subscribe" ||
+    typeof window.fbq !== "function" ||
+    !hasMetaAdConsent()
+  ) {
+    return;
+  }
+
+  const eventId = getPayloadEventId(payload);
+  if (!eventId) return;
+
+  // The published GTM container currently maps newsletter_subscribe to Lead.
+  // Send the canonical Subscribe event here and consume that one stale GTM Lead.
+  suppressMetaPixelEvent("Lead");
+  window.fbq(
+    "track",
+    "Subscribe",
+    {
+      content_name: "Newsletter Signup",
+      content_category: "newsletter",
+      form_id: payload.form_id,
+      lead_source: payload.lead_source,
+    },
+    { eventID: eventId },
+  );
+};
+
 export const pushDataLayerEvent = (event: string, payload: DataLayerPayload = {}) => {
   if (typeof window === "undefined") return;
 
   try {
     rememberMetaPixelEventId(event, payload);
+    dispatchNewsletterMetaSubscribe(event, payload);
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ event, ...payload });
   } catch (error) {
