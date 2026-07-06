@@ -1,5 +1,15 @@
 # Open Items For Next Agent
 
+## 2026-07-06 Tracking Audit Lander And Meta Pilot
+
+- Redesigned `/offer/tracking-audit` without changing the form, lead payload, anti-abuse, consent, Meta event ID, or duplicate-suppression contracts.
+- Added responsive campaign reassurance and methodology content; mobile uses the established 24px ATD gutter and simplified content treatments.
+- Full release gate passed: ESLint with seven existing warnings, 74/74 tests, and production client/SSR/prerender build.
+- Owner explicitly approved deployment and implementation of the previously discussed campaign improvements.
+- Campaign experiment specification: `docs/codex-handoffs/META_ADS_TRACKING_AUDIT_PILOT_2026-07-06.md`.
+- Release evidence: `docs/codex-handoffs/evidence/tracking-audit-lander-release-2026-07-06/summary.md`.
+- Paid ads must remain disabled until the production smoke, consent, form-routing, and Meta Browser/Server deduplication gates pass.
+
 ## 2026-07-01 Brevo List Organization
 
 - Created `ATD - Website Lead Capture` and moved existing lists `#7`-`#11` into it.

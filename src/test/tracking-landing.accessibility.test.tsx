@@ -15,4 +15,24 @@ describe("TrackingLandingPage accessibility", () => {
       screen.getByRole("group", { name: "Which ad platforms are active right now?" }),
     ).toBeInTheDocument();
   });
+
+  it("presents the audit scope and links the final call to action to the form", () => {
+    renderWithPageProviders(<TrackingLandingPage />, { route: "/offer/tracking-audit" });
+
+    expect(
+      screen.getByRole("heading", { name: "What we check before you scale" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Clear findings you can act on" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Common questions" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "See what we check" })).toHaveAttribute(
+      "href",
+      "#audit-coverage",
+    );
+    expect(screen.getByRole("link", { name: "Request Your Free Audit" })).toHaveAttribute(
+      "href",
+      "/offer/tracking-audit#claim",
+    );
+  });
 });

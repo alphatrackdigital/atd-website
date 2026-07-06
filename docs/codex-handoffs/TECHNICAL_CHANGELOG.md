@@ -1,5 +1,13 @@
 # Technical Changelog
 
+## 2026-07-06 Tracking Audit Campaign Lander
+
+- Reworked `/offer/tracking-audit` into a campaign-focused landing page with structured reassurance, audit coverage, deliverables, process, qualification, methodology, FAQ, and a standard service-close CTA.
+- Preserved `tracking-audit-form`, `#claim`, `tracking_audit_offer`, `tracking_audit_submit`, Meta `event_id` pairing, duplicate suppression, form validation, anti-abuse timing, consent, canonical URL, and SEO behavior.
+- Added desktop continuation guidance and a mobile-specific compact hierarchy using the existing 24px service-page gutter.
+- Added the July 2026 pilot experiment and launch-gate specification.
+- Validation passed: 74 tests, production client/SSR/prerender build, and ESLint with seven existing warnings.
+
 ## 2026-06-29 Ketch Ad Consent Propagation Correction
 
 - Owner Tag Assistant evidence showed a mismatch: `atd_consent_update` contained granted advertising fields while GTM's actual Consent state retained them as denied.
