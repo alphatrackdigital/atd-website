@@ -82,6 +82,21 @@ The existing Miro campaign board was also identified, but the Miro MCP
 connection required renewed OAuth authorization. No duplicate board was created
 and no Miro content was changed.
 
+The Netlify production mirror auto-deployed from `main`; its Tracking Audit
+route returned `200` and served the redesigned chunk. This does not replace the
+public cPanel deployment.
+
+A cPanel-ready static artifact was prepared outside the repository:
+
+`atd-production-dist-tracking-audit-1c96427.zip`
+
+Artifact verification confirmed:
+
+- the redesigned Tracking Audit chunk is present;
+- `VITE_LEADS_ENDPOINT` targets the approved Vercel backend;
+- `VITE_BREVO_SUBSCRIBE_ENDPOINT` targets the approved Vercel backend;
+- the archive contains the successful client/SSR/prerender build output.
+
 ## Safety
 
 - No secrets or environment values were added to source control.

@@ -11,6 +11,8 @@
 - PR `#36` merged as `1c96427`; Vercel deployment `dpl_F4jm6kbXyFiA9CQPwpK4ozDihJdR` is READY and assigned to `https://website-internal-test.vercel.app`.
 - Test-ground route/API, responsive, consent, form, Brevo list 11, UTM attribution, and CRM task/deal checks passed. Vercel error logs were clean.
 - Production still serves the older Tracking Audit chunk. Namecheap/cPanel deployment is blocked by the absence of an authenticated hosting session; the Namecheap login tab was left open for owner handoff.
+- Netlify's production mirror auto-deployed and serves the redesign, but it is not the public production host.
+- Verified cPanel artifact prepared outside the repo: `atd-production-dist-tracking-audit-1c96427.zip`.
 - Miro command-center update is pending renewed Miro MCP OAuth. Do not create a duplicate board.
 - Paid ads must remain disabled until the production smoke, consent, form-routing, and Meta Browser/Server deduplication gates pass.
 
