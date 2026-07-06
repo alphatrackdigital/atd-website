@@ -7,6 +7,10 @@
 - Added desktop continuation guidance and a mobile-specific compact hierarchy using the existing 24px service-page gutter.
 - Added the July 2026 pilot experiment and launch-gate specification.
 - Validation passed: 74 tests, production client/SSR/prerender build, and ESLint with seven existing warnings.
+- Merged through PR `#36` as `1c96427`.
+- Vercel preview `dpl_F4jm6kbXyFiA9CQPwpK4ozDihJdR` is READY and assigned to the canonical test alias.
+- Test-ground consent, responsive, form, Brevo list 11, UTM, and CRM smoke checks passed; no Vercel error logs were returned.
+- Namecheap/cPanel remained unchanged because the available browser session required login. Production still serves the older lander chunk.
 
 ## 2026-06-29 Ketch Ad Consent Propagation Correction
 

@@ -2,7 +2,7 @@
 
 This folder contains local handoff documentation for AlphaTrack Digital / ATD MarTech work. It is repo-side source material for future Codex, ChatGPT, Claude, or human review before anything is copied into Notion or used for live operations.
 
-Current release work: the Tracking Audit campaign lander redesign and Meta pilot operating specification were completed on 2026-07-06. Validation passed with 74 tests and a production build. Deployment status and post-deployment evidence are tracked in `OPEN_ITEMS_FOR_NEXT_AGENT.md` and `evidence/tracking-audit-lander-release-2026-07-06/summary.md`.
+Current release work: the Tracking Audit campaign lander redesign and Meta pilot operating specification were completed on 2026-07-06 and merged as `1c96427`. Validation and the canonical Vercel test deployment passed. The public cPanel site is not updated because the available Namecheap session requires login. Deployment status and post-deployment evidence are tracked in `OPEN_ITEMS_FOR_NEXT_AGENT.md` and `evidence/tracking-audit-lander-release-2026-07-06/summary.md`.
 
 Meta CAPI launch readiness is documented in
 `META_CAPI_LAUNCH_READINESS_2026-07-01.md`. The current cPanel build calls the

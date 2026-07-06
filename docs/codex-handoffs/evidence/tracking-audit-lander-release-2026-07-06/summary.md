@@ -26,6 +26,62 @@ The pre-deployment gate passed:
 - Production build: client, SSR bundle, and homepage prerender passed.
 - Existing bundle-size advisory remains non-blocking.
 
+## Repository And Test Deployment
+
+- Pull request: `#36`
+- Merged `main` commit: `1c96427`
+- Vercel deployment: `dpl_F4jm6kbXyFiA9CQPwpK4ozDihJdR`
+- Vercel state: `READY`
+- Canonical test alias: `https://website-internal-test.vercel.app`
+
+Deployed verification:
+
+- `/offer/tracking-audit`, the homepage, Conversion Tracking service, Privacy Policy, Cookie Policy, and Terms routes returned `200`.
+- `/api/leads` returned `204` to the preflight request.
+- Mobile and desktop checks found no horizontal overflow.
+- Mobile hid the secondary measurement link; desktop retained it and the continuation cue.
+- The offer route exposed the expected canonical URL, form ID, headings, and campaign sections.
+- Vercel error-log query returned no errors.
+
+## Consent And Lead Smoke
+
+The deployed offer route passed the four-scenario consent runner:
+
+- fresh visit and Reject All: no GTM, GA, Ads, Meta, or Clarity requests before optional consent;
+- Accept All: GTM, advertising/Meta, and Clarity requests allowed;
+- Analytics-only: advertising and Meta remained blocked while Clarity was allowed;
+- Targeted Advertising-only: Meta/Ads were allowed while Clarity remained blocked.
+
+The runner did not observe a GA collection request in this pass. This is not a
+lander-code regression, but GA route-event delivery should remain part of final
+production observability.
+
+One controlled Tracking Audit request was submitted on the canonical Vercel
+test alias. Verification confirmed:
+
+- visible `Request received` success state;
+- contact created in Brevo list 11;
+- source `tracking_audit_offer`;
+- all five campaign UTMs persisted;
+- website route and landing page persisted;
+- one linked CRM follow-up task and deal created.
+
+No duplicate submission was made.
+
+## Production Deployment Status
+
+The public cPanel site still serves the older Tracking Audit JavaScript chunk.
+The merged GitHub change did not auto-deploy.
+
+The approved manual deployment was attempted, but the available Chrome session
+reached the Namecheap login screen and had no authenticated cPanel session.
+No credentials were requested, entered, or exposed. Production upload/pull and
+the post-cPanel smoke remain pending authenticated hosting access.
+
+The existing Miro campaign board was also identified, but the Miro MCP
+connection required renewed OAuth authorization. No duplicate board was created
+and no Miro content was changed.
+
 ## Safety
 
 - No secrets or environment values were added to source control.

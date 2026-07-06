@@ -8,6 +8,10 @@
 - Owner explicitly approved deployment and implementation of the previously discussed campaign improvements.
 - Campaign experiment specification: `docs/codex-handoffs/META_ADS_TRACKING_AUDIT_PILOT_2026-07-06.md`.
 - Release evidence: `docs/codex-handoffs/evidence/tracking-audit-lander-release-2026-07-06/summary.md`.
+- PR `#36` merged as `1c96427`; Vercel deployment `dpl_F4jm6kbXyFiA9CQPwpK4ozDihJdR` is READY and assigned to `https://website-internal-test.vercel.app`.
+- Test-ground route/API, responsive, consent, form, Brevo list 11, UTM attribution, and CRM task/deal checks passed. Vercel error logs were clean.
+- Production still serves the older Tracking Audit chunk. Namecheap/cPanel deployment is blocked by the absence of an authenticated hosting session; the Namecheap login tab was left open for owner handoff.
+- Miro command-center update is pending renewed Miro MCP OAuth. Do not create a duplicate board.
 - Paid ads must remain disabled until the production smoke, consent, form-routing, and Meta Browser/Server deduplication gates pass.
 
 ## 2026-07-01 Brevo List Organization
