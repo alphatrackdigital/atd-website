@@ -46,3 +46,9 @@ devserver.*.out
 
 # Local Netlify folder
 .netlify
+
+# Local release packages and generated audit output
+/release/
+/atd-production-*.zip
+/atd-production-*.tar.gz
+/reports/gsc-audit-*/

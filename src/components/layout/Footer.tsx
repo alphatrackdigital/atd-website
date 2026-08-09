@@ -143,7 +143,7 @@ const FooterNewsletter = () => {
                 />
                 <span className="text-[11px] leading-relaxed text-muted-foreground/70">
                   I agree to receive emails from AlphaTrack Digital.{" "}
-                  <Link to="/privacy-policy/" className="underline underline-offset-2 transition-colors hover:text-muted-foreground">
+                  <Link to="/privacy-policy" className="underline underline-offset-2 transition-colors hover:text-muted-foreground">
                     Privacy Policy
                   </Link>
                   .
@@ -169,11 +169,11 @@ const Footer = () => {
           <div className="col-span-2 space-y-2.5 md:col-span-2 lg:col-span-1 lg:space-y-4">
             <Link to="/" aria-label="AlphaTrack Digital Home" className="inline-flex items-center">
               <img
-                src="/logo-wordmark.png"
+                src="/logo-wordmark-240.webp"
                 alt="AlphaTrack Digital"
                 className="h-8 w-auto md:h-10"
-                width={800}
-                height={188}
+                width={240}
+                height={56}
                 loading="lazy"
               />
             </Link>
@@ -290,13 +290,13 @@ const Footer = () => {
         <div className="mt-8 flex flex-col gap-2 border-t border-white/10 pt-5 text-[11px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:text-xs md:mt-12 md:gap-3 md:pt-6">
           <p>Copyright AlphaTrack Digital {new Date().getFullYear()}. All rights reserved.</p>
           <div className="flex flex-wrap items-center gap-3 md:gap-4">
-            <Link to="/privacy-policy/" className="transition-colors hover:text-foreground">
+            <Link to="/privacy-policy" className="transition-colors hover:text-foreground">
               Privacy Policy
             </Link>
-            <Link to="/cookie-policy/" className="transition-colors hover:text-foreground">
+            <Link to="/cookie-policy" className="transition-colors hover:text-foreground">
               Cookie Policy
             </Link>
-            <Link to="/terms-of-service/" className="transition-colors hover:text-foreground">
+            <Link to="/terms-of-service" className="transition-colors hover:text-foreground">
               Terms of Service
             </Link>
           </div>

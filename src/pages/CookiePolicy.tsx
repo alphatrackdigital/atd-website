@@ -5,7 +5,7 @@ const CookiePolicy = () => (
   <LegalMarkdownPage
     title="Cookie Policy"
     description="How AlphaTrack Digital uses cookies and similar technologies."
-    canonicalUrl="/cookie-policy/"
+    canonicalUrl="/cookie-policy"
     markdown={cookiePolicy}
   />
 );

@@ -1,5 +1,5 @@
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { Suspense, lazy, type ComponentType, type LazyExoticComponent, type ReactNode } from "react";
+import { Suspense, lazy, useEffect, useState, type ComponentType, type LazyExoticComponent, type ReactNode } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import ScrollToTop from "@/components/shared/ScrollToTop";
@@ -43,9 +43,17 @@ const withRouteSuspense = (Component: LazyExoticComponent<ComponentType>) => (
   </Suspense>
 );
 
+const ClientOnlySonner = () => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  return mounted ? <Sonner /> : null;
+};
+
 export const AppShell = ({ children }: { children: ReactNode }) => (
   <>
-    <Sonner />
+    <ClientOnlySonner />
     <WhatsAppWidget />
     {children}
   </>
