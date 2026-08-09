@@ -1,6 +1,6 @@
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Suspense, lazy, type ComponentType, type LazyExoticComponent, type ReactNode } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import ScrollToTop from "@/components/shared/ScrollToTop";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
@@ -30,6 +30,11 @@ const PrivacyPolicy = lazy(routeImporters.privacyPolicy);
 const CookiePolicy = lazy(routeImporters.cookiePolicy);
 const TermsOfService = lazy(routeImporters.termsOfService);
 const NotFound = lazy(routeImporters.notFound);
+const AdminLayout = lazy(routeImporters.adminLayout);
+const AdminLogin = lazy(routeImporters.adminLogin);
+const AdminContacts = lazy(routeImporters.adminContacts);
+const AdminBlog = lazy(routeImporters.adminBlog);
+const AdminBlogEditor = lazy(routeImporters.adminBlogEditor);
 
 const RouteContentFallback = () => (
   <div className="min-h-[50vh]" aria-hidden="true">
@@ -79,6 +84,16 @@ export const AppRouter = () => (
         <Route path="/terms-of-service" element={withRouteSuspense(TermsOfService)} />
         <Route path="/offer/tracking-audit" element={withRouteSuspense(TrackingLandingPage)} />
         <Route path="*" element={withRouteSuspense(NotFound)} />
+      </Route>
+
+      {/* Admin console: rendered outside the marketing Layout, no header/footer. */}
+      <Route path="/admin/login" element={withRouteSuspense(AdminLogin)} />
+      <Route path="/admin" element={withRouteSuspense(AdminLayout)}>
+        <Route index element={<Navigate to="/admin/contacts" replace />} />
+        <Route path="contacts" element={withRouteSuspense(AdminContacts)} />
+        <Route path="blog" element={withRouteSuspense(AdminBlog)} />
+        <Route path="blog/new" element={withRouteSuspense(AdminBlogEditor)} />
+        <Route path="blog/:slug" element={withRouteSuspense(AdminBlogEditor)} />
       </Route>
     </Routes>
   </ErrorBoundary>

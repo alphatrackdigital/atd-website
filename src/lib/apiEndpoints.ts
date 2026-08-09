@@ -30,3 +30,15 @@ export const getLeadsEndpoint = () =>
 
 export const getBrevoSubscribeEndpoint = () =>
   resolveApiEndpoint("/api/brevo-subscribe", import.meta.env.VITE_BREVO_SUBSCRIBE_ENDPOINT);
+
+/**
+ * Admin API routes live alongside the public handlers in `api/`. When
+ * VITE_ADMIN_API_BASE_URL is set the whole admin surface is pointed at that
+ * origin; otherwise it follows the same same-origin/backend resolution as the
+ * public endpoints.
+ */
+export const getAdminEndpoint = (path: string) => {
+  const base = import.meta.env.VITE_ADMIN_API_BASE_URL?.trim();
+  if (base) return `${base.replace(/\/$/, "")}${path}`;
+  return resolveApiEndpoint(path);
+};

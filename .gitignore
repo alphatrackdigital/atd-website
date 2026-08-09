@@ -12,6 +12,7 @@ devserver.err
 node_modules
 dist
 dist-ssr
+.vite
 *.local
 
 # Editor directories and files
@@ -28,6 +29,8 @@ dist-ssr
 *.sln
 *.sw?
 .env
+.env.*
+!.env.example
 playwright-report/
 test-results/
 .tmp-audit/

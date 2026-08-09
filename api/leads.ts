@@ -661,6 +661,32 @@ const ensureContactInList = async (email: string, listId: number, brevoApiKey: s
   }
 };
 
+const saveToMongoDB = async (data: LeadPayload, ip: string) => {
+  if (!process.env.MONGODB_URI) {
+    console.warn("MongoDB lead archive skipped; MONGODB_URI is not set", { source: data.source });
+    return;
+  }
+
+  const { connectDB } = await import("./_lib/db.js");
+  const { Contact } = await import("./_lib/models/Contact.js");
+
+  await connectDB();
+  await Contact.create({
+    source: data.source,
+    firstName: data.firstName || "",
+    lastName: data.lastName || "",
+    email: data.email,
+    company: data.company || "",
+    message: data.message || "",
+    websiteUrl: data.websiteUrl || "",
+    monthlyAdSpend: data.monthlyAdSpend || "",
+    adPlatforms: data.adPlatforms || "",
+    serviceInterest: Array.isArray(data.serviceInterest) ? data.serviceInterest : [],
+    monthlyBudget: data.monthlyBudget || "",
+    ip,
+  });
+};
+
 const handler = async (req: Req, res: Res) => {
   res.setHeader("Content-Type", "application/json");
   res.setHeader("Cache-Control", "no-store");
@@ -778,6 +804,13 @@ const handler = async (req: Req, res: Res) => {
         source: payload.source,
         emailHash: dedupeKey.split("/").at(-1),
         listId,
+      });
+      await saveToMongoDB(payload, ip).catch((error) => {
+        console.error("MongoDB lead archive failed after successful capture", {
+          source: payload.source,
+          listId,
+          message: error instanceof Error ? error.message : String(error),
+        });
       });
       await createCrmDealAndTask(payload, brevoContactId, brevoApiKey).catch((error) => {
         console.error("Brevo CRM handoff failed after successful capture", {
