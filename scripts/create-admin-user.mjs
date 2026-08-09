@@ -5,6 +5,10 @@
  * This is deliberately a local script rather than an HTTP endpoint - there is
  * no public registration route for the admin console, and there should not be.
  *
+ * It writes to the database used by the backend that serves the admin API
+ * (repo: alphatrackdigital/atd-backend-test). Pass that backend's connection
+ * string; this frontend build has no database of its own.
+ *
  * Usage:
  *   MONGODB_URI="mongodb+srv://..." node scripts/create-admin-user.mjs you@alphatrack.digital
  *

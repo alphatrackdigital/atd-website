@@ -32,13 +32,23 @@ export const getBrevoSubscribeEndpoint = () =>
   resolveApiEndpoint("/api/brevo-subscribe", import.meta.env.VITE_BREVO_SUBSCRIBE_ENDPOINT);
 
 /**
- * Admin API routes live alongside the public handlers in `api/`. When
- * VITE_ADMIN_API_BASE_URL is set the whole admin surface is pointed at that
- * origin; otherwise it follows the same same-origin/backend resolution as the
- * public endpoints.
+ * The admin API is served by the separate backend repository
+ * (`alphatrackdigital/atd-backend-test`), not by this repo's `api/` folder,
+ * which only contains the public lead handlers.
+ *
+ * There is deliberately no fallback: the public-endpoint resolution would
+ * silently target a backend origin that serves no admin routes, producing 404s
+ * that look like auth failures. A missing base URL is a build misconfiguration
+ * and should be obvious.
  */
 export const getAdminEndpoint = (path: string) => {
   const base = import.meta.env.VITE_ADMIN_API_BASE_URL?.trim();
-  if (base) return `${base.replace(/\/$/, "")}${path}`;
-  return resolveApiEndpoint(path);
+
+  if (!base) {
+    throw new Error(
+      "VITE_ADMIN_API_BASE_URL is not configured. The admin console cannot reach the backend.",
+    );
+  }
+
+  return `${base.replace(/\/$/, "")}${path}`;
 };

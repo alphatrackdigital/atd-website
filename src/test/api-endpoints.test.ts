@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { resolveApiEndpoint } from "@/lib/apiEndpoints";
+import { getAdminEndpoint, resolveApiEndpoint } from "@/lib/apiEndpoints";
 
 describe("API endpoint resolution", () => {
   it("uses the live backend for static production hostnames", () => {
@@ -45,5 +45,36 @@ describe("API endpoint resolution", () => {
     expect(resolveApiEndpoint("/api/leads", "https://example.com/leads", "alphatrack.digital")).toBe(
       "https://example.com/leads",
     );
+  });
+});
+
+describe("admin endpoint resolution", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("builds admin URLs from the configured backend origin", () => {
+    vi.stubEnv("VITE_ADMIN_API_BASE_URL", "https://atd-backend-test.vercel.app");
+
+    expect(getAdminEndpoint("/api/auth/login")).toBe(
+      "https://atd-backend-test.vercel.app/api/auth/login",
+    );
+  });
+
+  it("tolerates a trailing slash on the configured origin", () => {
+    vi.stubEnv("VITE_ADMIN_API_BASE_URL", "https://atd-backend-test.vercel.app/");
+
+    expect(getAdminEndpoint("/api/contacts/admin")).toBe(
+      "https://atd-backend-test.vercel.app/api/contacts/admin",
+    );
+  });
+
+  it("throws rather than silently targeting a backend with no admin routes", () => {
+    // The public-endpoint fallback would resolve to alphatra-serv.netlify.app,
+    // which serves lead handlers only - the resulting 404s would look like
+    // authentication failures.
+    vi.stubEnv("VITE_ADMIN_API_BASE_URL", "");
+
+    expect(() => getAdminEndpoint("/api/auth/login")).toThrow(/VITE_ADMIN_API_BASE_URL/);
   });
 });
