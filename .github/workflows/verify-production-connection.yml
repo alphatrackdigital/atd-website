@@ -1,0 +1,64 @@
+name: Verify cPanel connection
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: atd-cpanel-connection-check
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify SSH and release prerequisites
+    runs-on: ubuntu-latest
+    environment:
+      name: Production
+      url: https://alphatrack.digital
+    env:
+      CPANEL_HOST: ${{ vars.CPANEL_HOST }}
+      CPANEL_USER: ${{ vars.CPANEL_USER }}
+      CPANEL_PORT: ${{ vars.CPANEL_PORT }}
+      CPANEL_DOCUMENT_ROOT: ${{ vars.CPANEL_DOCUMENT_ROOT }}
+    steps:
+      - name: Validate connection configuration
+        run: |
+          if [[ ! "$CPANEL_HOST" =~ ^[A-Za-z0-9.-]+$ ]]; then echo "Invalid CPANEL_HOST" >&2; exit 1; fi
+          if [[ ! "$CPANEL_USER" =~ ^[A-Za-z0-9._-]+$ ]]; then echo "Invalid CPANEL_USER" >&2; exit 1; fi
+          if [[ ! "$CPANEL_PORT" =~ ^[0-9]+$ ]]; then echo "Invalid CPANEL_PORT" >&2; exit 1; fi
+          if [[ -z "$CPANEL_DOCUMENT_ROOT" || "$CPANEL_DOCUMENT_ROOT" == "/" ]]; then echo "Unsafe CPANEL_DOCUMENT_ROOT" >&2; exit 1; fi
+
+      - name: Configure pinned SSH host and key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.CPANEL_SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$HOME/.ssh/atd_cpanel"
+          chmod 600 "$HOME/.ssh/atd_cpanel"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Verify read-only cPanel prerequisites
+        run: |
+          ssh -i "$HOME/.ssh/atd_cpanel" -p "$CPANEL_PORT" -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            "$CPANEL_USER@$CPANEL_HOST" bash -s -- "$CPANEL_DOCUMENT_ROOT" <<'REMOTE'
+          set -euo pipefail
+          document_root="$(realpath "${1:-}")"
+          home_real="$(realpath "$HOME")"
+          case "$document_root" in
+            "$home_real"/*) ;;
+            *) echo "Document root is outside the cPanel account home." >&2; exit 2 ;;
+          esac
+          test "$document_root" != "$home_real"
+          test "$document_root" != "/"
+          test -d "$document_root"
+          test -f "$document_root/index.html"
+          command -v rsync >/dev/null
+          command -v realpath >/dev/null
+          test -w "$document_root"
+          test -w "$home_real"
+          printf 'SSH authentication, host pinning, document-root checks, and rsync prerequisites passed.\n'
+          REMOTE

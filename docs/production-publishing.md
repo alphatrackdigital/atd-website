@@ -43,6 +43,8 @@ Create a dedicated key with no reuse outside deployment. Import and authorize it
 
 Obtain `CPANEL_SSH_KNOWN_HOSTS` through a trusted channel or compare the `ssh-keyscan` result against the host fingerprint shown by Namecheap/cPanel support. Do not blindly trust an unverified scan.
 
+After the variables, secrets, and authorized public key are in place, run **Actions -> Verify cPanel connection**. This protected workflow performs read-only authentication, host-pinning, document-root, write-permission, `realpath`, and `rsync` prerequisite checks. It does not upload or change website files.
+
 ## Local Release Preparation
 
 Run:
