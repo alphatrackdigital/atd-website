@@ -143,11 +143,11 @@ const Header = () => {
           >
             <Link to="/" aria-label="AlphaTrack Digital Home" className="flex items-center justify-self-start">
             <img
-              src="/logo-wordmark.png"
+              src="/logo-wordmark-240.webp"
               alt="AlphaTrack Digital"
               className="h-6 w-auto sm:h-[26px]"
-              width={800}
-              height={188}
+              width={240}
+              height={56}
             />
           </Link>
 

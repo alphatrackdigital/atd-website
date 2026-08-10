@@ -5,7 +5,7 @@ const TermsOfService = () => (
   <LegalMarkdownPage
     title="Terms of Service"
     description="Terms and conditions for using the AlphaTrack Digital website and services."
-    canonicalUrl="/terms-of-service/"
+    canonicalUrl="/terms-of-service"
     markdown={termsAndConditions}
   />
 );

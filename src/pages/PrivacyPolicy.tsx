@@ -5,7 +5,7 @@ const PrivacyPolicy = () => (
   <LegalMarkdownPage
     title="Privacy Policy"
     description="How AlphaTrack Digital collects, uses, shares, stores, and protects personal information."
-    canonicalUrl="/privacy-policy/"
+    canonicalUrl="/privacy-policy"
     markdown={privacyPolicy}
   />
 );

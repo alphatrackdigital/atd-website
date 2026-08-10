@@ -66,6 +66,30 @@
     <priority>0.8</priority>
     <changefreq>monthly</changefreq>
   </url>
+  <url>
+    <loc>https://alphatrack.digital/service/website-development</loc>
+    <lastmod>2026-08-01</lastmod>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://alphatrack.digital/service/content-media-strategy</loc>
+    <lastmod>2026-08-01</lastmod>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://alphatrack.digital/service/email-marketing</loc>
+    <lastmod>2026-08-01</lastmod>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://alphatrack.digital/service/seo</loc>
+    <lastmod>2026-08-01</lastmod>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
 
   <!-- Expertise -->
   <url>
@@ -107,6 +131,18 @@
   <url>
     <loc>https://alphatrack.digital/expertise/real-estate</loc>
     <lastmod>2026-04-08</lastmod>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://alphatrack.digital/expertise/fashion</loc>
+    <lastmod>2026-08-01</lastmod>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://alphatrack.digital/expertise/gaming</loc>
+    <lastmod>2026-08-01</lastmod>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>
   </url>
@@ -195,19 +231,19 @@
 
   <!-- Legal -->
   <url>
-    <loc>https://alphatrack.digital/privacy-policy/</loc>
+    <loc>https://alphatrack.digital/privacy-policy</loc>
     <lastmod>2026-05-20</lastmod>
     <priority>0.3</priority>
     <changefreq>yearly</changefreq>
   </url>
   <url>
-    <loc>https://alphatrack.digital/cookie-policy/</loc>
+    <loc>https://alphatrack.digital/cookie-policy</loc>
     <lastmod>2026-05-20</lastmod>
     <priority>0.3</priority>
     <changefreq>yearly</changefreq>
   </url>
   <url>
-    <loc>https://alphatrack.digital/terms-of-service/</loc>
+    <loc>https://alphatrack.digital/terms-of-service</loc>
     <lastmod>2026-05-20</lastmod>
     <priority>0.3</priority>
     <changefreq>yearly</changefreq>

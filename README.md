@@ -71,6 +71,7 @@ npm run lint         # Run ESLint
 npm run test         # Run unit tests
 npm run test:e2e     # Run Playwright tests
 npm run preview      # Preview production build
+npm run release:prepare # Validate and package a cPanel release
 ```
 
 ## Development Workflow
@@ -113,6 +114,8 @@ Current publishing model:
 ```text
 Static React build output from `dist` is served by the production host.
 ```
+
+Production publishing uses the manually triggered, protected GitHub Actions workflow described in [`docs/production-publishing.md`](docs/production-publishing.md). It packages `main`, waits for approval, backs up cPanel, deploys over SSH, runs GET-only smoke checks, and restores the backup if those checks fail.
 
 The repository still contains Netlify-compatible function code and `netlify.toml`, but Netlify is not the current production host. Treat those files as a future migration path unless the hosting decision changes.
 
