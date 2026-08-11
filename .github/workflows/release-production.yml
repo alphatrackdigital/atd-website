@@ -143,3 +143,6 @@ jobs:
             "$CPANEL_USER@$CPANEL_HOST" bash -s -- "$CPANEL_DOCUMENT_ROOT" "$RELEASE_ID" \
             < .github/scripts/rollback-cpanel-release.sh
           exit 1
+
+      - name: Notify IndexNow of production URLs
+        run: npm run indexnow:submit

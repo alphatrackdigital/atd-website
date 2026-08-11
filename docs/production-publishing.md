@@ -18,6 +18,8 @@ Before requesting production approval it:
 
 The deploy job then waits on the GitHub `production` environment. After approval it uploads into a private directory under the cPanel account home, backs up the current static site, activates the release, and runs GET-only smoke checks. A failed smoke automatically restores the pre-deploy backup. `.well-known` and `cgi-bin` remain managed by cPanel and are never deleted by the workflow.
 
+After the production smoke passes, the workflow verifies the public IndexNow key file and submits every canonical URL in `sitemap.xml` to the IndexNow API. An HTTP `200` or first-run `202` response is accepted. IndexNow notification happens only after a successful activation; it does not replace the sitemap or guarantee indexing.
+
 ## One-Time GitHub Setup
 
 In repository **Settings -> Environments**, use `Production` and configure a required reviewer. Restrict deployments to `main`. GitHub only exposes environment secrets to the job after the environment's protection rules pass.

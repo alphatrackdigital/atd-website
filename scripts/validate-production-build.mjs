@@ -4,6 +4,7 @@ import path from "node:path";
 const distDir = path.resolve(process.cwd(), "dist");
 const requiredFiles = [
   ".htaccess",
+  "2e4850dcf7044390ac2b2b430f5e1655.txt",
   "404.html",
   "index.html",
   "llms.txt",
@@ -22,6 +23,18 @@ const requireFile = async (relativePath) => {
 };
 
 await Promise.all(requiredFiles.map(requireFile));
+
+try {
+  const indexNowKey = await readFile(
+    path.join(distDir, "2e4850dcf7044390ac2b2b430f5e1655.txt"),
+    "utf8",
+  );
+  if (indexNowKey.trim() !== "2e4850dcf7044390ac2b2b430f5e1655") {
+    failures.push("IndexNow verification file does not contain the expected key");
+  }
+} catch {
+  // Already covered by the required-file check.
+}
 
 let sitemap = "";
 try {
