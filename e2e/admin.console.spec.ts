@@ -72,6 +72,22 @@ test("rejected credentials surface the backend error", async ({ page }) => {
   await expect(page).toHaveURL(/\/admin\/login$/);
 });
 
+test("the support chat widget does not load on the admin console", async ({ page }) => {
+  await page.goto("/admin/login");
+  await expect(page.getByRole("heading", { name: /AlphaTrack Admin/i })).toBeVisible();
+
+  // The widget lazy-loads on an idle callback with a 12s ceiling, so give it
+  // longer than it would ever need before concluding it stayed away.
+  await page.waitForTimeout(20_000);
+
+  await expect(page.locator("#brevo-conversations-script")).toHaveCount(0);
+  expect(await page.evaluate(() => window.BrevoConversationsID ?? null)).toBeNull();
+
+  // Control: it still loads for marketing visitors.
+  await page.goto("/about-us");
+  await expect(page.locator("#brevo-conversations-script")).toHaveCount(1, { timeout: 25_000 });
+});
+
 test("admin routes emit no marketing route views", async ({ page }) => {
   const countRouteViews = () =>
     page.evaluate(

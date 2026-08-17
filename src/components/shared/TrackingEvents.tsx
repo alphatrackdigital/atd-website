@@ -8,10 +8,9 @@ import {
   markConversionFired,
 } from "@/lib/conversionSession";
 import { getConversionEventsForPath, pushBookingClickEvent, pushDataLayerEvent } from "@/lib/tracking";
-
 // The admin console is a private internal surface. It must not emit marketing
 // route views or conversion events into GA4/GTM.
-const isAdminPath = (pathname: string) => pathname === "/admin" || pathname.startsWith("/admin/");
+import { isAdminPath } from "@/lib/adminRoutes";
 
 const TrackingEvents = () => {
   const location = useLocation();

@@ -1,12 +1,13 @@
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Suspense, lazy, type ComponentType, type LazyExoticComponent, type ReactNode } from "react";
-import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route, useLocation } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import ScrollToTop from "@/components/shared/ScrollToTop";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
 import WhatsAppWidget from "@/components/shared/WhatsAppWidget";
 import TrackingEvents from "@/components/shared/TrackingEvents";
 import { routeImporters } from "@/lib/routePrefetch";
+import { isAdminPath } from "@/lib/adminRoutes";
 import Index from "./pages/Index";
 
 const AboutUs = lazy(routeImporters.aboutUs);
@@ -51,15 +52,28 @@ const withRouteSuspense = (Component: LazyExoticComponent<ComponentType>) => (
 export const AppShell = ({ children }: { children: ReactNode }) => (
   <>
     <Sonner />
-    <WhatsAppWidget />
     {children}
   </>
 );
+
+/**
+ * Brevo Conversations is customer-support chat for marketing visitors. It
+ * lives inside the router so the internal admin console can opt out, rather
+ * than registering admins as Conversations visitors.
+ */
+const SupportWidget = () => {
+  const { pathname } = useLocation();
+
+  if (isAdminPath(pathname)) return null;
+
+  return <WhatsAppWidget />;
+};
 
 export const AppRouter = () => (
   <ErrorBoundary>
     <ScrollToTop />
     <TrackingEvents />
+    <SupportWidget />
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Index />} />
