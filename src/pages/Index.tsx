@@ -43,7 +43,7 @@ import klaviyoIcon from "@/assets/tools/klaviyo.png";
 import googleTagManagerIcon from "@/assets/tools/google-tag-manager.svg";
 import brevoIcon from "@/assets/tools/brevo.svg";
 import lookerStudioIcon from "@/assets/tools/looker-studio.svg";
-import microsoftClarityIcon from "@/assets/tools/microsoft-clarity.ico";
+import microsoftClarityIcon from "@/assets/tools/microsoft-clarity-32.webp";
 
 const HOMEPAGE_SEO_TITLE = "AlphaTrack Digital | Data-Driven Performance Marketing Agency";
 const HOMEPAGE_SEO_DESCRIPTION =
@@ -51,7 +51,12 @@ const HOMEPAGE_SEO_DESCRIPTION =
 
 // --- Sub-components ---
 
-const BlogImage = ({ src, alt }: { src: string; alt: string }) => {
+const resizeBlogImage = (src: string, width: number) =>
+  src
+    .replace(/([?&])w=\d+/, `$1w=${width}`)
+    .replace(/([?&])q=\d+/, "$1q=42");
+
+const BlogImage = ({ src, alt, sizes = "(min-width: 768px) 33vw, 85vw" }: { src: string; alt: string; sizes?: string }) => {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
 
@@ -71,7 +76,8 @@ const BlogImage = ({ src, alt }: { src: string; alt: string }) => {
         </div>
       )}
       <img
-        src={src}
+        src={resizeBlogImage(src, 400)}
+        srcSet={`${resizeBlogImage(src, 160)} 160w, ${resizeBlogImage(src, 320)} 320w, ${resizeBlogImage(src, 400)} 400w, ${resizeBlogImage(src, 600)} 600w`}
         alt={alt}
         onLoad={() => setLoaded(true)}
         onError={() => setError(true)}
@@ -79,11 +85,11 @@ const BlogImage = ({ src, alt }: { src: string; alt: string }) => {
           "h-full w-full object-cover transition-all duration-500 group-hover:scale-105",
           loaded ? "opacity-100" : "opacity-0"
         )}
-        loading="eager"
+        loading="lazy"
         decoding="async"
         width={600}
         height={338}
-        sizes="(min-width: 768px) 33vw, 85vw"
+        sizes={sizes}
       />
     </div>
   );
@@ -487,9 +493,7 @@ const Index = () => {
 
         <div className="container relative mx-auto px-4 pb-4 pt-20 sm:pt-24 md:pb-10 md:pt-32 lg:px-8">
           <motion.div
-            initial={shouldReduceMotion ? false : { opacity: 1, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 0.45 }}
+            initial={false}
             className="mx-auto max-w-[54rem] text-center"
           >
             <HeroEyebrow className="mb-6 mx-auto">{companyProfile.heroEyebrow}</HeroEyebrow>
@@ -599,7 +603,6 @@ const Index = () => {
               >
                 <Link
                   to={service.path}
-                  aria-label={`Learn more about ${service.title}`}
                   className={cn(
                     "group relative flex h-full items-start gap-3 overflow-hidden rounded-[18px] border px-4 py-3.5 transition-all duration-200 hover:-translate-y-0.5",
                     service.flagship
@@ -654,7 +657,6 @@ const Index = () => {
               >
                 <Link
                   to={service.path}
-                  aria-label={`Learn more about ${service.title}`}
                   className={cn(
                     "group relative flex h-full flex-col overflow-hidden rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 md:p-7",
                     service.flagship
@@ -755,7 +757,7 @@ const Index = () => {
                         </div>
                        <div className="min-w-0 flex-1 md:flex md:flex-col">
                          <div className="flex items-start justify-between gap-3">
-                           <h4 className="text-[0.94rem] font-semibold leading-snug md:text-[1.02rem]">{s.title}</h4>
+                           <h3 className="text-[0.94rem] font-semibold leading-snug md:text-[1.02rem]">{s.title}</h3>
                          </div>
                          <p className="mt-1 flex-1 text-[12.5px] leading-5 text-muted-foreground md:mt-3 md:text-sm md:leading-7">
                            {s.description}
@@ -796,7 +798,7 @@ const Index = () => {
                 <div className="relative flex justify-between">
                   {processSteps.map((step) => (
                     <div key={step.step} className="flex flex-col items-center">
-                      <span className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-primary/60">
+                      <span className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-primary/80">
                         {`Step ${step.step}`}
                       </span>
                       <div className="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-primary/50 bg-[#0a1119] shadow-[0_0_0_4px_rgba(10,17,25,0.9),0_0_10px_rgba(51,204,153,0.22)]">
@@ -910,7 +912,6 @@ const Index = () => {
                   <Link
                     to={sectorExpertisePaths[sector]}
                     data-testid="industry-card"
-                    aria-label={`View ${sector} expertise`}
                     className="group flex h-full min-h-[3.65rem] items-center gap-2.5 overflow-hidden rounded-xl px-3 py-2 transition-[opacity] duration-200 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 md:block md:min-h-0 md:rounded-2xl md:p-4"
                   >
                     <div
@@ -979,15 +980,15 @@ const Index = () => {
                 className="group border-b border-white/[0.08] py-4 last:border-b-0 [&_summary::-webkit-details-marker]:hidden"
               >
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/80">
+                  <span className="min-w-0">
+                    <span className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/80">
                       {group.title}
-                    </p>
-                    <p className="mt-1 text-[13px] leading-5 text-muted-foreground/80">
+                    </span>
+                    <span className="mt-1 block text-[13px] leading-5 text-muted-foreground/80">
                       {group.description}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2.5">
+                    </span>
+                  </span>
+                  <span className="flex shrink-0 items-center gap-2.5">
                     <div className="flex items-center -space-x-1">
                       {group.items.slice(0, 4).map((tool) => (
                         <span
@@ -998,7 +999,7 @@ const Index = () => {
                             src={tool.icon}
                             alt=""
                             className="block h-4 w-4 object-contain"
-                            loading="eager"
+                            loading="lazy"
                             decoding="async"
                             width={20}
                             height={20}
@@ -1007,7 +1008,7 @@ const Index = () => {
                       ))}
                     </div>
                     <ChevronDown className="h-4 w-4 text-muted-foreground/70 transition-transform duration-200 group-open:rotate-180" />
-                  </div>
+                  </span>
                 </summary>
 
                 <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-white/[0.06] pt-3">
@@ -1021,7 +1022,7 @@ const Index = () => {
                           src={tool.icon}
                           alt=""
                           className="block h-full w-full max-h-full max-w-full object-contain opacity-95"
-                          loading="eager"
+                          loading="lazy"
                           decoding="async"
                           width={20}
                           height={20}
@@ -1063,7 +1064,7 @@ const Index = () => {
                             src={tool.icon}
                             alt=""
                             className="block h-full w-full max-h-full max-w-full object-contain opacity-95"
-                            loading="eager"
+                            loading="lazy"
                             decoding="async"
                             width={20}
                             height={20}
@@ -1164,7 +1165,11 @@ const Index = () => {
                     <div className="relative mb-3 overflow-hidden rounded-[16px] border border-white/10 bg-black/20">
                       <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
                       <div className="h-24">
-                        <BlogImage src={featuredBlogPosts[0].image} alt={featuredBlogPosts[0].title} />
+                        <BlogImage
+                          src={featuredBlogPosts[0].image}
+                          alt={featuredBlogPosts[0].title}
+                          sizes="calc(100vw - 48px)"
+                        />
                       </div>
                     </div>
                     <div className="flex items-center gap-3 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/65">
@@ -1194,7 +1199,7 @@ const Index = () => {
                     >
                       <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-[12px] border border-white/10 bg-black/20">
                         <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
-                        <BlogImage src={post.image} alt={post.title} />
+                        <BlogImage src={post.image} alt={post.title} sizes="80px" />
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/65">
@@ -1226,7 +1231,7 @@ const Index = () => {
                       <div className="relative mb-4 overflow-hidden rounded-[18px] border border-white/10 bg-black/20">
                         <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
                         <div className="h-28">
-                          <BlogImage src={post.image} alt={post.title} />
+                          <BlogImage src={post.image} alt={post.title} sizes="(min-width: 1024px) 300px, 30vw" />
                         </div>
                       </div>
                       <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.18em] text-muted-foreground/65">

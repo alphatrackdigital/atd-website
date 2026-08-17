@@ -5,6 +5,7 @@ interface SEOProps {
   title: string;
   description: string;
   noindex?: boolean;
+  omitCanonical?: boolean;
   schema?: Record<string, unknown>;
   canonicalUrl?: string;
   ogImage?: string;
@@ -21,6 +22,7 @@ const SEO = ({
   title,
   description,
   noindex,
+  omitCanonical,
   schema,
   canonicalUrl,
   ogImage,
@@ -53,11 +55,11 @@ const SEO = ({
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={description} />
-      <link rel="canonical" href={resolvedCanonical} />
+      {!omitCanonical && <link rel="canonical" href={resolvedCanonical} />}
 
       <meta property="og:type" content={ogType} />
       <meta property="og:site_name" content={SEO_DEFAULTS.siteName} />
-      <meta property="og:url" content={resolvedOgUrl} />
+      {!omitCanonical && <meta property="og:url" content={resolvedOgUrl} />}
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={resolvedOgImage} />

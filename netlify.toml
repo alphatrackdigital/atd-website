@@ -7,17 +7,24 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
+# Keep the staging hostname out of search and consolidate any existing signals.
+[[redirects]]
+  from = "https://stage.alphatrack.digital/*"
+  to = "https://alphatrack.digital/:splat"
+  status = 301
+  force = true
+
 # API requests → Netlify functions
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
 
-# SPA fallback — required for React Router client-side routing
+# Every public route is prerendered; unknown URLs remain real 404 responses.
 [[redirects]]
   from = "/*"
-  to = "/index.html"
-  status = 200
+  to = "/404.html"
+  status = 404
 
 # Security headers applied to every response
 [[headers]]

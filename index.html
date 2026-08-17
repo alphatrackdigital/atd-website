@@ -267,7 +267,16 @@
       })(window,document,"script","dataLayer","GTM-MVXWCTZ8");
     </script>
     <!-- Ketch Smart Tag -->
-    <script src="https://global.ketchcdn.com/web/v3/config/alphatrack_digital/website_smart_tag/boot.js"></script>
+    <script>
+      window.addEventListener("load", function loadKetchAfterPageLoad() {
+        window.setTimeout(function injectKetchSmartTag() {
+          var script = document.createElement("script");
+          script.async = true;
+          script.src = "https://global.ketchcdn.com/web/v3/config/alphatrack_digital/website_smart_tag/boot.js";
+          document.head.appendChild(script);
+        }, 1200);
+      }, { once: true });
+    </script>
     <!-- End Ketch Smart Tag -->
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=20260415a" />
     <link rel="icon" href="/favicon.ico?v=20260415a" sizes="any" />
@@ -275,28 +284,8 @@
     <link rel="shortcut icon" href="/favicon.ico?v=20260415a" />
     <meta name="theme-color" content="#050b14" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://cdn.gpteng.co" crossorigin />
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
-    <link rel="preload" as="font" type="font/woff2" href="https://cdn.gpteng.co/mcp-widgets/v1/fonts/CameraPlainVariable.woff2" crossorigin />
-    <link
-      rel="preload"
-      as="style"
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
-    />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
-      media="print"
-      onload="this.media='all'"
-    />
-    <noscript>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
-      />
-    </noscript>
+    <link rel="preload" href="/fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
 
     <!--app-seo-start-->
     <title data-rh="true">AlphaTrack Digital | Data-Driven Performance Marketing Agency</title>
@@ -334,14 +323,12 @@
   </head>
 
   <body>
-    <div id="root" data-prerendered="false">
-      <!--app-html-start-->
+    <div id="root" data-prerendered="false"><!--app-html-start-->
       <style>
         .ssr-shell{min-height:100vh;background:#050b14}
       </style>
       <div class="ssr-shell" aria-hidden="true"></div>
-      <!--app-html-end-->
-    </div>
+      <!--app-html-end--></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

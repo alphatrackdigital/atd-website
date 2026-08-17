@@ -66,26 +66,26 @@ describe("Homepage proof and stack sections", () => {
     expect(within(industriesSection).getByText("Expertise")).toBeInTheDocument();
     expect(within(industriesSection).getByRole("heading", { name: "Who We Work With" })).toBeInTheDocument();
     expect(within(industriesSection).getAllByTestId("industry-card")).toHaveLength(8);
-    expect(within(industriesSection).getByRole("link", { name: /Ecommerce & Retail expertise/i })).toHaveAttribute(
+    expect(within(industriesSection).getByRole("link", { name: /Ecommerce & Retail/i })).toHaveAttribute(
       "href",
       "/expertise/ecommerce-retail"
     );
-    expect(within(industriesSection).getByRole("link", { name: /SaaS expertise/i })).toHaveAttribute(
+    expect(within(industriesSection).getByRole("link", { name: /SaaS/i })).toHaveAttribute(
       "href",
       "/expertise/saas"
     );
     expect(
-      within(industriesSection).getByRole("link", { name: /Entertainment & Hospitality expertise/i })
+      within(industriesSection).getByRole("link", { name: /Entertainment & Hospitality/i })
     ).toHaveAttribute("href", "/expertise/entertainment-hospitality");
-    expect(within(industriesSection).getByRole("link", { name: /Real Estate expertise/i })).toHaveAttribute(
+    expect(within(industriesSection).getByRole("link", { name: /Real Estate/i })).toHaveAttribute(
       "href",
       "/expertise/real-estate"
     );
-    expect(within(industriesSection).getByRole("link", { name: /Fashion expertise/i })).toHaveAttribute(
+    expect(within(industriesSection).getByRole("link", { name: /Fashion/i })).toHaveAttribute(
       "href",
       "/expertise/fashion"
     );
-    expect(within(industriesSection).getByRole("link", { name: /Gaming expertise/i })).toHaveAttribute(
+    expect(within(industriesSection).getByRole("link", { name: /Gaming/i })).toHaveAttribute(
       "href",
       "/expertise/gaming"
     );

@@ -1,0 +1,26 @@
+Options -MultiViews
+RewriteEngine On
+
+# Cache fingerprinted bundles for a year and stable image assets for a month.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(?:js|css|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(?:webp|png|jpg|jpeg|svg|ico)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+</IfModule>
+
+# Canonicalize generated directory URLs without a trailing slash.
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{REQUEST_URI} !^/$
+RewriteCond %{REQUEST_URI} ^(.+)/$
+RewriteRule ^(.+)/$ /$1 [R=301,L]
+
+# Serve each generated route's HTML while retaining its clean URL.
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{REQUEST_FILENAME}/index.html -f
+RewriteRule ^(.+)$ $1/index.html [L]
+
+# Unknown URLs must be real 404 responses, not homepage-shaped soft 404s.
+ErrorDocument 404 /404.html

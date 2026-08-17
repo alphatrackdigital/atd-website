@@ -1,0 +1,148 @@
+name: Release public website
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type DEPLOY to build main and request production approval
+        required: true
+        type: string
+      reason:
+        description: Short release reason
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: atd-public-production
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Validate and package main
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.release.outputs.release_id }}
+    steps:
+      - name: Require explicit confirmation
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          if [[ "$CONFIRMATION" != "DEPLOY" ]]; then
+            echo "Confirmation must be exactly DEPLOY." >&2
+            exit 1
+          fi
+
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run release gate
+        run: npm run release:prepare
+
+      - name: Record release ID
+        id: release
+        run: echo "release_id=$(git rev-parse --short=12 HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Upload deployable site
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployable-site-${{ steps.release.outputs.release_id }}
+          path: dist/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload cPanel package and checksum
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpanel-package-${{ steps.release.outputs.release_id }}
+          path: release/
+          if-no-files-found: error
+          retention-days: 90
+
+  deploy:
+    name: Approve and deploy to cPanel
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: Production
+      url: https://alphatrack.digital
+    env:
+      CPANEL_HOST: ${{ vars.CPANEL_HOST }}
+      CPANEL_USER: ${{ vars.CPANEL_USER }}
+      CPANEL_PORT: ${{ vars.CPANEL_PORT }}
+      CPANEL_DOCUMENT_ROOT: ${{ vars.CPANEL_DOCUMENT_ROOT }}
+      PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+      RELEASE_ID: ${{ needs.build.outputs.release_id }}
+    steps:
+      - name: Check out deployment scripts
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download deployable site
+        uses: actions/download-artifact@v4
+        with:
+          name: deployable-site-${{ needs.build.outputs.release_id }}
+          path: dist
+
+      - name: Validate deployment configuration
+        run: |
+          if [[ ! "$CPANEL_HOST" =~ ^[A-Za-z0-9.-]+$ ]]; then echo "Invalid CPANEL_HOST" >&2; exit 1; fi
+          if [[ ! "$CPANEL_USER" =~ ^[A-Za-z0-9._-]+$ ]]; then echo "Invalid CPANEL_USER" >&2; exit 1; fi
+          if [[ ! "$CPANEL_PORT" =~ ^[0-9]+$ ]]; then echo "Invalid CPANEL_PORT" >&2; exit 1; fi
+          if [[ -z "$CPANEL_DOCUMENT_ROOT" || "$CPANEL_DOCUMENT_ROOT" == "/" ]]; then echo "Unsafe CPANEL_DOCUMENT_ROOT" >&2; exit 1; fi
+          if [[ ! -f dist/index.html || ! -f dist/.htaccess ]]; then echo "Downloaded artifact is incomplete" >&2; exit 1; fi
+
+      - name: Configure pinned SSH host and key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.CPANEL_SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$HOME/.ssh/atd_cpanel"
+          chmod 600 "$HOME/.ssh/atd_cpanel"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Upload release to private staging directory
+        run: |
+          ssh -i "$HOME/.ssh/atd_cpanel" -p "$CPANEL_PORT" -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            "$CPANEL_USER@$CPANEL_HOST" "mkdir -p \"\$HOME/.atd-releases/$RELEASE_ID\""
+          rsync -az --delete \
+            -e "ssh -i $HOME/.ssh/atd_cpanel -p $CPANEL_PORT -o BatchMode=yes -o StrictHostKeyChecking=yes" \
+            dist/ "$CPANEL_USER@$CPANEL_HOST:.atd-releases/$RELEASE_ID/"
+
+      - name: Back up and activate release
+        run: |
+          ssh -i "$HOME/.ssh/atd_cpanel" -p "$CPANEL_PORT" -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            "$CPANEL_USER@$CPANEL_HOST" bash -s -- "$CPANEL_DOCUMENT_ROOT" "$RELEASE_ID" \
+            < .github/scripts/activate-cpanel-release.sh
+
+      - name: Run GET-only production smoke and roll back on failure
+        run: |
+          if node scripts/smoke-production.mjs "${PRODUCTION_URL:-https://alphatrack.digital}"; then
+            exit 0
+          fi
+
+          echo "Production smoke failed; restoring the pre-deploy backup." >&2
+          ssh -i "$HOME/.ssh/atd_cpanel" -p "$CPANEL_PORT" -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            "$CPANEL_USER@$CPANEL_HOST" bash -s -- "$CPANEL_DOCUMENT_ROOT" "$RELEASE_ID" \
+            < .github/scripts/rollback-cpanel-release.sh
+          exit 1
+
+      - name: Notify IndexNow of production URLs
+        run: npm run indexnow:submit
