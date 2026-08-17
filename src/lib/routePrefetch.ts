@@ -25,6 +25,13 @@ const routeImporters = {
   cookiePolicy: () => import("../pages/CookiePolicy"),
   termsOfService: () => import("../pages/TermsOfService"),
   notFound: () => import("../pages/NotFound"),
+  // Admin console. Intentionally absent from routePrefetchMap below — these
+  // chunks must never be prefetched for public marketing visitors.
+  adminLayout: () => import("../components/admin/AdminLayout"),
+  adminLogin: () => import("../pages/admin/AdminLogin"),
+  adminContacts: () => import("../pages/admin/AdminContacts"),
+  adminBlog: () => import("../pages/admin/AdminBlog"),
+  adminBlogEditor: () => import("../pages/admin/AdminBlogEditor"),
 } as const;
 
 const prefetchedRoutes = new Set<string>();
