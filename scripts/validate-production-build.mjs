@@ -108,6 +108,10 @@ try {
 try {
   const assetsDir = path.join(distDir, "assets");
   const assetNames = await readdir(assetsDir);
+  const sourceMapNames = assetNames.filter((name) => name.endsWith(".map"));
+  if (sourceMapNames.length > 0) {
+    failures.push(`Production assets include ${sourceMapNames.length} public source map(s)`);
+  }
   const javascriptNames = assetNames.filter((name) => name.endsWith(".js"));
   const javascript = await Promise.all(
     javascriptNames.map((name) => readFile(path.join(assetsDir, name), "utf8")),

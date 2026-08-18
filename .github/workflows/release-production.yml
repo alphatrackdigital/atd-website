@@ -25,6 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_id: ${{ steps.release.outputs.release_id }}
+      release_sha: ${{ steps.release.outputs.release_sha }}
     steps:
       - name: Require explicit confirmation
         env:
@@ -34,11 +35,15 @@ jobs:
             echo "Confirmation must be exactly DEPLOY." >&2
             exit 1
           fi
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "Production releases must be dispatched from main." >&2
+            exit 1
+          fi
 
       - name: Check out main
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.sha }}
 
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -54,7 +59,9 @@ jobs:
 
       - name: Record release ID
         id: release
-        run: echo "release_id=$(git rev-parse --short=12 HEAD)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "release_id=$(git rev-parse --short=12 HEAD)" >> "$GITHUB_OUTPUT"
+          echo "release_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Upload deployable site
         uses: actions/upload-artifact@v4
@@ -91,7 +98,7 @@ jobs:
       - name: Check out deployment scripts
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ needs.build.outputs.release_sha }}
 
       - name: Download deployable site
         uses: actions/download-artifact@v4
@@ -145,4 +152,10 @@ jobs:
           exit 1
 
       - name: Notify IndexNow of production URLs
+        id: indexnow
+        continue-on-error: true
         run: npm run indexnow:submit
+
+      - name: Record IndexNow warning
+        if: steps.indexnow.outcome == 'failure'
+        run: echo "::warning::Production is healthy, but the optional IndexNow notification failed. Retry it separately."

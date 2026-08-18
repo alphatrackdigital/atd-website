@@ -4,7 +4,7 @@ The public frontend at `https://alphatrack.digital` is a static cPanel deploymen
 
 ## Release Contract
 
-The `Release public website` GitHub Actions workflow always checks out `main`; it does not deploy an arbitrary branch or a caller's uncommitted working tree.
+The `Release public website` GitHub Actions workflow must be dispatched from `main` and pins both jobs to the same immutable dispatch SHA; it does not deploy an arbitrary branch or a caller's uncommitted working tree.
 
 Before requesting production approval it:
 
@@ -12,13 +12,13 @@ Before requesting production approval it:
 2. runs ESLint and the full Vitest suite;
 3. builds the client, SSR bundle, and prerendered routes;
 4. checks every sitemap URL has a generated HTML file, title, canonical and byte-tight React root;
-5. checks the static 404 and required cPanel files;
+5. checks the static 404 and required cPanel files, and rejects public source maps;
 6. creates a versioned `.tar.gz`, SHA-256 checksum and release manifest;
 7. stores both the package and deployable site as GitHub run artifacts.
 
 The deploy job then waits on the GitHub `production` environment. After approval it uploads into a private directory under the cPanel account home, backs up the current static site, activates the release, and runs GET-only smoke checks. A failed smoke automatically restores the pre-deploy backup. `.well-known` and `cgi-bin` remain managed by cPanel and are never deleted by the workflow.
 
-After the production smoke passes, the workflow verifies the public IndexNow key file and submits every canonical URL in `sitemap.xml` to the IndexNow API. An HTTP `200` or first-run `202` response is accepted. IndexNow notification happens only after a successful activation; it does not replace the sitemap or guarantee indexing.
+After the production smoke passes, the workflow verifies the public IndexNow key file and submits every canonical URL in `sitemap.xml` to the IndexNow API. An HTTP `200` or first-run `202` response is accepted. IndexNow notification happens only after a successful activation and is best-effort: a temporary failure is recorded as a warning and does not turn a healthy deployment into a failed release. It does not replace the sitemap or guarantee indexing.
 
 ## One-Time GitHub Setup
 
