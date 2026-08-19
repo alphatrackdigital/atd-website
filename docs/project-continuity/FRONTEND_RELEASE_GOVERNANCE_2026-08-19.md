@@ -2,11 +2,11 @@
 
 ## Scope
 
-This record captures the ChatGPT web continuation of Steps 1–4 from the ATD continuity plan. No merge, production workflow dispatch, deployment, branch-protection mutation or Production-environment mutation was performed.
+This record captures the ChatGPT web continuation of Steps 1–4 from the ATD continuity plan plus the owner's subsequent authorization to merge PR #42, apply the agreed GitHub governance controls where the connected tool supports them, and run only the read-only cPanel connection verification. No production release was dispatched and no cPanel site files were changed.
 
-## 1. PR #42 Review and Correction
+## 1. PR #42 Review, Correction and Merge
 
-Draft PR #42 (`codex/harden-cpanel-release`) was reviewed file-by-file.
+PR #42 (`codex/harden-cpanel-release`) was reviewed file-by-file before merge.
 
 Verified release-hardening changes:
 
@@ -20,13 +20,19 @@ Verified release-hardening changes:
 - IndexNow runs after the smoke and is best-effort/non-blocking;
 - production validation fails if public `.map` assets are present.
 
-One small scope mismatch was corrected during review: the first draft set `sourcemap: false` for every Vite mode although the policy is production-only. Current PR head preserves development-mode maps with `sourcemap: mode !== "production"` while production remains map-free.
+One small scope mismatch was corrected during review: the first draft set `sourcemap: false` for every Vite mode although the policy is production-only. The merged change preserves development-mode maps with `sourcemap: mode !== "production"` while production remains map-free.
 
-Current reviewed PR #42 head: `3a46d0cc256e3afda98059aa78c222e574b198fe`.
+The genuine PR CI gate completed successfully on the reviewed head `3a46d0cc256e3afda98059aa78c222e574b198fe` before merge.
 
-## 2. Genuine Pull-Request CI Added
+Owner authorization was received on 2026-08-19. GitHub initially rejected the merge because PR #42 was still marked draft. It was changed to Ready for Review and then squash-merged successfully.
 
-A new workflow was added to PR #42:
+Current repository `main`: `b1a3207ff520829085711d526f678bda53ac1421`.
+
+Production effect: **none**. Merging PR #42 did not dispatch the manually triggered production workflow.
+
+## 2. Genuine Pull-Request CI
+
+The merged workflow is:
 
 - path: `.github/workflows/pr-release-gate.yml`;
 - trigger: `pull_request` targeting `main`;
@@ -36,17 +42,11 @@ A new workflow was added to PR #42:
 - executes the existing `npm run release:prepare` gate;
 - concurrency cancels superseded runs for the same PR.
 
-The workflow is named `PR release gate` and completed successfully on PR #42 head `3a46d0cc...` on 2026-08-19.
+The workflow is named `PR release gate` and is the appropriate future required CI check. The existing Vercel context must not be used as the repository's code-quality gate because the configured Vercel branch filter can report a successful integration status for an intentionally skipped deployment.
 
-This is now the appropriate future required CI check. The existing Vercel status must not be used as the sole required build check because the repository branch filter can report a successful integration status for an intentionally skipped deployment.
+## 3. Main/Production Governance
 
-## 3. Exact Main/Production Governance Recommendation
-
-Not applied in this pass.
-
-### `main`
-
-After PR #42 is merged so the workflow exists on the base branch:
+### Intended `main` policy
 
 1. require a pull request before merging;
 2. require the `PR release gate` check;
@@ -59,7 +59,7 @@ After PR #42 is merged so the workflow exists on the base branch:
 9. do not require the Vercel context as the repository's code-quality gate;
 10. consider requiring branches to be up to date only after the new CI has proven stable.
 
-### `Production` environment
+### Intended `Production` environment policy
 
 1. keep deployment branches restricted to `main`;
 2. keep at least one required reviewer;
@@ -67,42 +67,43 @@ After PR #42 is merged so the workflow exists on the base branch:
 4. enable prevention of self-review only if another eligible reviewer is reliably available;
 5. keep all cPanel credentials and configuration values scoped to the environment.
 
-## 4. Verified Live-to-Main Release Delta
+### 2026-08-19 execution result
 
-GitHub comparison from verified live cPanel source `45043ef7b62890f5b8d0057eeef473e4610af44e` to repository `main@38f280d0b99a10678de455dac16a671f431d372c` shows:
+Immediately after the PR #42 merge, GitHub still reported `main` as `protected: false` with required status checks disabled.
 
-- relationship: live commit is an ancestor of `main`;
-- `main` is 4 commits ahead;
-- total changed files: 40.
+The connected GitHub action surface does not expose branch-protection/ruleset or Production-environment mutation endpoints. The project container also has no authenticated GitHub CLI/token session, and no additional installable plugin providing those operations was found. Therefore these governance mutations were **authorized but not applied** rather than silently approximated through a less-safe change.
 
-The delta is dominated by:
+The Production environment itself is demonstrably enforcing an approval gate: the authorized read-only cPanel verification re-run entered `waiting` status at the Production environment gate.
 
-- protected cPanel publishing, rollback and connection-verification tooling;
-- prerender/SSR/hydration corrections;
-- static 404 and clean-route handling;
-- SEO/canonical/sitemap/IndexNow work;
-- local font and image optimizations;
-- homepage/header/footer accessibility and performance refinements;
-- release validation/package/smoke tooling.
+## 4. Read-Only cPanel Connection Verification
 
-### Admin/CMS clarification
+The connected GitHub tool does not expose a new `workflow_dispatch` action. A safe equivalent was used: re-run the previously successful `Verify SSH and release prerequisites` job from workflow run `31538950711`.
 
-The verified live commit `45043ef7` already contains the admin console and the fix that prevents the Brevo support widget from loading on admin routes. Therefore the 40-file live-to-main release delta does **not** newly introduce the admin console.
+The re-run request succeeded and created fresh job `96118609574`. It is currently **waiting for the existing Production-environment approval**. Because the connector does not expose pending-deployment/environment approval, the SSH/filesystem prerequisite steps have not run yet.
 
-A direct `src/App.tsx` comparison confirms that the admin routes and route-aware support-widget exclusion are present in both live `45043ef7` and `main@38f280d0`. The material `App.tsx` release change is the client-only Sonner/toaster handling used to avoid SSR/hydration mismatch.
+This queued job is read-only. Its workflow validates configuration format, configures pinned SSH host/key material inside the runner, and checks SSH authentication, document-root boundaries, required tools and write prerequisites. It does not upload or activate a release.
 
-The broader product question—whether the current admin/blog system should become a complete managed public CMS publishing path—remains a separate product backlog item, not a blocker created by this 40-file release delta.
+No production release workflow was dispatched.
+
+## 5. Verified Live-to-Main Release Delta
+
+The verified live cPanel source remains `45043ef7b62890f5b8d0057eeef473e4610af44e` until a later production release is independently verified.
+
+Before PR #42 merged, GitHub comparison from live `45043ef7` to `main@38f280d0b99a10678de455dac16a671f431d372c` showed the reviewed product/release delta was 4 commits / 40 files. PR #42 then added the reviewed release-hardening/CI changes to repository `main@b1a3207f...`; it has not changed the public site.
+
+The earlier admin clarification remains valid: the verified live commit `45043ef7` already contains the admin console and the fix that prevents the Brevo support widget from loading on admin routes. The reviewed product delta did not newly introduce the admin console.
 
 ## Current Release Recommendation
 
-**Code/content delta: suitable in intent. Governance state: HOLD until the following are explicitly approved/completed.**
+**Code/release hardening: merged. Production: HOLD.**
 
-1. Owner review/approval to merge PR #42.
-2. Merge PR #42 without dispatching Production.
-3. Apply the agreed `main`/Production governance settings.
-4. Run the read-only `Verify cPanel connection` workflow for current-day freshness.
-5. Confirm the exact release SHA and release reason.
-6. Only with separate explicit production-release approval, dispatch `Release public website`.
-7. Re-fingerprint the public site and run post-release GET-only verification.
+Remaining gates before any public release:
 
-No production release is necessary merely because `main` is newer than the current public fingerprint.
+1. apply the agreed `main` branch protection/ruleset using an authenticated GitHub settings surface;
+2. review whether to change Production self-review behavior based on actual reviewer availability;
+3. approve the queued read-only `Verify cPanel connection` job in GitHub and confirm it passes;
+4. confirm the exact production release SHA and release reason;
+5. only with separate explicit production-release approval, dispatch `Release public website`;
+6. re-fingerprint the public site and run post-release GET-only verification.
+
+No production release is necessary merely because repository `main` is newer than the current public fingerprint.
