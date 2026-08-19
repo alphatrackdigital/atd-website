@@ -1,0 +1,153 @@
+name: Roll back public website
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type ROLLBACK to request a protected production rollback
+        required: true
+        type: string
+      release_id:
+        description: 12-character release ID whose pre-deploy backup should be restored
+        required: true
+        type: string
+      reason:
+        description: Short rollback reason
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: atd-public-production
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    name: Approve and roll back cPanel
+    runs-on: ubuntu-latest
+    environment:
+      name: Production
+      url: https://alphatrack.digital
+    env:
+      CPANEL_HOST: ${{ vars.CPANEL_HOST }}
+      CPANEL_USER: ${{ vars.CPANEL_USER }}
+      CPANEL_PORT: ${{ vars.CPANEL_PORT }}
+      CPANEL_DOCUMENT_ROOT: ${{ vars.CPANEL_DOCUMENT_ROOT }}
+      PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+      RELEASE_ID: ${{ inputs.release_id }}
+    steps:
+      - name: Require explicit confirmation
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          if [[ "$CONFIRMATION" != "ROLLBACK" ]]; then
+            echo "Confirmation must be exactly ROLLBACK." >&2
+            exit 1
+          fi
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "Production rollbacks must be dispatched from main." >&2
+            exit 1
+          fi
+          if [[ ! "$RELEASE_ID" =~ ^[0-9a-f]{12}$ ]]; then
+            echo "Release ID must be exactly 12 lowercase hexadecimal characters." >&2
+            exit 1
+          fi
+
+      - name: Check out dispatch SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Validate rollback configuration
+        run: |
+          if [[ ! "$CPANEL_HOST" =~ ^[A-Za-z0-9.-]+$ ]]; then echo "Invalid CPANEL_HOST" >&2; exit 1; fi
+          if [[ ! "$CPANEL_USER" =~ ^[A-Za-z0-9._-]+$ ]]; then echo "Invalid CPANEL_USER" >&2; exit 1; fi
+          if [[ ! "$CPANEL_PORT" =~ ^[0-9]+$ ]]; then echo "Invalid CPANEL_PORT" >&2; exit 1; fi
+          if [[ -z "$CPANEL_DOCUMENT_ROOT" || "$CPANEL_DOCUMENT_ROOT" == "/" ]]; then echo "Unsafe CPANEL_DOCUMENT_ROOT" >&2; exit 1; fi
+
+      - name: Configure pinned SSH host and key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.CPANEL_SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$HOME/.ssh/atd_cpanel"
+          chmod 600 "$HOME/.ssh/atd_cpanel"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Verify target backup and preserve incident state
+        env:
+          INCIDENT_ID: rollback-${{ inputs.release_id }}-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          ssh -i "$HOME/.ssh/atd_cpanel" -p "$CPANEL_PORT" -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            "$CPANEL_USER@$CPANEL_HOST" bash -s -- "$CPANEL_DOCUMENT_ROOT" "$RELEASE_ID" "$INCIDENT_ID" <<'REMOTE'
+          set -euo pipefail
+
+          document_root="$(realpath "${1:-}")"
+          release_id="${2:-}"
+          incident_id="${3:-}"
+          home_real="$(realpath "$HOME")"
+          backup_dir="$home_real/.atd-backups/$release_id"
+          incident_dir="$home_real/.atd-rollback-incidents/$incident_id"
+          marker_file="$home_real/.atd-current-release"
+
+          case "$document_root" in
+            "$home_real"/*) ;;
+            *) echo "Document root is outside the cPanel account home." >&2; exit 2 ;;
+          esac
+          if [[ "$document_root" == "$home_real" || "$document_root" == "/" ]]; then
+            echo "Refusing unsafe document root: $document_root" >&2
+            exit 2
+          fi
+          if [[ ! -f "$document_root/index.html" ]]; then
+            echo "Current production site is incomplete." >&2
+            exit 2
+          fi
+          if [[ ! -d "$backup_dir" || ! -f "$backup_dir/index.html" ]]; then
+            echo "Rollback backup is missing or incomplete: $backup_dir" >&2
+            exit 2
+          fi
+          if [[ ! -f "$marker_file" ]]; then
+            echo "Current release marker is missing." >&2
+            exit 2
+          fi
+          current_release="$(tr -d '\r\n' < "$marker_file")"
+          if [[ "$current_release" != "$release_id" ]]; then
+            echo "Current release marker ($current_release) does not match requested rollback release ($release_id)." >&2
+            exit 2
+          fi
+          if [[ -e "$incident_dir" ]]; then
+            echo "Incident snapshot already exists: $incident_dir" >&2
+            exit 2
+          fi
+
+          mkdir -p "$home_real/.atd-rollback-incidents"
+          mkdir "$incident_dir"
+          rsync -a \
+            --exclude='.well-known/' \
+            --exclude='cgi-bin/' \
+            "$document_root/" "$incident_dir/"
+
+          echo "Rollback target verified; current incident state preserved at $incident_dir"
+          REMOTE
+
+      - name: Restore pre-deploy backup
+        run: |
+          ssh -i "$HOME/.ssh/atd_cpanel" -p "$CPANEL_PORT" -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            "$CPANEL_USER@$CPANEL_HOST" bash -s -- "$CPANEL_DOCUMENT_ROOT" "$RELEASE_ID" \
+            < .github/scripts/rollback-cpanel-release.sh
+
+      - name: Run GET-only production smoke
+        run: node scripts/smoke-production.mjs "${PRODUCTION_URL:-https://alphatrack.digital}"
