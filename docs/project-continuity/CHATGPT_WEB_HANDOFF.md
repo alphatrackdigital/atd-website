@@ -20,10 +20,10 @@ The objective is to finish a comprehensive overview from the beginning of the pr
 | Public API backend | Netlify `alphatra-serv`, sourced from `alphatrackdigital/atd-backend-test` `main@c9035d19e16e77badefaaf1257be5837bc694476` |
 | Backend rollback | Netlify deploy at legacy website `backend@9b78288742bcca9e9c74ce15edfb48e9aa0b5c1a` retained during the stability window |
 | Frontend release hardening | Draft PR [#42](https://github.com/alphatrackdigital/alphatrackdigital/pull/42), branch `codex/harden-cpanel-release`, head `3ae5c386bc28c8c86bafaadbd1e73cfd2adb9d53` |
-| PR #42 verification | Open, draft, mergeable/clean on 2026-08-19; full local release gate passed; Vercel preview checks passed |
+| PR #42 verification | Open, draft, mergeable/clean on 2026-08-19; full local release gate passed; GitHub's Vercel status succeeded because the deployment was skipped/ignored by the configured branch filter, so no PR preview artifact was built |
 | Production effect of PR #42 | None. It has not been merged and no cPanel production workflow was dispatched. |
 | Continuity publication | Draft PR [#43](https://github.com/alphatrackdigital/alphatrackdigital/pull/43), branch `codex/atd-continuity-handoff`; open, draft, clean and mergeable on 2026-08-19 |
-| Hosting effect of PR #43 | None. Vercel reported the documentation-branch deployment as skipped by the configured branch filter; no Netlify build or deployment ran. |
+| Hosting effect of PR #43 | None. Vercel reported the documentation-branch deployment as skipped/ignored by the configured branch filter; no Netlify build or deployment ran. |
 
 ## PR #42 Evidence
 
@@ -45,7 +45,20 @@ Validation completed before publication:
 - workflow YAML parsing and explicit workflow-invariant checks passed;
 - ESLint returned no errors and seven pre-existing warnings.
 
-Opening the draft PR automatically produced a successful Vercel frontend preview. No Netlify build ran, no Netlify credit was consumed, and no live site was changed.
+Opening the draft PR produced a successful GitHub Vercel integration status, but Vercel recorded the deployment itself as **Skipped Deployment / Ignored** under the configured branch filter. No frontend preview artifact was built, no Netlify build ran, no Netlify credit was consumed, and no live site was changed.
+
+## 2026-08-19 ChatGPT Web Continuation Result
+
+The first read-only web continuation pass is captured in [`CHATGPT_WEB_VERIFICATION_2026-08-19.md`](CHATGPT_WEB_VERIFICATION_2026-08-19.md). It records current connector access, reconciled stale claims, exact branch-protection recommendations, evidence gaps, owner decisions and the safe resume sequence.
+
+Key corrections from that pass:
+
+- the PR #42 and PR #43 Vercel results are skipped/ignored deployments rather than successful preview builds;
+- the backend migration file's PR #2 “open/draft” bullet is pre-merge historical evidence and is superseded by the later 2026-08-18 merge sequence in the same file;
+- June Netlify credit/future-hosting statements, early Ketch `NO-GO` records and June Notion production assumptions remain useful historical evidence but are not current-state proof;
+- current Brevo state could not be re-audited because the connector returned an account-connection error;
+- no Netlify connector was available in the current ChatGPT tool surface;
+- current MongoDB Atlas non-sensitive cluster metadata was readable and still shows the documented broad network-access hardening item.
 
 ## Local-Only Material Deliberately Excluded
 
@@ -59,14 +72,14 @@ These items are not part of this continuity handoff. They must not be inferred t
 
 ## ChatGPT Web Sources and Plugins
 
-The owner has relevant connected ChatGPT web plugins, including GitHub, Notion, Netlify, Vercel, MongoDB Atlas and Brevo. Use them read-only first:
+The owner has relevant connected ChatGPT web plugins/connectors. Use available systems read-only first and record connector limitations rather than filling gaps by assumption:
 
 - **GitHub:** read this pack, repository history, branches, pull requests and workflow results.
 - **Notion:** reconcile business-facing decisions and older operational records against Git evidence.
-- **Netlify:** verify deploy IDs, source bindings, build state and credit implications without triggering builds.
+- **Netlify:** if a connector is available in the active tool surface, verify deploy IDs, source bindings, build state and credit implications without triggering builds. If it is unavailable, retain the latest dated GitHub evidence and mark the direct check as a gap.
 - **Vercel:** verify test-project bindings, branch filters, previews and aliases without promoting deployments.
 - **MongoDB Atlas:** verify only non-sensitive project/cluster/database metadata, collection counts and timestamps where necessary; never reveal values or records.
-- **Brevo:** inspect configuration names, lists, attributes, workflow state, credits and exclusions without sending, enrolling or modifying contacts.
+- **Brevo:** inspect configuration names, lists, attributes, workflow state, credits and exclusions without sending, enrolling or modifying contacts. If account access fails, keep current state unknown rather than relying on stale workflow assumptions.
 
 The ATD Website and ATD MarTech ChatGPT Projects contain useful rationale and planning history. A chat in one Project may not automatically read the other Project's conversations. Use Project history as decision context, not implementation proof; move only reviewed summaries into this GitHub pack.
 
@@ -82,11 +95,12 @@ The ATD Website and ATD MarTech ChatGPT Projects contain useful rationale and pl
 8. [`registers/MARTECH_INTEGRATIONS.md`](registers/MARTECH_INTEGRATIONS.md)
 9. [`registers/OPEN_ITEMS.md`](registers/OPEN_ITEMS.md)
 10. [`sources/SOURCE_INVENTORY.md`](sources/SOURCE_INVENTORY.md)
-11. Detailed technical handoffs under [`../codex-handoffs`](../codex-handoffs)
+11. [`CHATGPT_WEB_VERIFICATION_2026-08-19.md`](CHATGPT_WEB_VERIFICATION_2026-08-19.md)
+12. Detailed technical handoffs under [`../codex-handoffs`](../codex-handoffs)
 
 ## Continuation Tasks
 
-1. Review PR #42 and its preview read-only. Confirm the release workflow still requires explicit dispatch and Production approval and cannot deploy merely because the PR is merged.
+1. Review PR #42 and its skipped/ignored Vercel result read-only. Confirm the release workflow still requires explicit dispatch and Production approval and cannot deploy merely because the PR is merged.
 2. Recommend exact `main` branch protection and Production-environment reviewer settings based on checks that genuinely exist. Do not apply them without approval.
 3. After 2026-08-25, repeat the documented read-only backend stability checkpoint before proposing archival of the legacy `backend` branch.
 4. Reconcile current Brevo, GTM, GA4, Meta, Ketch and Clarity state using connected plugins where available, retaining names/status/evidence only and no private data.
@@ -96,4 +110,4 @@ The ATD Website and ATD MarTech ChatGPT Projects contain useful rationale and pl
 
 ## Safety Boundary
 
-Do not merge PRs, dispatch workflows, deploy, change hosting bindings, edit environment variables, modify Atlas access, publish GTM, change Ketch, activate Brevo workflows, register webhooks, send campaigns/messages, submit forms, create bookings, or change Notion without fresh explicit owner approval. Never expose credentials, tokens, cookies, connection strings, environment-variable values, hashes, private contacts or unredacted records.
+Do not merge PRs, dispatch workflows, deploy, change hosting bindings, edit environment variables, modify Atlas access, publish GTM, change Ketch, activate Brevo workflows, register webhooks, send campaigns/messages, submit forms, create bookings, or change Notion without fresh explicit owner approval. Never expose credentials, tokens, cookies, connection strings, environment-variable values, private contacts or unredacted records.
