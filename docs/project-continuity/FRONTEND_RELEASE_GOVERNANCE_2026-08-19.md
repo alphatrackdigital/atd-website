@@ -73,17 +73,24 @@ Immediately after the PR #42 merge, GitHub still reported `main` as `protected: 
 
 The connected GitHub action surface does not expose branch-protection/ruleset or Production-environment mutation endpoints. The project container also has no authenticated GitHub CLI/token session, and no additional installable plugin providing those operations was found. Therefore these governance mutations were **authorized but not applied** rather than silently approximated through a less-safe change.
 
-The Production environment itself is demonstrably enforcing an approval gate: the authorized read-only cPanel verification re-run entered `waiting` status at the Production environment gate.
+The Production environment is demonstrably enforcing an approval gate: the authorized read-only cPanel verification re-run waited for owner approval before running.
 
 ## 4. Read-Only cPanel Connection Verification
 
 The connected GitHub tool does not expose a new `workflow_dispatch` action. A safe equivalent was used: re-run the previously successful `Verify SSH and release prerequisites` job from workflow run `31538950711`.
 
-The re-run request succeeded and created fresh job `96118609574`. It is currently **waiting for the existing Production-environment approval**. Because the connector does not expose pending-deployment/environment approval, the SSH/filesystem prerequisite steps have not run yet.
+The re-run request created fresh job `96118609574`. The owner approved the existing Production-environment gate on 2026-08-19, after which the job completed successfully.
 
-This queued job is read-only. Its workflow validates configuration format, configures pinned SSH host/key material inside the runner, and checks SSH authentication, document-root boundaries, required tools and write prerequisites. It does not upload or activate a release.
+Fresh verification result: **PASS**.
 
-No production release workflow was dispatched.
+Successful steps:
+
+- validate connection configuration;
+- configure the pinned SSH host and key in the GitHub runner;
+- verify read-only cPanel prerequisites;
+- complete the job.
+
+This confirms current-day SSH authentication/release prerequisites for the configured cPanel environment without uploading or activating a release. No production release workflow was dispatched and no site files were changed.
 
 ## 5. Verified Live-to-Main Release Delta
 
@@ -95,14 +102,14 @@ The earlier admin clarification remains valid: the verified live commit `45043ef
 
 ## Current Release Recommendation
 
-**Code/release hardening: merged. Production: HOLD.**
+**Code/release hardening: merged. cPanel connection verification: PASS. Production: HOLD.**
 
 Remaining gates before any public release:
 
 1. apply the agreed `main` branch protection/ruleset using an authenticated GitHub settings surface;
 2. review whether to change Production self-review behavior based on actual reviewer availability;
-3. approve the queued read-only `Verify cPanel connection` job in GitHub and confirm it passes;
-4. confirm the exact production release SHA and release reason;
+3. confirm the exact production release SHA and release reason;
+4. complete the remaining production martech/consent readiness checks before paid campaign traffic;
 5. only with separate explicit production-release approval, dispatch `Release public website`;
 6. re-fingerprint the public site and run post-release GET-only verification.
 
