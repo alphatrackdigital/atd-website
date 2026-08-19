@@ -178,7 +178,9 @@ export default defineConfig(({ mode }) => {
 
   return {
     build: {
-      sourcemap: true,
+      // Production artifacts are public on cPanel. Keep full source maps out
+      // of production dist while preserving them for development builds.
+      sourcemap: mode !== "production",
     },
     server: {
       host: "::",
