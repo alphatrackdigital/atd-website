@@ -2,7 +2,7 @@
 
 ## Scope
 
-This record captures the first protected cPanel production release after the 2026-08-19 release-hardening, branch-ruleset and rollback-workflow work. It records only evidence available from GitHub and the owner-supplied GitHub Actions screenshots. It does not treat deployment success as proof of consent-state or downstream martech correctness.
+This record captures the first protected cPanel production release after the 2026-08-19 release-hardening, branch-ruleset and rollback-workflow work. It records only evidence available from GitHub, the owner-supplied GitHub Actions screenshots, and limited external reachability checks. It does not treat deployment success as proof of consent-state or downstream martech correctness.
 
 ## Release identity
 
