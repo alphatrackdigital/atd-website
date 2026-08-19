@@ -19,41 +19,48 @@ The objective is to finish a comprehensive overview from the beginning of the pr
 | Public frontend | `https://alphatrack.digital` |
 | Public API backend | Netlify `alphatra-serv`, sourced from `alphatrackdigital/atd-backend-test` `main@c9035d19e16e77badefaaf1257be5837bc694476` |
 | Backend rollback | Netlify deploy at legacy website `backend@9b78288742bcca9e9c74ce15edfb48e9aa0b5c1a` retained during the stability window |
-| Frontend release hardening | Draft PR [#42](https://github.com/alphatrackdigital/alphatrackdigital/pull/42), branch `codex/harden-cpanel-release`, head `3ae5c386bc28c8c86bafaadbd1e73cfd2adb9d53` |
-| PR #42 verification | Open, draft, mergeable/clean on 2026-08-19; full local release gate passed; GitHub's Vercel status succeeded because the deployment was skipped/ignored by the configured branch filter, so no PR preview artifact was built |
+| Frontend release hardening | Draft PR [#42](https://github.com/alphatrackdigital/alphatrackdigital/pull/42), branch `codex/harden-cpanel-release`, current reviewed head `3a46d0cc256e3afda98059aa78c222e574b198fe` |
+| PR #42 verification | Open, draft, mergeable on 2026-08-19; retained local release gate passed; new GitHub Actions `PR release gate` completed successfully; Vercel branch deployment is skipped/ignored by the configured branch filter and is not preview-build evidence |
 | Production effect of PR #42 | None. It has not been merged and no cPanel production workflow was dispatched. |
 | Continuity publication | Draft PR [#43](https://github.com/alphatrackdigital/alphatrackdigital/pull/43), branch `codex/atd-continuity-handoff`; open, draft, clean and mergeable on 2026-08-19 |
 | Hosting effect of PR #43 | None. Vercel reported the documentation-branch deployment as skipped/ignored by the configured branch filter; no Netlify build or deployment ran. |
 
 ## PR #42 Evidence
 
-PR #42:
+PR #42 now:
 
-- disables public production source maps;
+- disables public **production** source maps while preserving development-mode source maps;
 - adds a release validation failure if `.map` files enter the production assets;
 - requires production workflow dispatch from `main`;
 - pins build and deploy jobs to the same immutable dispatch SHA;
 - makes the optional post-deploy IndexNow call non-blocking while retaining a visible warning;
+- adds `.github/workflows/pr-release-gate.yml`, a secret-free `pull_request` workflow targeting `main` that runs the existing `npm run release:prepare` gate;
 - updates the publishing contract documentation.
 
-Validation completed before publication:
+Validation evidence:
 
-- `npm run release:prepare` passed;
-- 22 test files and 86 tests passed;
+- retained local `npm run release:prepare` passed;
+- 22 test files and 86 tests passed in the retained local gate;
 - production validation passed for 39 sitemap routes and the static 404;
 - generated production assets contained zero `.map` files;
 - workflow YAML parsing and explicit workflow-invariant checks passed;
-- ESLint returned no errors and seven pre-existing warnings.
+- ESLint returned no errors and seven pre-existing warnings in the retained local gate;
+- GitHub Actions `PR release gate` completed successfully on current PR head `3a46d0cc256e3afda98059aa78c222e574b198fe`.
 
-Opening the draft PR produced a successful GitHub Vercel integration status, but Vercel recorded the deployment itself as **Skipped Deployment / Ignored** under the configured branch filter. No frontend preview artifact was built, no Netlify build ran, no Netlify credit was consumed, and no live site was changed.
+The Vercel integration status can appear successful while Vercel records the deployment itself as **Skipped Deployment / Ignored** under the configured branch filter. Do not use the Vercel context as the repository's sole required build/code-quality check.
 
 ## 2026-08-19 ChatGPT Web Continuation Result
 
 The first read-only web continuation pass is captured in [`CHATGPT_WEB_VERIFICATION_2026-08-19.md`](CHATGPT_WEB_VERIFICATION_2026-08-19.md). It records current connector access, reconciled stale claims, exact branch-protection recommendations, evidence gaps, owner decisions and the safe resume sequence.
 
-Key corrections from that pass:
+The subsequent frontend release/governance pass is captured in [`FRONTEND_RELEASE_GOVERNANCE_2026-08-19.md`](FRONTEND_RELEASE_GOVERNANCE_2026-08-19.md). It records the PR #42 file-level review, source-map scope correction, successful real PR CI run, exact governance recommendation and direct live-to-main comparison.
+
+Key corrections from the continuation passes:
 
 - the PR #42 and PR #43 Vercel results are skipped/ignored deployments rather than successful preview builds;
+- PR #42 now contains a real repeatable `PR release gate` suitable to become the required CI check after merge;
+- verified live frontend `45043ef7...` is an ancestor of `main@38f280d0...`; the current release delta is 4 commits / 40 files;
+- the live commit already contains the admin console and the support-widget exclusion on admin routes, so the 40-file delta does not newly introduce the admin console;
 - the backend migration file's PR #2 “open/draft” bullet is pre-merge historical evidence and is superseded by the later 2026-08-18 merge sequence in the same file;
 - June Netlify credit/future-hosting statements, early Ketch `NO-GO` records and June Notion production assumptions remain useful historical evidence but are not current-state proof;
 - current Brevo state could not be re-audited because the connector returned an account-connection error;
@@ -89,24 +96,26 @@ The ATD Website and ATD MarTech ChatGPT Projects contain useful rationale and pl
 2. [`ATD_PROJECT_OVERVIEW.md`](ATD_PROJECT_OVERVIEW.md)
 3. [`FRONTEND_PRODUCTION_VERIFICATION.md`](FRONTEND_PRODUCTION_VERIFICATION.md)
 4. [`FRONTEND_RELEASE_DELTA_REVIEW.md`](FRONTEND_RELEASE_DELTA_REVIEW.md)
-5. [`ATD_BACKEND_MIGRATION_GATE.md`](ATD_BACKEND_MIGRATION_GATE.md)
-6. [`registers/GIT_REPOSITORIES_AND_BRANCHES.md`](registers/GIT_REPOSITORIES_AND_BRANCHES.md)
-7. [`LEGACY_BRANCH_RECONCILIATION.md`](LEGACY_BRANCH_RECONCILIATION.md)
-8. [`registers/MARTECH_INTEGRATIONS.md`](registers/MARTECH_INTEGRATIONS.md)
-9. [`registers/OPEN_ITEMS.md`](registers/OPEN_ITEMS.md)
-10. [`sources/SOURCE_INVENTORY.md`](sources/SOURCE_INVENTORY.md)
-11. [`CHATGPT_WEB_VERIFICATION_2026-08-19.md`](CHATGPT_WEB_VERIFICATION_2026-08-19.md)
-12. Detailed technical handoffs under [`../codex-handoffs`](../codex-handoffs)
+5. [`FRONTEND_RELEASE_GOVERNANCE_2026-08-19.md`](FRONTEND_RELEASE_GOVERNANCE_2026-08-19.md)
+6. [`ATD_BACKEND_MIGRATION_GATE.md`](ATD_BACKEND_MIGRATION_GATE.md)
+7. [`registers/GIT_REPOSITORIES_AND_BRANCHES.md`](registers/GIT_REPOSITORIES_AND_BRANCHES.md)
+8. [`LEGACY_BRANCH_RECONCILIATION.md`](LEGACY_BRANCH_RECONCILIATION.md)
+9. [`registers/MARTECH_INTEGRATIONS.md`](registers/MARTECH_INTEGRATIONS.md)
+10. [`registers/OPEN_ITEMS.md`](registers/OPEN_ITEMS.md)
+11. [`sources/SOURCE_INVENTORY.md`](sources/SOURCE_INVENTORY.md)
+12. [`CHATGPT_WEB_VERIFICATION_2026-08-19.md`](CHATGPT_WEB_VERIFICATION_2026-08-19.md)
+13. Detailed technical handoffs under [`../codex-handoffs`](../codex-handoffs)
 
 ## Continuation Tasks
 
-1. Review PR #42 and its skipped/ignored Vercel result read-only. Confirm the release workflow still requires explicit dispatch and Production approval and cannot deploy merely because the PR is merged.
-2. Recommend exact `main` branch protection and Production-environment reviewer settings based on checks that genuinely exist. Do not apply them without approval.
-3. After 2026-08-25, repeat the documented read-only backend stability checkpoint before proposing archival of the legacy `backend` branch.
-4. Reconcile current Brevo, GTM, GA4, Meta, Ketch and Clarity state using connected plugins where available, retaining names/status/evidence only and no private data.
-5. Review the ATD Website and ATD MarTech Project discussions for rationale, contradictions and decisions missing from the pack.
-6. Update the comprehensive overview only when newer evidence supersedes an existing claim. Preserve confidence labels and flag unresolved contradictions.
-7. Produce the final resume sequence, owner-decision list and evidence index. Do not silently convert planned or reported work into verified implementation.
+1. Owner review/decision on draft PR #42. Do not merge it under the standing safety boundary without fresh explicit approval.
+2. After PR #42 is merged, apply the agreed `main` branch protection and Production-environment reviewer settings only with explicit approval. Require the real `PR release gate`, not Vercel as the code-quality gate.
+3. Run the read-only `Verify cPanel connection` workflow only with explicit workflow-dispatch approval, then decide whether a production release is wanted. A newer `main` alone is not a reason to deploy.
+4. After 2026-08-25, repeat the documented read-only backend stability checkpoint before proposing archival of the legacy `backend` branch.
+5. Reconcile current Brevo, GTM, GA4, Meta, Ketch and Clarity state using connected plugins where available, retaining names/status/evidence only and no private data.
+6. Review the ATD Website and ATD MarTech Project discussions for rationale, contradictions and decisions missing from the pack.
+7. Update the comprehensive overview only when newer evidence supersedes an existing claim. Preserve confidence labels and flag unresolved contradictions.
+8. Produce the final resume sequence, owner-decision list and evidence index. Do not silently convert planned or reported work into verified implementation.
 
 ## Safety Boundary
 
