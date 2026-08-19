@@ -22,6 +22,8 @@ The objective is to finish a comprehensive overview from the beginning of the pr
 | Frontend release hardening | Draft PR [#42](https://github.com/alphatrackdigital/alphatrackdigital/pull/42), branch `codex/harden-cpanel-release`, head `3ae5c386bc28c8c86bafaadbd1e73cfd2adb9d53` |
 | PR #42 verification | Open, draft, mergeable/clean on 2026-08-19; full local release gate passed; Vercel preview checks passed |
 | Production effect of PR #42 | None. It has not been merged and no cPanel production workflow was dispatched. |
+| Continuity publication | Draft PR [#43](https://github.com/alphatrackdigital/alphatrackdigital/pull/43), branch `codex/atd-continuity-handoff`; open, draft, clean and mergeable on 2026-08-19 |
+| Hosting effect of PR #43 | None. Vercel reported the documentation-branch deployment as skipped by the configured branch filter; no Netlify build or deployment ran. |
 
 ## PR #42 Evidence
 
