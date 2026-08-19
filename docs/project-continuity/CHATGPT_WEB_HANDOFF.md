@@ -1,94 +1,81 @@
 # ChatGPT Web Continuity Handoff
 
-Last reviewed: 2026-08-19
+Last reviewed: 2026-08-20
 
 ## Purpose
 
 This is the self-contained entry point for continuing the AlphaTrack Digital website and martech continuity project in ChatGPT web. The companion files in this directory contain the evidence-backed project overview, environment map, branch reconciliation, integration register, production verification and restart backlog.
 
-The objective is to finish a comprehensive overview from the beginning of the project through the current pause point, reconcile contradictions across GitHub, Notion and the two ChatGPT Projects, and leave an exact safe resume sequence. This is a documentation and read-only research task unless the owner gives fresh approval for a specific external change.
+The objective is to maintain a comprehensive evidence-backed overview from the beginning of the project through the current pause point, reconcile contradictions across GitHub, Notion and the two ChatGPT Projects, and leave an exact safe resume sequence. Project history is decision context; implementation claims must be corroborated by current evidence.
 
 ## Authoritative Snapshot
 
 | Concern | Verified state |
 | --- | --- |
 | Website repository | `alphatrackdigital/alphatrackdigital` |
-| Remote website production source | `main@38f280d0b99a10678de455dac16a671f431d372c` |
-| Website test source | `staging@38f280d0b99a10678de455dac16a671f431d372c` |
-| Verified live cPanel frontend | `45043ef7b62890f5b8d0057eeef473e4610af44e`, established by byte-identical homepage and critical-asset reconstruction |
+| Repository production source | protected `main@02eadaf8949a08d46952bbea677b9e2ea212fc48` |
+| Website test source | controlled `staging@38f280d0b99a10678de455dac16a671f431d372c` unless newer evidence supersedes it |
+| Current cPanel frontend release | protected release ID `02eadaf8949a`, full SHA `02eadaf8949a08d46952bbea677b9e2ea212fc48`, successful `Release public website #2` on 2026-08-20 |
+| Previous byte-identical cPanel fingerprint | `45043ef7b62890f5b8d0057eeef473e4610af44e`; superseded operationally by the successful protected release, but a new independent byte-identical fingerprint has not yet been reconstructed |
 | Public frontend | `https://alphatrack.digital` |
-| Public API backend | Netlify `alphatra-serv`, sourced from `alphatrackdigital/atd-backend-test` `main@c9035d19e16e77badefaaf1257be5837bc694476` |
-| Backend rollback | Netlify deploy at legacy website `backend@9b78288742bcca9e9c74ce15edfb48e9aa0b5c1a` retained during the stability window |
-| Frontend release hardening | Draft PR [#42](https://github.com/alphatrackdigital/alphatrackdigital/pull/42), branch `codex/harden-cpanel-release`, current reviewed head `3a46d0cc256e3afda98059aa78c222e574b198fe` |
-| PR #42 verification | Open, draft, mergeable on 2026-08-19; retained local release gate passed; new GitHub Actions `PR release gate` completed successfully; Vercel branch deployment is skipped/ignored by the configured branch filter and is not preview-build evidence |
-| Production effect of PR #42 | None. It has not been merged and no cPanel production workflow was dispatched. |
-| Continuity publication | Draft PR [#43](https://github.com/alphatrackdigital/alphatrackdigital/pull/43), branch `codex/atd-continuity-handoff`; open, draft, clean and mergeable on 2026-08-19 |
-| Hosting effect of PR #43 | None. Vercel reported the documentation-branch deployment as skipped/ignored by the configured branch filter; no Netlify build or deployment ran. |
+| Public API backend | Netlify `alphatra-serv`, sourced from `alphatrackdigital/atd-backend-test` `main@c9035d19e16e77badefaaf1257be5837bc694476` based on latest continuity evidence |
+| Backend rollback | legacy Netlify deploy/source retained through the documented backend stability window |
+| Frontend release hardening | PR #42 merged; protected release workflow, immutable SHA pinning, production sourcemap rejection, rollback-on-smoke-failure and best-effort IndexNow are in `main` |
+| PR CI / branch governance | active `Protect main` ruleset; PRs required, `PR release gate` required, conversation resolution required, force pushes and branch deletion blocked; GitHub reports `main` protected |
+| Protected manual rollback | PR #44 merged; `Roll back public website` available on `main` with explicit confirmation, release-ID/current-marker validation, Production approval, shared concurrency, incident-state preservation and GET-only post-rollback smoke |
+| cPanel connectivity | fresh read-only verification passed after Production approval on 2026-08-19 |
+| Production release | `Release public website #2` succeeded after build/package validation and Production approval; artifacts `cpanel-package-02eadaf8949a` and `deployable-site-02eadaf8949a` were produced |
+| Production martech readiness | **OPEN/HOLD** pending browser-level consent/tracking verification and current Brevo evidence |
+| Continuity publication | draft PR #43, `codex/atd-continuity-handoff`; documentation-only |
 
-## PR #42 Evidence
+## 2026-08-19/20 Continuation Results
 
-PR #42 now:
+The initial read-only reconciliation is captured in [`CHATGPT_WEB_VERIFICATION_2026-08-19.md`](CHATGPT_WEB_VERIFICATION_2026-08-19.md).
 
-- disables public **production** source maps while preserving development-mode source maps;
-- adds a release validation failure if `.map` files enter the production assets;
-- requires production workflow dispatch from `main`;
-- pins build and deploy jobs to the same immutable dispatch SHA;
-- makes the optional post-deploy IndexNow call non-blocking while retaining a visible warning;
-- adds `.github/workflows/pr-release-gate.yml`, a secret-free `pull_request` workflow targeting `main` that runs the existing `npm run release:prepare` gate;
-- updates the publishing contract documentation.
+The release-governance sequence is captured in [`FRONTEND_RELEASE_GOVERNANCE_2026-08-19.md`](FRONTEND_RELEASE_GOVERNANCE_2026-08-19.md).
 
-Validation evidence:
+The protected post-deploy rollback guard is captured in [`PRODUCTION_ROLLBACK_GUARD_2026-08-19.md`](PRODUCTION_ROLLBACK_GUARD_2026-08-19.md).
 
-- retained local `npm run release:prepare` passed;
-- 22 test files and 86 tests passed in the retained local gate;
-- production validation passed for 39 sitemap routes and the static 404;
-- generated production assets contained zero `.map` files;
-- workflow YAML parsing and explicit workflow-invariant checks passed;
-- ESLint returned no errors and seven pre-existing warnings in the retained local gate;
-- GitHub Actions `PR release gate` completed successfully on current PR head `3a46d0cc256e3afda98059aa78c222e574b198fe`.
+The successful protected production release is captured in [`FRONTEND_PRODUCTION_RELEASE_2026-08-20.md`](FRONTEND_PRODUCTION_RELEASE_2026-08-20.md).
 
-The Vercel integration status can appear successful while Vercel records the deployment itself as **Skipped Deployment / Ignored** under the configured branch filter. Do not use the Vercel context as the repository's sole required build/code-quality check.
+Key current conclusions:
 
-## 2026-08-19 ChatGPT Web Continuation Result
-
-The first read-only web continuation pass is captured in [`CHATGPT_WEB_VERIFICATION_2026-08-19.md`](CHATGPT_WEB_VERIFICATION_2026-08-19.md). It records current connector access, reconciled stale claims, exact branch-protection recommendations, evidence gaps, owner decisions and the safe resume sequence.
-
-The subsequent frontend release/governance pass is captured in [`FRONTEND_RELEASE_GOVERNANCE_2026-08-19.md`](FRONTEND_RELEASE_GOVERNANCE_2026-08-19.md). It records the PR #42 file-level review, source-map scope correction, successful real PR CI run, exact governance recommendation and direct live-to-main comparison.
-
-Key corrections from the continuation passes:
-
-- the PR #42 and PR #43 Vercel results are skipped/ignored deployments rather than successful preview builds;
-- PR #42 now contains a real repeatable `PR release gate` suitable to become the required CI check after merge;
-- verified live frontend `45043ef7...` is an ancestor of `main@38f280d0...`; the current release delta is 4 commits / 40 files;
-- the live commit already contains the admin console and the support-widget exclusion on admin routes, so the 40-file delta does not newly introduce the admin console;
-- the backend migration file's PR #2 “open/draft” bullet is pre-merge historical evidence and is superseded by the later 2026-08-18 merge sequence in the same file;
-- June Netlify credit/future-hosting statements, early Ketch `NO-GO` records and June Notion production assumptions remain useful historical evidence but are not current-state proof;
-- current Brevo state could not be re-audited because the connector returned an account-connection error;
-- no Netlify connector was available in the current ChatGPT tool surface;
-- current MongoDB Atlas non-sensitive cluster metadata was readable and still shows the documented broad network-access hardening item.
+- PR #42 merged after a successful real `PR release gate`;
+- the owner created the active `Protect main` ruleset and GitHub reports `main` protected;
+- the fresh read-only cPanel verification passed;
+- PR #44 added the protected manual rollback workflow and passed the required PR gate before merge;
+- protected `main` is now `02eadaf8949a08d46952bbea677b9e2ea212fc48`;
+- `Release public website #2` built, packaged and deployed that release successfully after Production approval;
+- the successful release supersedes the older production state operationally, but this session has not reconstructed a new byte-identical public fingerprint;
+- a later ChatGPT web fetch reached the public AlphaTrack marketing homepage, which is supporting reachability evidence rather than byte-level deployment proof;
+- deployment success does not prove Ketch/GTM/GA4/Meta/Clarity/Brevo consent-state correctness;
+- current Brevo state remains unresolved because a usable Brevo connector is not available in the current session;
+- no Netlify connector is available in the current ChatGPT tool surface;
+- MongoDB Atlas broad network-access hardening remains a documented later infrastructure item;
+- paid Tracking Audit traffic remains on hold until the production martech/consent gates are explicitly green or residual gaps are accepted by the owner.
 
 ## Local-Only Material Deliberately Excluded
 
-The primary local checkout was not used as a publishing branch because it contains unrelated work:
+Earlier local continuity evidence recorded unrelated/unapproved material that must remain separate from this pack unless specifically reviewed:
 
 - a pre-existing edit to `src/pages/ConversionTracking.tsx`;
-- two untracked Search Console SQL source files under `reports/`;
-- an unrelated untracked `pipx_shared.pth` file.
+- Search Console SQL source files under `reports/` without retained query-result evidence;
+- an unrelated `pipx_shared.pth` file.
 
-These items are not part of this continuity handoff. They must not be inferred to be approved, discarded, staged or merged. The SQL files contain query source rather than retained results, so the Search Console findings remain a documented evidence gap.
+Do not infer these items to be approved, discarded, staged or merged.
 
 ## ChatGPT Web Sources and Plugins
 
-The owner has relevant connected ChatGPT web plugins/connectors. Use available systems read-only first and record connector limitations rather than filling gaps by assumption:
+Use available systems read-only first and record connector limitations rather than filling gaps by assumption:
 
-- **GitHub:** read this pack, repository history, branches, pull requests and workflow results.
+- **GitHub:** repository history, branches, pull requests, workflow evidence and this continuity pack.
 - **Notion:** reconcile business-facing decisions and older operational records against Git evidence.
-- **Netlify:** if a connector is available in the active tool surface, verify deploy IDs, source bindings, build state and credit implications without triggering builds. If it is unavailable, retain the latest dated GitHub evidence and mark the direct check as a gap.
+- **Netlify:** if a connector becomes available, verify deploy IDs, source bindings, build state and credit implications without triggering builds.
 - **Vercel:** verify test-project bindings, branch filters, previews and aliases without promoting deployments.
 - **MongoDB Atlas:** verify only non-sensitive project/cluster/database metadata, collection counts and timestamps where necessary; never reveal values or records.
-- **Brevo:** inspect configuration names, lists, attributes, workflow state, credits and exclusions without sending, enrolling or modifying contacts. If account access fails, keep current state unknown rather than relying on stale workflow assumptions.
+- **Brevo:** inspect configuration names, lists, attributes, workflow state, credits and exclusions without sending, enrolling or modifying contacts. If account access fails, keep current state unknown.
 
-The ATD Website and ATD MarTech ChatGPT Projects contain useful rationale and planning history. A chat in one Project may not automatically read the other Project's conversations. Use Project history as decision context, not implementation proof; move only reviewed summaries into this GitHub pack.
+The ATD Website and ATD MarTech ChatGPT Projects contain useful rationale and planning history. Use Project history as decision context, not implementation proof; move only reviewed summaries into this GitHub pack.
 
 ## Required Read Order
 
@@ -97,26 +84,33 @@ The ATD Website and ATD MarTech ChatGPT Projects contain useful rationale and pl
 3. [`FRONTEND_PRODUCTION_VERIFICATION.md`](FRONTEND_PRODUCTION_VERIFICATION.md)
 4. [`FRONTEND_RELEASE_DELTA_REVIEW.md`](FRONTEND_RELEASE_DELTA_REVIEW.md)
 5. [`FRONTEND_RELEASE_GOVERNANCE_2026-08-19.md`](FRONTEND_RELEASE_GOVERNANCE_2026-08-19.md)
-6. [`ATD_BACKEND_MIGRATION_GATE.md`](ATD_BACKEND_MIGRATION_GATE.md)
-7. [`registers/GIT_REPOSITORIES_AND_BRANCHES.md`](registers/GIT_REPOSITORIES_AND_BRANCHES.md)
-8. [`LEGACY_BRANCH_RECONCILIATION.md`](LEGACY_BRANCH_RECONCILIATION.md)
-9. [`registers/MARTECH_INTEGRATIONS.md`](registers/MARTECH_INTEGRATIONS.md)
-10. [`registers/OPEN_ITEMS.md`](registers/OPEN_ITEMS.md)
-11. [`sources/SOURCE_INVENTORY.md`](sources/SOURCE_INVENTORY.md)
-12. [`CHATGPT_WEB_VERIFICATION_2026-08-19.md`](CHATGPT_WEB_VERIFICATION_2026-08-19.md)
-13. Detailed technical handoffs under [`../codex-handoffs`](../codex-handoffs)
+6. [`PRODUCTION_ROLLBACK_GUARD_2026-08-19.md`](PRODUCTION_ROLLBACK_GUARD_2026-08-19.md)
+7. [`FRONTEND_PRODUCTION_RELEASE_2026-08-20.md`](FRONTEND_PRODUCTION_RELEASE_2026-08-20.md)
+8. [`ATD_BACKEND_MIGRATION_GATE.md`](ATD_BACKEND_MIGRATION_GATE.md)
+9. [`registers/GIT_REPOSITORIES_AND_BRANCHES.md`](registers/GIT_REPOSITORIES_AND_BRANCHES.md)
+10. [`LEGACY_BRANCH_RECONCILIATION.md`](LEGACY_BRANCH_RECONCILIATION.md)
+11. [`registers/MARTECH_INTEGRATIONS.md`](registers/MARTECH_INTEGRATIONS.md)
+12. [`registers/OPEN_ITEMS.md`](registers/OPEN_ITEMS.md)
+13. [`sources/SOURCE_INVENTORY.md`](sources/SOURCE_INVENTORY.md)
+14. [`CHATGPT_WEB_VERIFICATION_2026-08-19.md`](CHATGPT_WEB_VERIFICATION_2026-08-19.md)
+15. Detailed technical handoffs under [`../codex-handoffs`](../codex-handoffs)
 
-## Continuation Tasks
+## Current Safe Resume Sequence
 
-1. Owner review/decision on draft PR #42. Do not merge it under the standing safety boundary without fresh explicit approval.
-2. After PR #42 is merged, apply the agreed `main` branch protection and Production-environment reviewer settings only with explicit approval. Require the real `PR release gate`, not Vercel as the code-quality gate.
-3. Run the read-only `Verify cPanel connection` workflow only with explicit workflow-dispatch approval, then decide whether a production release is wanted. A newer `main` alone is not a reason to deploy.
-4. After 2026-08-25, repeat the documented read-only backend stability checkpoint before proposing archival of the legacy `backend` branch.
-5. Reconcile current Brevo, GTM, GA4, Meta, Ketch and Clarity state using connected plugins where available, retaining names/status/evidence only and no private data.
-6. Review the ATD Website and ATD MarTech Project discussions for rationale, contradictions and decisions missing from the pack.
-7. Update the comprehensive overview only when newer evidence supersedes an existing claim. Preserve confidence labels and flag unresolved contradictions.
-8. Produce the final resume sequence, owner-decision list and evidence index. Do not silently convert planned or reported work into verified implementation.
+1. Treat the frontend release/governance gate as passed; do not redeploy merely to repeat the release.
+2. Run the browser-level production consent/tracking matrix: fresh visit, reject all, accept all, analytics-only, targeted-only and persistence.
+3. Verify Ketch consent state and GTM consent-mode behavior for each scenario.
+4. Verify GA4, Meta, Clarity, Conversion Linker and Brevo Conversations only fire under intended consent states.
+5. Verify the Tracking Audit landing page on desktop and mobile, including campaign-UTM loading, without submitting forms unless separately approved.
+6. Restore/read current Brevo evidence when connector access is available: lists 7–14, nurture/workflow state, exclusions/suppression, sender/domain status, trigger/exit conditions, credits and webhook registration.
+7. Verify Meta Browser/Server `event_id` matching and deduplication only if a controlled conversion submission is separately approved; avoid unnecessary duplicate live submissions.
+8. Decide whether another controlled Book-a-call proof is necessary; otherwise retain the accepted evidence gap.
+9. On/after the documented backend stability checkpoint date, repeat the read-only backend gate before proposing legacy-backend archival.
+10. Reconcile Search Console evidence and build an evidence-backed SEO backlog.
+11. Refresh Notion only from verified current state.
+12. Launch controlled Tracking Audit Meta pilot only after production consent/tracking, Brevo and Meta gates are explicitly green or the owner accepts remaining gaps.
+13. Keep the protected `Roll back public website` workflow available for post-release regressions; do not use it without explicit incident evidence and owner approval.
 
 ## Safety Boundary
 
-Do not merge PRs, dispatch workflows, deploy, change hosting bindings, edit environment variables, modify Atlas access, publish GTM, change Ketch, activate Brevo workflows, register webhooks, send campaigns/messages, submit forms, create bookings, or change Notion without fresh explicit owner approval. Never expose credentials, tokens, cookies, connection strings, environment-variable values, private contacts or unredacted records.
+Do not dispatch another production release or rollback, change hosting bindings, edit environment variables, modify Atlas access, publish GTM, change Ketch, activate Brevo workflows, register webhooks, send campaigns/messages, submit forms, create bookings, or change Notion without fresh explicit owner approval. Never expose credentials, tokens, cookies, connection strings, environment-variable values, private contacts or unredacted records.
