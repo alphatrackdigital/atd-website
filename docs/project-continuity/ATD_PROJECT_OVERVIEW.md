@@ -1,152 +1,177 @@
 # AlphaTrack Digital Website and Martech Project Overview
 
-Last reviewed: 2026-08-18
+Last reviewed: 2026-08-23
 
 ## Executive Summary
 
-The ATD project began as a website rebuild and conversion-tracking initiative, then expanded into a complete internal martech implementation and operational case study. The repository now contains a production-oriented React website, multi-path Brevo lead capture, attribution and consent plumbing, GTM/GA4/Meta tracking, Ketch and Clarity integration work, extensive redacted QA evidence, and a protected cPanel release workflow.
+AlphaTrack Digital's website project began as a website rebuild and conversion-tracking initiative and expanded into an internal martech implementation, production operations system, and reusable agency case study. The resulting system combines a protected React/cPanel frontend, a hardened Netlify backend, MongoDB-backed admin content, Brevo lead and CRM workflows, consent-aware GTM/GA4/Meta/Clarity measurement, production rollback controls, redacted QA evidence, and AI-agent continuity documentation.
 
-The main implementation is substantially complete. The recurring pause point has not been a missing frontend; it has been the gap between code/test-ground readiness and proof of the current public production state, plus external-system launch gates such as Brevo exclusions/workflow state, production consent QA, and Meta event deduplication.
+The project is now **LAUNCH-READY**. Frontend and backend releases are deployed; production security boundaries and core public surfaces passed verification; Strategy Call and Tracking Audit production flows completed through CRM and analytics; and backend Issues #4, #5, and #6 are closed. Paid Tracking Audit traffic is technically cleared but has not been activated. The only time-bound operational gate is the read-only 2026-08-25 stability checkpoint before any legacy-backend retirement.
 
-## Project Objectives
+## Original Objectives
 
 - Present ATD as a premium, measurement-first digital growth agency.
-- Convert qualified visitors through strategy-call, contact, newsletter, exit-intent, and Tracking Audit paths.
-- Capture consent, route, offer, UTMs, click IDs, and first/latest source data consistently.
-- Route leads into Brevo lists, notifications, nurture, and CRM follow-up.
-- Measure key journeys in GA4, Meta, and the wider GTM stack without violating consent choices.
-- Use the ATD implementation as a repeatable delivery model and future case study.
-- Maintain a safe production publishing and recovery process for the static cPanel website.
+- Convert visitors through Contact, Tracking Audit, Newsletter, Exit Popup, and Strategy Call journeys.
+- Preserve consent, route, offer, UTMs, click IDs, campaign context, and source lifecycle.
+- Route leads into Brevo segmentation, notifications, automation, and CRM follow-up.
+- Measure journeys through GTM, GA4, Meta and Clarity without bypassing consent choices.
+- Maintain safe production publishing, rollback, testing, and evidence procedures.
+- Turn ATD's implementation into a repeatable internal delivery model and case study.
 
-## Timeline
-
-| Period | Workstream | Reconciled outcome |
-| --- | --- | --- |
-| 2025 planning | Early service/site planning | ChatGPT Martech history includes service structure, form options, Namecheap, Notion, and initial martech blueprints. Treat as planning unless supported later. |
-| Feb 2026 | Website rebuild and measurement foundation | Vite/React site rebuilt; SEO/legal work began; GTM constitution, GA4 property, tracking strategy, Brevo setup, and booking evaluation were discussed and implemented in stages. |
-| Mar–Apr 2026 | UX, performance, content, lead capture | Homepage/service templates, responsiveness, performance, contact flow, prerendering, Brevo popup/newsletter, consent sync, and DOI work advanced. |
-| May 2026 | Structured delivery and production backend | PR-based page refinements; Expertise/Results added; GTM conversions and Brevo lead notification/routing expanded; `alphatra-serv` became the documented public API service. |
-| Jun 2026 | Martech hardening and recovery | Campaign attributes, source lifecycle, schema normalization, CRM fallback, GA4 meeting webhook, Meta CAPI/event IDs, Ketch consent bridge, Clarity, extensive lead-flow and consent QA, Notion Agency OS, and continuity docs. |
-| Jul 2026 | Launch readiness and campaign lander | Brevo list organization, Meta dedupe fixes, Tracking Audit lander redesign, test-ground release validation, campaign pilot specification; production deployment remained a key gate in dated handoffs. |
-| Aug 2026 | Production publishing and discovery | Protected cPanel GitHub Actions release/rollback workflow, broader prerender/build validation, IndexNow submission, and GSC audit SQL artifacts. Asset reconstruction on 2026-08-18 verified `45043ef7` as the live cPanel build; current `main@38f280d0` is newer. |
-| Aug 2026 backend migration | Backend reconciliation and controlled Netlify cutover | Canonical backend PRs #2/#3 merged; Atlas data and recovery snapshot verified; `alphatra-serv` rebound to `atd-backend-test/main@c9035d19`; repeated non-mutating smoke checks passed. |
-
-## Website Scope
-
-The current router includes:
-
-- Homepage and About Us
-- Services overview and detailed service pages
-- Conversion Tracking, Marketing Automation, and Paid Media pages
-- Expertise overview and industry detail pages
-- Results
-- Blog and article routes
-- Contact Us and thank-you page
-- Book a Call and confirmation page
-- Tracking Audit campaign landing page
-- Newsletter confirmation
-- Privacy, Cookie, Terms, and custom 404 routes
-
-The website uses lazy routes, shared layout/components, SEO configuration, prerendered output, a sitemap, static-host routing support, and locally hosted fonts. Blog content remains repository-backed; the older Sanity/WordPress CMS discussion is not implemented evidence.
-
-## Architecture
+## Current Architecture
 
 ```text
 Visitor
-  -> alphatrack.digital (static React build on Namecheap/cPanel)
-     -> pages, SEO, prerendered routes, consent UI, dataLayer
-     -> lead calls to approved API endpoints
-        -> alphatra-serv.netlify.app (Netlify production backend)
-           -> Brevo contacts/lists/DOI/notifications/CRM fallback
-           -> Meta CAPI where configured
-           -> GA4 Measurement Protocol for meeting confirmation
-  -> GTM
-     -> GA4 / Meta / Conversion Linker / Clarity according to consent
+  -> alphatrack.digital / www.alphatrack.digital
+     -> static Vite + React + TypeScript site on Namecheap/cPanel
+     -> Ketch consent + GTM dataLayer
+        -> GA4 / Meta Pixel / Clarity / Conversion Linker as consent permits
+     -> public lead and content API calls
+        -> Netlify alphatra-serv
+           -> hardened Netlify Functions
+           -> MongoDB Atlas (admin users, blog content, captured records as designed)
+           -> Brevo Contacts/Lists/DOI/Meetings/notifications
+           -> Brevo CRM deals and tasks
+           -> GA4 Measurement Protocol
+           -> Meta CAPI
+
+Development and QA
+  -> frontend repository staging -> Vercel frontend test project
+  -> backend repository staging -> Vercel backend test project
+  -> Netlify frontend project -> frontend-only/manual test mirror; automatic builds stopped
 ```
 
-Repository-compatible Netlify and Vercel handlers remain alongside the cPanel frontend. This is intentional but creates configuration-drift risk: frontend endpoint variables, backend environment scope, and the deployed code version must agree.
+Production is intentionally split: cPanel serves the static website and Netlify `alphatra-serv` serves the public API/backend. Vercel remains a test ground, not the live service. The canonical backend source is the separate backend repository, not the legacy website-repository backend branch.
 
-Vercel remains the testing ground for both frontend and backend development. The Netlify frontend project is for frontend testing only; Netlify `alphatra-serv` is the production backend. The canonical backend source is now the separate `atd-backend-test/main` repository rather than the website repository's legacy `backend` branch.
+## Production Identities
 
-## Lead and Martech Model
+| Surface | Canonical source | Deployed/current evidence |
+| --- | --- | --- |
+| Frontend | `alphatrackdigital/alphatrackdigital` protected `main` | `02eadaf8949a08d46952bbea677b9e2ea212fc48`; successful protected `Release public website` run |
+| Backend | `alphatrackdigital/atd-backend-test` protected `main` | `2f3941fa3a9753de327542925f870b0faeea814b`; PR #7 merge and owner-confirmed Netlify production release |
+| Public frontend | Namecheap/cPanel | `https://alphatrack.digital` and `https://www.alphatrack.digital` |
+| Public backend | Netlify | `alphatra-serv`; production browser origins restricted to the two canonical domains |
+| Frontend test | Vercel + optional Netlify frontend mirror | `staging`; do not use production `main` for experiments |
+| Backend test | Vercel | backend `staging`; keep test data and configuration isolated |
 
-| Journey | Website surface | Primary destination | Key evidence |
-| --- | --- | --- | --- |
-| Contact inquiry | `/contact-us` | Brevo contact list 8 + notification/CRM handling | Code, tests, June QA evidence |
-| Tracking Audit | `/offer/tracking-audit` | Brevo list 11 + campaign attribution + CRM handling | Code, tests, July release evidence |
-| Newsletter | Footer/newsletter surfaces | Brevo list 9 and DOI/fallback path | Code, tests, June QA evidence |
-| Exit popup | Shared exit-intent component | Brevo/default list 10 | Code, tests, June QA evidence |
-| Strategy call | `/book-a-call` and Brevo Meetings | Strategy-call list/meeting webhook/GA4 | Code and partial historical live proof; CRM/webhook completeness remains a decision |
+## Website Scope
 
-Brevo mappings explicitly preserve consent, source, route, offer, campaign metadata, and attribution. `SERVICE_INTEREST` must remain an array and `MONTHLY_BUDGET` must remain in Brevo categories `1`–`4`.
+The website includes the homepage, About, Services and detailed service pages, Expertise and industry pages, Results, Blog and article routes, Contact and confirmation, Book a Call and confirmation, Tracking Audit landing page, Newsletter confirmation, Privacy, Cookie, Terms, SEO/prerendered routes, sitemap, custom 404, responsive layouts, and an authenticated admin boundary for managed backend content.
 
-## Tracking and Consent
+The production release workflow packages an immutable reviewed SHA, rejects production source maps, creates a pre-deploy backup, performs GET-only smoke checks, rolls back automatically on immediate activation failure, emits artifacts, and submits IndexNow on a best-effort basis. A separate protected manual rollback workflow requires explicit confirmation, current release identity, Production approval, incident preservation, and post-rollback smoke checks.
 
-- The frontend pushes normalized events to the GTM dataLayer.
-- GA4 conversion and route-view handling was historically verified in staging/test environments.
-- Meta CAPI handlers and browser event-ID propagation exist for Lead/Subscribe deduplication.
-- Ketch consent is bridged to the real Google Consent Mode update API.
-- Clarity was historically installed through GTM under analytics consent.
-- Brevo Conversations was classified as a functional/support widget rather than analytics/ad tracking in the July fix.
-- Google Ads remained largely at Conversion Linker/audience-source readiness; conversion delivery was deferred.
+## Lead and CRM Journeys
 
-Historical test-ground evidence is strong, but production drift is possible and should be rechecked before paid traffic.
+| Journey | Entry point | Processing and evidence state |
+| --- | --- | --- |
+| Contact inquiry | `/contact-us` | Contact/list capture, attribution, notification and qualified CRM handling implemented and tested |
+| Tracking Audit | `/offer/tracking-audit` | Live production QA passed: request accepted, backend completed, Brevo deal and follow-up task created, no old duplicate-list warning or CRM quota failure |
+| Newsletter | Site newsletter surfaces | Brevo DOI/fallback, list routing, consent and Subscribe tracking implemented |
+| Exit popup | Shared exit-intent UI | Brevo capture, attribution, consent, notification and tracking implemented |
+| Strategy Call | `/book-a-call` + Brevo Meetings | Live header-auth webhook passed: contact processed, Demo scheduled deal and prep task created, GA4 event sent, Meta and notification ledger steps completed |
 
-## Git and Delivery History
+The Brevo contract preserves explicit consent and source metadata. `SERVICE_INTEREST` remains an array and `MONTHLY_BUDGET` remains a category value `1`-`4`. Test/QA identities must remain excluded from live reporting and sends.
 
-The repository moved from direct/bot-generated changes to a more controlled PR workflow. Significant merge groups include:
+## Backend Security and Reliability
 
-- PRs 1–4: global foundation, SEO, performance, exit-intent popup.
-- PRs 5–23: Brevo consent, mobile refinements, newsletter/footer, About, Services, service details, Expertise, and Results.
-- PR 24: Brevo campaign attributes.
-- PRs 31, 33, 35: Meta CAPI readiness and browser deduplication fixes.
-- PRs 36–38: Tracking Audit lander and release evidence.
-- August direct commits: protected production publishing and IndexNow.
+Backend PR #7 completed the production-security boundary:
 
-Frontend `main` and backend-repository `main` are the two canonical production branches, with matching `staging` branches for test-ground work. The website repository's obsolete `deploy` and `vercel-backend` branches were removed on 2026-08-18 after their exact tips were preserved as verified archive tags. The legacy `backend` branch remains temporarily for rollback context through the Netlify stability window.
+- production-aware CORS and explicit rejection of supplied hostile/preview origins before writes;
+- preserved no-Origin server-to-server/webhook behavior;
+- hardened admin/authentication and regression coverage;
+- removal of redundant Brevo list-add calls;
+- CRM quota resilience without turning successful capture into a failed submission;
+- structured, sanitized provider logging;
+- durable per-step Meetings processing for contact, CRM deal, CRM task, GA4, Meta, and notification;
+- definite-versus-ambiguous provider outcome classification that prevents automatic replay of potentially committed CRM creates;
+- supported header authentication with the historical Meetings query-token fallback temporarily retained;
+- backend CI covering tests and TypeScript type-check.
 
-## Notion and ChatGPT Roles
+The installed Netlify Blobs client does not expose a supported conditional-write/CAS primitive. A simultaneous first-delivery race remains a documented residual limitation. Ambiguous started steps fail closed and require reconciliation rather than automatic replay.
 
-Notion evolved into the business-readable Agency OS with projects, campaigns, tasks, playbooks, SOPs, evidence, tools, and weekly reviews. Its strongest current records distinguish implementation-complete work from launch-gated work.
+## Tracking, Consent and Martech
 
-The ChatGPT Projects preserve rationale and exploration:
+- **Ketch:** consent-management source; bridged to Google Consent Mode.
+- **GTM:** orchestration and normalized dataLayer contract.
+- **GA4:** page/conversion analytics plus Measurement Protocol for confirmed Meetings.
+- **Meta Pixel/CAPI:** browser/server events with shared event IDs and prior deduplication proof.
+- **Clarity:** behavior analytics gated under the intended consent category.
+- **Google Ads:** linkage/audience readiness; paid activation remains an owner decision.
+- **Brevo:** contacts, lists, DOI, Meetings, automation templates/workflows, notifications, CRM and operational handoff.
+- **MongoDB Atlas:** canonical backend datastore after migration from the developer's earlier personal account to the ATD-controlled project.
+- **Notion:** business-readable Agency OS, tasks, evidence and case-study records.
 
-- **ATD Website**: profile/website alignment, hosting/Netlify credits, booking-page customization, Figma/post-launch design, Meta campaign strategy, design references.
-- **ATD Martech**: original stack blueprint, GTM constitution/strategy, Brevo setup/API/workflows/campaigns/attributes, Ketch, Clarity, Notion operations, tools and agent continuity.
+The earlier Meta browser/server deduplication test remains accepted. Meta was not returned to Test Events for the final release because the temporary code was intentionally removed and another production lead was not justified.
 
-These conversations explain intent but are lower-confidence than repository and retained QA evidence.
+## Reconciled Timeline
 
-## Completed Versus Paused
+| Period | Phase | Outcome |
+| --- | --- | --- |
+| 2025 planning | Service and stack exploration | Early website, Namecheap, form, CRM, tracking and Notion plans established; planning only where later evidence is absent |
+| Feb 2026 | Rebuild and measurement foundation | Vite/React site, SEO/legal work, GTM constitution, GA4 strategy, Brevo and booking foundations |
+| Mar-Apr 2026 | UX, performance and lead capture | Responsive templates, service content, performance, contact/newsletter/popup flows, consent synchronization and prerendering |
+| May 2026 | Structured delivery | PR-led page refinements, Expertise/Results, conversions, notifications and `alphatra-serv` public API direction |
+| Jun 2026 | Martech hardening | Campaign attributes, source lifecycle, schema normalization, CRM API fallback, GA4 Meetings, Meta CAPI/event IDs, Ketch bridge, Clarity, extensive QA and Notion Agency OS |
+| Jul 2026 | Campaign readiness | Brevo organization, Meta dedupe fixes, Tracking Audit lander, test-ground release evidence and pilot specification |
+| Aug 10-19 2026 | Production governance | Protected cPanel packaging/deploy workflow, PR release gate, `Protect main`, source-map controls, IndexNow and protected rollback |
+| Aug 19-20 2026 | Frontend release | Protected frontend `main@02eadaf8` successfully deployed to cPanel |
+| Aug 18-20 2026 | Backend reconciliation and hardening | Canonical backend separated, MongoDB ownership reconciled, Netlify production rebound, PR #7 reviewed and merged |
+| Aug 20 2026 | Single-pass launch verification | Backend `2f3941fa` deployed; root/blog/admin/CORS, Strategy Call and Tracking Audit production gates passed; Issues #4-#6 closed |
+| Aug 21-24 2026 | Observation window | Hold production configuration stable and retain legacy backend |
+| Aug 25 2026 | Pending stability checkpoint | Recheck health read-only; only then decide legacy retirement and change status to launched/stable |
 
-### Completed or strongly evidenced
+## Key Decisions
 
-- Full website information architecture and major page redesigns.
-- Lead capture and Brevo routing code with targeted tests.
-- Consent, attribution, campaign metadata, and source lifecycle plumbing.
-- Tracking Audit lander and campaign specification.
-- GTM/GA4/Meta/Ketch/Clarity test-ground work with retained evidence.
-- Notion Agency OS and agent-continuity process.
-- Protected static production publishing workflow and release artifact validation.
+1. **cPanel remains the production frontend.** Vercel and Netlify frontend are test surfaces.
+2. **Netlify `alphatra-serv` is the production backend.** Vercel is the backend test ground.
+3. **Canonical production branches are protected `main`; testing uses `staging`.**
+4. **The separate backend repository is canonical.** The website repository's legacy backend is retained only through the stability checkpoint.
+5. **Production browser origins are allowlisted, not inferred from CORS headers alone.**
+6. **Meetings retries fail closed on ambiguous non-idempotent writes.** Duplicate CRM creation is less acceptable than an operator reconciliation step.
+7. **The Meetings query-token fallback is now obsolete but removed only in a later isolated PR.** Live header authentication has been proven.
+8. **Paid Tracking Audit traffic is technically cleared but never activated implicitly.** Activation is a business decision.
+9. **Historical Notion/ChatGPT records explain intent; current Git and live QA govern implementation claims.**
+10. **Legacy cleanup follows observation, tagging and binding verification.** It is not bundled with release work.
 
-### Paused or requiring re-verification
+See [`registers/DECISION_LOG.md`](registers/DECISION_LOG.md) for the durable decision register.
 
-- Review and approve the `45043ef7..38f280d0` production delta before using the protected release workflow to bring cPanel up to current `main`.
-- Current production consent matrix after the latest build.
-- Current Brevo workflows, active contacts, exclusions, credits, webhooks, and deliverability.
-- Current GA4 and Meta production event/deduplication state.
-- Optional Book-a-call CRM deal/task and custom webhook proof.
-- Controlled Meta Tracking Audit campaign launch.
-- CMS decision/implementation and case-study publication.
+## Current Completion State
 
-## Main Risks
+| Workstream | State |
+| --- | --- |
+| Development | Complete |
+| Security hardening | Complete |
+| Frontend production deployment | Complete |
+| Backend production deployment | Complete |
+| Brevo/CRM | Complete for launch gate |
+| Strategy Call | Complete |
+| Tracking Audit | Complete |
+| Launch verification | Complete |
+| Paid campaign | Cleared, awaiting owner activation |
+| Legacy backend retirement | Pending Aug 25 checkpoint |
 
-- Documentation contains historical contradictions, especially around Netlify/Vercel/cPanel roles and old launch dates.
-- Code presence can be mistaken for deployed behaviour.
-- External platform configuration may drift independently of Git.
-- Test/QA contacts may pollute Brevo reporting or workflow sends without explicit exclusions.
-- Multiple compatible backend copies can diverge.
-- The working tree contains unrelated user changes that must be preserved.
+## Remaining Non-Blocking Work
 
-## Current Recommendation
+1. Perform the Aug 25 read-only stability checkpoint.
+2. Remove the Meetings `?token=` fallback in a small reviewed backend PR after the checkpoint/reconciliation window.
+3. Review Vercel development-adapter dependency/toolchain advisories separately because remediation involves major-version changes.
+4. Sync Notion's older launch-gate records from this evidence after the GitHub continuity PR is reviewed.
+5. Continue the internal case study and operational reporting cadence as growth work, not launch remediation.
 
-Resume from production-state verification, not from another redesign. Once the deployed commit and protected release workflow are confirmed, repeat the production consent/tracking and approved lead-path gates. Only then decide whether to launch the Meta pilot, refine content, or continue platform expansion.
+## Ownership and Access Dependencies
+
+- The owner controls campaign activation, Production approvals and destructive cleanup decisions.
+- Hosting administration and any cPanel-only action may still require the external developer unless access changes.
+- Netlify, Vercel, MongoDB Atlas, Brevo, Notion and GitHub access must be revalidated at the time of any later mutation.
+- No agent may infer permission to submit leads, send messages, mutate CRM/database records, deploy, or retire infrastructure from read-only access.
+
+## Evidence and Confidence
+
+- GitHub repository state, workflow runs, PRs, issues and SHAs were refreshed on 2026-08-23.
+- The final production/QA state is based on the owner-approved single-pass release report tied to backend `2f3941fa` and the successful frontend workflow release.
+- Connected Notion pages were searched and fetched read-only. They remain valuable historical/operational sources but contain superseded pre-launch gates.
+- ChatGPT Website/Martech project inventories provide rationale but are not treated as deployment proof.
+
+## Resume Point
+
+Resume with [`ATD_RESUME_HERE.md`](ATD_RESUME_HERE.md). Do not begin new production work until the Aug 25 checkpoint result is recorded or the owner explicitly changes priority.

@@ -1,33 +1,38 @@
 # ATD Project Continuity Pack
 
-Last reviewed: 2026-08-19
+Last reviewed: 2026-08-23
 
-This folder is the restart point for the AlphaTrack Digital website and internal martech implementation. It consolidates repository, Git/GitHub, Notion, and ChatGPT Project history without treating planning conversations as proof of implementation.
+This folder is the durable restart point for the AlphaTrack Digital website, backend and martech implementation. Current state: **LAUNCH-READY**, with the Aug 25 stability checkpoint pending.
 
 ## Read Order
 
-1. [`CHATGPT_WEB_HANDOFF.md`](CHATGPT_WEB_HANDOFF.md) — self-contained GitHub-to-ChatGPT-web handoff, current verified state, plugin usage, exclusions and continuation tasks.
-2. [`ATD_RESUME_HERE.md`](ATD_RESUME_HERE.md) — current pause state and the next safe actions.
-3. [`ATD_PROJECT_OVERVIEW.md`](ATD_PROJECT_OVERVIEW.md) — project history, architecture, workstreams, decisions, and progress.
-4. [`registers/MARTECH_INTEGRATIONS.md`](registers/MARTECH_INTEGRATIONS.md) — integrations, data flows, verification, and gaps.
-5. [`LEGACY_BRANCH_RECONCILIATION.md`](LEGACY_BRANCH_RECONCILIATION.md) — file-level legacy branch coverage, risks, archive and deletion decisions.
-6. [`FRONTEND_PRODUCTION_VERIFICATION.md`](FRONTEND_PRODUCTION_VERIFICATION.md) — exact live cPanel commit fingerprint and GET-only smoke evidence.
-7. [`FRONTEND_RELEASE_DELTA_REVIEW.md`](FRONTEND_RELEASE_DELTA_REVIEW.md) — live-to-main release review, cPanel prerequisites, risks and safe release sequence.
-8. [`registers/OPEN_ITEMS.md`](registers/OPEN_ITEMS.md) — reconciled restart backlog.
-9. [`registers/GIT_REPOSITORIES_AND_BRANCHES.md`](registers/GIT_REPOSITORIES_AND_BRANCHES.md) — canonical repositories, branch evidence, cleanup and rename guidance.
-10. [`sources/SOURCE_INVENTORY.md`](sources/SOURCE_INVENTORY.md) — source coverage and limitations.
+1. [`ATD_RESUME_HERE.md`](ATD_RESUME_HERE.md) — authoritative status, next action and safety boundaries.
+2. [`ATD_PROJECT_OVERVIEW.md`](ATD_PROJECT_OVERVIEW.md) — comprehensive history, architecture, integrations, timeline, decisions and completion state.
+3. [`AUG_25_STABILITY_CHECKPOINT.md`](AUG_25_STABILITY_CHECKPOINT.md) — pending read-only observation-window closeout.
+4. [`CHATGPT_WEB_HANDOFF.md`](CHATGPT_WEB_HANDOFF.md) — compact cross-agent continuation prompt and evidence rules.
+5. [`registers/GIT_REPOSITORIES_AND_BRANCHES.md`](registers/GIT_REPOSITORIES_AND_BRANCHES.md) — canonical repositories, environments and cleanup constraints.
+6. [`registers/MARTECH_INTEGRATIONS.md`](registers/MARTECH_INTEGRATIONS.md) — integration and lead-flow map.
+7. [`registers/DECISION_LOG.md`](registers/DECISION_LOG.md) — durable architectural and operating decisions.
+8. [`registers/OPEN_ITEMS.md`](registers/OPEN_ITEMS.md) — remaining non-launch-blocking work.
+9. [`sources/SOURCE_INVENTORY.md`](sources/SOURCE_INVENTORY.md) — evidence hierarchy, source coverage and limitations.
 
-Existing detailed handoffs and redacted QA evidence remain under [`../codex-handoffs`](../codex-handoffs). This pack summarizes them; it does not replace their detailed evidence.
+## Historical Evidence
 
-## Evidence Rules
+- [`FRONTEND_PRODUCTION_RELEASE_2026-08-20.md`](FRONTEND_PRODUCTION_RELEASE_2026-08-20.md)
+- [`FRONTEND_RELEASE_GOVERNANCE_2026-08-19.md`](FRONTEND_RELEASE_GOVERNANCE_2026-08-19.md)
+- [`PRODUCTION_ROLLBACK_GUARD_2026-08-19.md`](PRODUCTION_ROLLBACK_GUARD_2026-08-19.md)
+- [`ATD_BACKEND_MIGRATION_GATE.md`](ATD_BACKEND_MIGRATION_GATE.md)
+- [`LEGACY_BRANCH_RECONCILIATION.md`](LEGACY_BRANCH_RECONCILIATION.md)
+- [`../codex-handoffs`](../codex-handoffs)
 
-Claims are classified as:
+Historical documents preserve how decisions were reached. When their status conflicts with `ATD_RESUME_HERE.md`, the newer reviewed entry point wins.
 
-- **Verified implemented** — supported by current code, Git history, tests, or retained QA evidence.
-- **Historically verified** — supported by dated evidence but not rechecked on 2026-08-17.
-- **Implemented, production unverified** — present in code but the current public deployment was not proven.
-- **Reported external state** — documented from Notion or prior live-system review but not rechecked now.
-- **Planned** — discussed or specified without implementation evidence.
-- **Unknown** — insufficient evidence.
+## Evidence Labels
 
-Never copy secrets, authentication material, private contact data, or unredacted lead records into this folder.
+- **Verified current:** tied to current Git/GitHub or dated live-system evidence.
+- **Owner-confirmed production evidence:** reported from the controlled release/QA pass and tied to a release SHA.
+- **Historically verified:** reliable dated evidence not repeated in the latest pass.
+- **Implemented:** present in current source/tests but not necessarily re-exercised live.
+- **Planned/unknown:** insufficient implementation or current-state evidence.
+
+Never store secrets, environment values, connection strings, private contacts, authentication material, password hashes, or unredacted customer records in this pack.

@@ -1,95 +1,84 @@
 # Source Inventory and Coverage
 
-Last reviewed: 2026-08-19
+Last reviewed: 2026-08-23
 
 ## Evidence Hierarchy
 
-1. Current live-system verification tied to a date and environment.
-2. Current repository, tests, and retained QA evidence.
-3. Git/GitHub history.
-4. Notion decisions and operational records.
-5. ChatGPT Project discussions.
+1. Dated production verification tied to a release/environment.
+2. Current repository, tests, required CI and retained QA evidence.
+3. Git/GitHub PR, issue, workflow and branch-protection history.
+4. Owner-confirmed controlled release/QA report.
+5. Notion decisions and operational records.
+6. ChatGPT Website/Martech discussions and planning history.
 
-## Repository and Git
+## Current Git/GitHub Evidence
 
-- Current audited remote production-source commit: `38f280d0b99a10678de455dac16a671f431d372c`.
-- Draft release-hardening source: PR #42 at `3ae5c386bc28c8c86bafaadbd1e73cfd2adb9d53`; remote refs and public PR metadata were rechecked on 2026-08-19.
-- History inspected from initial template/rebuild through the 2026-08-19 continuity handoff.
-- Branches, remotes, merge commits, release workflows, API handlers, routes, tests, environment names, and handoff/evidence documentation were reviewed.
-- Existing local changes were preserved.
+- Frontend remote `main`: `02eadaf8949a08d46952bbea677b9e2ea212fc48`.
+- Frontend PR #42 merged: protected release hardening.
+- Frontend PR #44 merged: protected manual rollback.
+- Successful `Release public website` workflow at frontend `02eadaf8...`.
+- Frontend active `Protect main` ruleset and required `PR release gate`.
+- Backend remote `main`: `2f3941fa3a9753de327542925f870b0faeea814b`.
+- Backend PR #7 merged on 2026-08-20 with merge commit `2f3941fa...`.
+- Backend open-issue query returned no results on 2026-08-23; Issues #4-#6 are recorded closed/completed.
+- Existing documentation-only draft PR #43 was reused rather than creating a competing PR.
 
-Primary detailed sources:
+## Owner-Confirmed Production Evidence
+
+The controlled single-pass release report records:
+
+- backend `2f3941fa...` deployed to production;
+- root, blog, admin-auth boundary and origin/CORS checks passed;
+- Netlify production secrets isolated and rotated configuration loaded;
+- Brevo Meetings header authentication active;
+- Strategy Call contact, CRM deal/task, GA4, Meta and notification processing completed;
+- live Tracking Audit capture and CRM handoff completed without prior warnings/quota failure;
+- no paid campaign was enabled or changed;
+- project state is LAUNCH-READY pending Aug 25 stability observation.
+
+## Repository Documentation
+
+Primary sources include:
 
 - `README.md`
 - `docs/production-publishing.md`
+- `docs/production-rollback.md`
 - `docs/codex-handoffs/ATD_MASTER_CODEX_WORKLOG.md`
 - `docs/codex-handoffs/WEBSITE_AND_TRACKING_STATE.md`
 - `docs/codex-handoffs/BREVO_CURRENT_STATE.md`
-- `docs/codex-handoffs/OPEN_ITEMS_FOR_NEXT_AGENT.md`
 - `docs/codex-handoffs/EVIDENCE_ARCHIVE_INVENTORY.md`
-- `docs/codex-handoffs/TECHNICAL_CHANGELOG.md`
-- Redacted evidence below `docs/codex-handoffs/evidence/`
+- redacted evidence under `docs/codex-handoffs/evidence/`
+- historical files in this continuity folder.
 
-## GitHub
+## Notion Sources
 
-Repository identity was resolved from local Git as `alphatrackdigital/alphatrackdigital`. Local merge history provides PR coverage through PR 38, including the page-redesign sequence, Brevo campaign attributes, Meta readiness/deduplication, and Tracking Audit release work. The connected GitHub metadata calls were slow/partial during this pass, so issue comments and closed-item metadata were not treated as exhaustive.
-
-## Notion
-
-Connected workspace: **AlphaTrack Digital**.
-
-Pages directly searched/fetched include:
+Connected AlphaTrack Digital workspace pages searched/fetched read-only:
 
 - [ATD Internal Martech Project](https://app.notion.com/p/38217ea57b558119a27eef8311960555)
 - [ATD Command Center](https://app.notion.com/p/38e17ea57b558191bd49e7437be514ce)
-- [ATD Notion Database Audit — 2026-06-29](https://app.notion.com/p/38e17ea57b5581139c1ae15771f6b088)
-- [Ketch Consent Readiness — 2026-06-24](https://app.notion.com/p/38917ea57b5581739dede8fc2c13a640)
-- [Conversion Tracking Service](https://app.notion.com/p/26317ea57b5581c48f90f8a27a1826ad)
-- Brevo campaign readiness, workflow/handoff, deployment, measurement-plan, and Agency OS search results.
+- [ATD Website Completion & Operations](https://app.notion.com/p/3bf17ea57b55816692daddbb73402731)
+- [Finalize Brevo CTMA nurture and handoff workflow](https://app.notion.com/p/37a17ea57b558199aaabf5d8821bb7f6)
+- [Activate controlled Meta Ads pilot](https://app.notion.com/p/37a17ea57b558190b649e5ce55564feb)
+- [ATD Internal Conversion Tracking and Marketing Automation Implementation](https://app.notion.com/p/38217ea57b558143a990f5f33316e9e3)
 
-Notion’s current-plan database-query limits meant this was a targeted search/direct-fetch review rather than a complete relational database export. No Notion content was modified.
+These pages substantiate original objectives, operating rules, launch gates, workflow design and case-study intent. Several properties/content blocks still reflect pre-launch state and are marked for a later sync. No Notion page was modified in this pass.
 
-## ChatGPT Project — ATD Website
+## ChatGPT Project Coverage
 
-Project ID observed in the web UI: `g-p-698ca7a5b63081919eec993b7e77faa4`.
+- **ATD Website** preserves hosting, profile/positioning, design, booking, Netlify-credit and campaign discussions.
+- **ATD Martech** preserves stack blueprint, GTM/GA4 strategy, Brevo setup/workflows/attributes, Ketch, Clarity, Notion operations and agent-continuity rationale.
 
-Visible history inventoried during this pass:
+Conversation history is decision context. It is not treated as proof that a discussed configuration was applied.
 
-- Meta Ads Campaign Strategy (two conversations)
-- Figma Design Post Launch / Post-Launch
-- Netlify Credits Issue
-- ATD Profile and Website Alignment
-- GPT-5.5 and ATD Development
-- Brevo Booking Page Customization
-- Codex and AVIF Support
-- Design Reference Images
+## Known Limitations
 
-These titles confirm the project’s hosting, visual, positioning, booking, and campaign workstreams. Repository/Notion evidence was used for implementation claims.
+- The Aug 25 stability result cannot exist before its observation date and is intentionally pending.
+- Notion databases were researched selectively rather than exported in full.
+- ChatGPT conversations were inventoried/summarized, not reproduced.
+- Search Console SQL/result work remains local and excluded from this PR.
+- External platform state can drift after the review date; recheck read-only when a future decision depends on it.
+- The Netlify Blobs simultaneous-first-delivery race remains a documented backend limitation because the installed client exposes no supported conditional-write/CAS primitive.
 
-## ChatGPT Project — ATD Martech
+## Privacy/Secret Exclusions
 
-Project ID observed in the web UI: `g-p-6880faf59b948191bb84400d2e23ea2d`.
-
-The visible history spans:
-
-- Martech Stack Blueprint and service structure
-- Conversion Tracking Strategy and GTM Constitution
-- ATD GTM Batch Deployment
-- GA4/GTM/Notion setup and tasks
-- Brevo setup, API/MCP, campaigns, workflows, attributes, booking, and campaign operations
-- Ketch setup/dashboard and Microsoft Clarity integration
-- Notion database audit and operational organization
-- Namecheap, forms, privacy, Trustpilot, Tally, user metrics, and tool/agent continuity discussions
-
-This history is valuable for intent and decision rationale. It is not assumed to prove that every discussed configuration was applied.
-
-## Known Coverage Gaps
-
-- The current public cPanel commit was verified as `45043ef7` by byte-identical reconstruction. The later protected workflow run at `4fdcec59` succeeded historically but is not the current public fingerprint.
-- External martech platforms were not re-audited live on 2026-08-17.
-- ChatGPT conversations were inventoried by project/title; this pack does not reproduce every transcript.
-- GitHub issue/PR comments were not exhaustively exported.
-- Notion databases were not fully queried because of plan/tool limits.
-- Search Console SQL source files were identified but their query results were not present in the audited `reports/` folders. The local report files were deliberately excluded from this GitHub handoff.
-
-These gaps are reflected as open items rather than silently inferred.
+This pack excludes credentials, environment values, connection strings, password hashes, private contacts, customer records and unredacted production payloads.

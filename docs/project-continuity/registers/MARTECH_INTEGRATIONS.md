@@ -1,55 +1,46 @@
 # ATD Martech Integration Register
 
-Last reviewed: 2026-08-19
+Last reviewed: 2026-08-23
 
-| System | Role | Implementation state | Last retained evidence | Resume action |
-| --- | --- | --- | --- | --- |
-| Brevo Contacts/Lists | Lead storage and segmentation | Verified implemented; external state historically reviewed | June–July code/tests and redacted QA | Read-only audit lists 7–14, fields, credits, exclusions, and current routing |
-| Brevo DOI | Newsletter consent confirmation | Verified implemented with fallback | Code/tests and June evidence | Confirm template, redirect, sender/domain, and live behaviour before campaign use |
-| Brevo Meetings | Booking | Implemented/partial live proof | Booking/list/email historically verified; CRM/webhook proof incomplete | Decide whether another controlled booking is required |
-| Brevo Conversations | Support chat widget | Verified implemented | July test-ground evidence | Confirm current production load and privacy classification |
-| Brevo CRM fallback | Deal/task handoff | Verified implemented in handlers | Code/docs; external outcomes partially verified | Confirm pipeline/owner/rules and prevent duplicates |
-| Brevo transactional webhook | Email event ingestion | Handler implemented, production registration historically incomplete | Code/tests/docs | Confirm endpoint and auth behaviour before registration |
-| GTM `GTM-MVXWCTZ8` | Tag orchestration | Reported published as Version 9; code-side contract verified | June consent evidence | Read-only container/workspace comparison and production preview |
-| GA4 | Page and conversion analytics | Historically verified; current production unknown | June test-ground/realtime evidence | Verify route views and agreed conversions after deployed commit is confirmed |
-| GA4 Measurement Protocol | Meeting confirmation | Verified implemented | Meeting-webhook tests and docs | Confirm production secret/debug mode and approved live event proof |
-| Meta Pixel | Browser events | Implemented with consent and late-readiness handling | July tests/evidence | Verify production Lead/Subscribe behaviour |
-| Meta CAPI | Server events and dedupe | Verified implemented; production configuration requires proof | Code/tests and July readiness docs | Confirm environment scope and Browser/Server event-ID match |
-| Ketch | CMP and consent signal | Historically verified on test ground | June multi-scenario evidence | Repeat production consent matrix; inspect policy/config drift read-only |
-| Microsoft Clarity | Behaviour analytics | Reported installed through GTM under analytics consent | June test-ground evidence | Confirm current project/tag, masking, recordings, and consent gate |
-| Google Ads | Conversion readiness/audiences | Partial; Conversion Linker and GA4-linked audience source | June read-only evidence | Keep conversions/billing deferred until campaign decision |
-| Vercel | Frontend/backend test ground | Both canonical repositories have controlled `staging` branches; stable test domains and Git build filters are pinned to `staging` | 2026-08-18 binding/isolation verification; PR #42 frontend preview passed | Keep test branches controlled; avoid real submissions while Preview shares Production integrations |
-| Netlify frontend | Frontend test mirror | Connected to website `staging`; automatic builds stopped; current deploy retained | 2026-08-18 binding/deploy evidence | Use an explicit draft deploy only when Netlify-specific validation is necessary; avoid credit-consuming automatic builds |
-| `alphatra-serv` Netlify | Public API backend | Live from canonical `atd-backend-test/main@c9035d19`; repeated non-mutating smoke passed; `9b782887` retained as rollback | 2026-08-18 migration and Atlas reconciliation | Hold configuration stable and run the closing read-only checkpoint no earlier than 2026-08-25 |
-| Namecheap/cPanel | Public static frontend | Current architecture | README and August release workflow | Verify deployed commit and protected workflow prerequisites |
-| GitHub Actions | Release control | Implemented; code-level hardening prepared in draft PR #42 | Commits `3ad4f10`, `4fdcec5`; PR #42 at `3ae5c386` | Review PR #42, tighten governance where supported, then run the read-only connection check before any release |
-| IndexNow | Post-release URL notification | Implemented; non-blocking failure semantics prepared in draft PR #42 | Commit `4fdcec5`; PR #42 | Confirm behaviour in the next explicitly approved production release |
-| Search Console | Search performance/indexing | SQL audit artifacts exist | `reports/gsc-*` | Review findings and connect them to the next SEO backlog |
-| Notion Agency OS | Operational source of truth | Verified present | Connected workspace audit | Sync only reviewed, evidence-backed status changes |
+| System | Production role | Current launch state | Next non-blocking action |
+| --- | --- | --- | --- |
+| Brevo Contacts/Lists | Lead storage, segmentation and lifecycle | Launch gate passed for verified Strategy Call and Tracking Audit flows | Monitor; retain test/suppression discipline |
+| Brevo DOI | Newsletter confirmation | Implemented with fallback | Periodic deliverability/template review |
+| Brevo Meetings | Booking source and webhook | Live header-auth delivery verified; CRM/GA4/Meta/notification ledger completed | Remove historical `?token=` fallback in a later small PR |
+| Brevo CRM | Deals/tasks and follow-up | Strategy Call Demo scheduled deal/task and Tracking Audit deal/task verified live | Monitor duplicates/quota; do not repeat live QA unnecessarily |
+| Brevo notifications/automation | Internal alerts and nurture | Required launch notification steps verified; historical workflow records exist | Paid/nurture activation remains an owner decision and must preserve exclusions |
+| GTM | Tag orchestration | Implemented and historically consent-tested | Monitor drift; no republish without a scoped change |
+| GA4 | Analytics/conversions | Meetings `meeting_booked_confirmed` verified live; broader instrumentation retained | Normal monitoring/reporting |
+| Meta Pixel + CAPI | Browser/server conversion tracking | Prior dedup proof remains valid; final release did not re-enable temporary Test Events code | Do not spend another production lead solely to repeat dedup QA |
+| Ketch | CMP/consent signal | Implemented with Google Consent Mode bridge and historical matrix evidence | Recheck only if configuration changes or monitoring indicates drift |
+| Microsoft Clarity | Consent-gated behavioral analytics | Implemented through the tracking stack | Review funnels/masking after useful production volume |
+| Google Ads | Linkage/audience/conversion readiness | Technical groundwork present | Paid activation/billing/conversion decisions remain business scope |
+| MongoDB Atlas | Canonical backend datastore | Migrated from developer personal ownership to ATD-controlled account | Later least-privilege, network and off-cluster-backup review |
+| Netlify `alphatra-serv` | Production backend runtime | Running backend `2f3941fa...`; secrets isolated to production; origin/security QA passed | Aug 25 read-only stability checkpoint |
+| Vercel | Frontend/backend test grounds | Controlled `staging` branches | Keep non-production data/config isolated |
+| Netlify frontend | Frontend-only test mirror | Connected to frontend `staging`; automatic builds stopped | Use only when Netlify-specific frontend verification is necessary |
+| Namecheap/cPanel | Static production frontend | Running protected frontend release `02eadaf8...` | Operate through protected release/rollback workflows |
+| GitHub Actions | CI, release and rollback control | Required PR gates and protected production workflows active | Preserve immutable-SHA and approval controls |
+| IndexNow | Post-release discovery notification | Integrated as best-effort release step | No separate action unless release/search monitoring shows a problem |
+| Search Console | Organic search performance/indexing | Local SQL source was identified but excluded from this PR | Review query results separately and create an SEO backlog |
+| Notion Agency OS | Business operations, tasks and case-study context | Connected and read; several records still show superseded pre-launch gates | Sync after this GitHub continuity PR is reviewed |
 
 ## Lead Data Contract
 
-Every priority lead path should retain, where applicable:
+Priority lead paths preserve, where applicable:
 
-- Explicit consent status and timestamp
-- Lead source plus first/latest source lifecycle
-- Website route and offer
-- UTM parameters and supported click IDs
-- Campaign/source/medium/content/term metadata
-- Meta browser/server event ID
-- Service interest as an array
-- Monthly budget as category `1`–`4`
-- QA/test identity flags or exclusion mechanism
+- consent status and timestamp;
+- lead source plus first/latest source history;
+- website route and offer;
+- UTM and supported click identifiers;
+- campaign/source/medium/content/term metadata;
+- Meta browser/server event ID;
+- `SERVICE_INTEREST` as an array;
+- `MONTHLY_BUDGET` as Brevo category `1`-`4`;
+- explicit QA/test exclusion state.
 
-## Environment Variables
+## Environment Documentation Rule
 
-Document names and purpose only; never values. The main families are:
+Document variable names and purposes only. Never store values. Main variable families include `BREVO_*`, `GA4_*`, `META_*`, GTM identifiers, frontend API endpoint names, database connection names, admin/authentication names, and platform context markers.
 
-- `BREVO_*`: API access, lists, DOI, consent fields, webhooks, meetings.
-- `GA4_*`: measurement ID, Measurement Protocol secret/debug/event configuration.
-- `GTM_CONTAINER_ID`.
-- `META_*`: pixel, CAPI token/version/test code.
-- `VITE_LEADS_ENDPOINT`, `VITE_BREVO_SUBSCRIBE_ENDPOINT`, `VITE_SITE_URL`.
-- Optional Supabase variables retained in the frontend integration.
-
-Before production use, verify environment scope on the actual runtime. A July failure occurred because required Brevo variables existed for Vercel Production but not Preview.
+Production secrets are isolated from non-production contexts. Any future environment audit must read names/scopes without revealing values.

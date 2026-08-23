@@ -1,5 +1,7 @@
 # Frontend Production Release — 2026-08-20
 
+Status reconciled: 2026-08-23
+
 ## Scope
 
 This record captures the first protected cPanel production release after the 2026-08-19 release-hardening, branch-ruleset and rollback-workflow work. It records only evidence available from GitHub, the owner-supplied GitHub Actions screenshots, and limited external reachability checks. It does not treat deployment success as proof of consent-state or downstream martech correctness.
@@ -62,17 +64,9 @@ Frontend deployment gate: **PASS**.
 
 Current production release identity: **`02eadaf8949a` / `02eadaf8949a08d46952bbea677b9e2ea212fc48`**, based on the successful protected GitHub release evidence.
 
-Post-deploy martech gate: **OPEN**.
+Post-deploy website/backend/tracking/CRM gate: **PASS**, superseded by the controlled single-pass release verification recorded in the 2026-08-23 continuity update. Strategy Call and Tracking Audit production QA passed, the prior Meta browser/server dedup proof remains accepted, and paid Tracking Audit traffic is technically cleared. Campaign activation was not performed and remains an explicit owner decision.
 
-Still required before paid Tracking Audit campaign traffic:
-
-1. browser-level production consent matrix covering fresh visit, reject all, accept all, analytics-only, targeted-only and persistence;
-2. verify Ketch consent state and GTM consent-mode behavior;
-3. verify GA4, Meta Pixel/CAPI-related browser signals, Clarity, Conversion Linker and Brevo Conversations only fire under intended consent states;
-4. verify Tracking Audit landing-page behavior on desktop and mobile;
-5. verify Meta Browser/Server event-ID matching and deduplication if a controlled conversion test is separately approved;
-6. restore/read current Brevo configuration when connector access becomes available;
-7. keep paid Meta traffic on hold until the production consent/tracking and Brevo gates are explicitly green or residual gaps are accepted by the owner.
+The observation window remains open through the read-only 2026-08-25 stability checkpoint. Do not retire the legacy backend before that checkpoint.
 
 ## Safety note
 
