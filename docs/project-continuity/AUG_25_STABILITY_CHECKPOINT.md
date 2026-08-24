@@ -1,10 +1,23 @@
 # Aug 25 Production Stability Checkpoint
 
+Last reviewed: 2026-08-24
+
 Status: **PENDING — do not execute before 2026-08-25**
 
 ## Purpose
 
 Confirm that the launched frontend/backend and verified lead paths remained healthy through the observation window before declaring the project launched and stable or retiring legacy backend assets.
+
+## Source Basis
+
+This checkpoint is derived from the current continuity sources:
+
+- [`ATD_PROJECT_OVERVIEW.md`](ATD_PROJECT_OVERVIEW.md)
+- [`ATD_RESUME_HERE.md`](ATD_RESUME_HERE.md)
+- [`registers/MARTECH_INTEGRATIONS.md`](registers/MARTECH_INTEGRATIONS.md)
+- [`registers/OPEN_ITEMS.md`](registers/OPEN_ITEMS.md)
+
+If these sources conflict with older Notion or chat records, use the current GitHub continuity evidence and current read-only production observations for this checkpoint.
 
 ## Safety Scope
 
@@ -30,6 +43,24 @@ The checkpoint passes when:
 3. No duplicate CRM side effect or retry storm is indicated.
 4. Protected branch/CI/release controls remain in force.
 5. No incident requires the retained legacy backend or rollback artifact.
+
+## Evidence to Record
+
+Record only non-secret operational evidence needed for the decision:
+
+- checkpoint date and reviewer;
+- frontend protected `main` SHA;
+- backend protected `main` SHA;
+- production deployment identity where visible;
+- surfaces and boundaries checked;
+- relevant error/log observations in redacted form;
+- duplicate/retry observation result;
+- GitHub issue/CI status;
+- owner-observed incident status;
+- final result: `PASS` or `FAIL`;
+- any follow-up item created from confirmed evidence.
+
+Do not record credentials, tokens, environment-variable values, private contact data, raw CRM records, cookies, authentication headers, or other secrets.
 
 ## Decision After a Pass
 
