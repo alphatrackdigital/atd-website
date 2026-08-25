@@ -10,7 +10,7 @@ Last reviewed: 2026-08-23
 | --- | --- |
 | Production frontend | `https://alphatrack.digital`, released from protected frontend `main@02eadaf8949a08d46952bbea677b9e2ea212fc48` through the cPanel workflow |
 | Production backend | Netlify `alphatra-serv`, running merged backend `main@2f3941fa3a9753de327542925f870b0faeea814b` |
-| Frontend repository | `alphatrackdigital/alphatrackdigital`; protected `main`, required PR gate, protected manual rollback |
+| Frontend repository | `alphatrackdigital/atd-website`; protected `main`, required PR gate, protected manual rollback |
 | Backend repository | `alphatrackdigital/atd-backend-test`; protected `main`, required PR/CI; PR #7 merged |
 | Browser-origin boundary | Production accepts only `https://alphatrack.digital` and `https://www.alphatrack.digital`; preview and hostile origins are rejected |
 | Strategy Call | Live webhook, contact capture, Demo scheduled deal, prep task, GA4 event, Meta step, and notification step completed |
