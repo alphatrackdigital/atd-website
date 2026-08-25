@@ -16,7 +16,7 @@ Last reviewed: 2026-08-25
 | --- | --- |
 | Namecheap/cPanel production frontend | `atd-website` protected `main`; releases only through approved GitHub Actions workflow |
 | Netlify `alphatra-serv` production backend | backend protected `main` |
-| Vercel `atd-website-test` | **Binding requires post-rename refresh:** Vercel still reports the previous repo slug `alphatrackdigital`; reconnect to `alphatrackdigital/atd-website` before relying on new preview deployments |
+| Vercel `atd-website-test` | GitHub integration is still receiving post-rename PR events. Vercel's project metadata currently displays the previous repo slug `alphatrackdigital`; treat that as stale metadata unless a future preview actually fails to bind. Current PR build status is blocked by the Hobby build-rate limit, not by the repository rename. |
 | Vercel backend test | backend `staging` |
 | Netlify frontend test mirror | frontend `staging`; automatic builds stopped to preserve credits |
 
@@ -47,6 +47,6 @@ Last reviewed: 2026-08-25
 ## Repository Rename Follow-up
 
 1. Update local frontend remotes to `https://github.com/alphatrackdigital/atd-website.git`.
-2. Reconnect Vercel `atd-website-test` to `alphatrackdigital/atd-website` before using it for new previews.
+2. Keep Vercel `atd-website-test` under observation; reconnect only if a future preview shows a real repository-binding failure rather than a plan/build-rate issue.
 3. Keep the Netlify frontend mirror unchanged unless its Git binding is later re-enabled.
 4. Use `alphatrackdigital/atd-website` in all new developer assignments and operational documentation.
