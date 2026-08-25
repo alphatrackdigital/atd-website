@@ -47,7 +47,7 @@ Production is intentionally split: cPanel serves the static website and Netlify 
 
 | Surface | Canonical source | Deployed/current evidence |
 | --- | --- | --- |
-| Frontend | `alphatrackdigital/alphatrackdigital` protected `main` | `02eadaf8949a08d46952bbea677b9e2ea212fc48`; successful protected `Release public website` run |
+| Frontend | `alphatrackdigital/atd-website` protected `main` | `02eadaf8949a08d46952bbea677b9e2ea212fc48`; successful protected `Release public website` run |
 | Backend | `alphatrackdigital/atd-backend-test` protected `main` | `2f3941fa3a9753de327542925f870b0faeea814b`; PR #7 merge and owner-confirmed Netlify production release |
 | Public frontend | Namecheap/cPanel | `https://alphatrack.digital` and `https://www.alphatrack.digital` |
 | Public backend | Netlify | `alphatra-serv`; production browser origins restricted to the two canonical domains |
