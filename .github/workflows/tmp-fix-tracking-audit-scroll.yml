@@ -19,8 +19,8 @@ jobs:
           fetch-depth: 0
 
       - name: Apply narrow source and regression-test patch
-        shell: python
         run: |
+          python - <<'PY'
           from pathlib import Path
 
           page = Path('src/pages/TrackingLandingPage.tsx')
@@ -44,6 +44,7 @@ jobs:
           if old_test not in text:
               raise SystemExit('Expected responsive test source was not found; refusing broad edit.')
           test.write_text(text.replace(old_test, new_test, 1), encoding='utf-8')
+          PY
 
       - name: Commit fix
         run: |
