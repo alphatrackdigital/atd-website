@@ -292,6 +292,11 @@ const TrackingLandingPage = () => {
       });
     }
     setStep(2);
+    window.requestAnimationFrame(() => {
+      if (window.matchMedia("(max-width: 1023px)").matches) {
+        document.getElementById("claim")?.scrollIntoView({ block: "start", behavior: "auto" });
+      }
+    });
   };
 
   const onSubmit = async (data: AuditFormData) => {
@@ -405,7 +410,7 @@ const TrackingLandingPage = () => {
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: 0.08 }}
-              className="w-full rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.018)_100%)] p-4 shadow-[0_22px_70px_rgba(0,0,0,0.24)] sm:p-7 md:p-8 lg:sticky lg:top-28"
+              className="w-full scroll-mt-24 rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.018)_100%)] p-4 shadow-[0_22px_70px_rgba(0,0,0,0.24)] sm:p-7 md:p-8 lg:sticky lg:top-28"
             >
               {isSubmitted ? (
                 <div className="py-7 text-center" aria-live="polite">

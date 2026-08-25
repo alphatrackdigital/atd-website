@@ -45,6 +45,12 @@ test.describe("General Tracking Audit responsive application", () => {
     await completeStepOne(page);
 
     await expect(page.getByText("2 of 2")).toBeVisible();
+    const claim = page.locator("#claim");
+    await expect.poll(async () => (await claim.boundingBox())?.y ?? -1).toBeGreaterThanOrEqual(64);
+    const claimBox = await claim.boundingBox();
+    expect(claimBox).not.toBeNull();
+    expect(claimBox!.y).toBeLessThanOrEqual(120);
+
     const industry = page.getByLabel("Industry");
     await expect(industry).toBeVisible();
 
