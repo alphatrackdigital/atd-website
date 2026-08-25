@@ -28,8 +28,8 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Capture visual QA screenshots
-        run: npx playwright test e2e/_visual-qa.tracking-audit.spec.ts
+      - name: Run responsive regression and capture visual QA screenshots
+        run: npx playwright test e2e/tracking-audit.responsive.spec.ts e2e/_visual-qa.tracking-audit.spec.ts
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
