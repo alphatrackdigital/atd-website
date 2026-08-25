@@ -9,7 +9,7 @@ Use this file to continue ATD work from ChatGPT web, Codex, Claude Code, or a hu
 ## Current State
 
 - Project status: **LAUNCH-READY**.
-- Frontend production source/release: `alphatrackdigital/alphatrackdigital main@02eadaf8949a08d46952bbea677b9e2ea212fc48`.
+- Frontend production source/release: `alphatrackdigital/atd-website main@02eadaf8949a08d46952bbea677b9e2ea212fc48`.
 - Backend production source/release: `alphatrackdigital/atd-backend-test main@2f3941fa3a9753de327542925f870b0faeea814b`.
 - Frontend and backend `main` are protected by PR/CI controls.
 - Backend PR #7 is independently reviewed, merged and deployed.

@@ -50,8 +50,8 @@ experiment/*
 ## Local Development
 
 ```sh
-git clone https://github.com/alphatrackdigital/alphatrackdigital.git
-cd alphatrackdigital
+git clone https://github.com/alphatrackdigital/atd-website.git
+cd atd-website
 npm install
 npm run dev
 ```
