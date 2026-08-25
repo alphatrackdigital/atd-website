@@ -38,7 +38,7 @@ test.describe("General Tracking Audit responsive application", () => {
     expect(buttonBox!.height).toBeGreaterThanOrEqual(40);
   });
 
-  test("mobile step transition keeps the second-step controls reachable", async ({ page }) => {
+  test("mobile step transition opens with the first second-step control in view", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/offer/tracking-audit");
 
@@ -47,13 +47,17 @@ test.describe("General Tracking Audit responsive application", () => {
     await expect(page.getByText("2 of 2")).toBeVisible();
     const industry = page.getByLabel("Industry");
     await expect(industry).toBeVisible();
-    await industry.scrollIntoViewIfNeeded();
 
     const industryBox = await industry.boundingBox();
+    const viewport = page.viewportSize();
     expect(industryBox).not.toBeNull();
+    expect(viewport).not.toBeNull();
+    expect(industryBox!.y).toBeGreaterThanOrEqual(0);
+    expect(industryBox!.y + industryBox!.height).toBeLessThanOrEqual(viewport!.height);
     expect(industryBox!.width).toBeLessThanOrEqual(390);
     expect(industryBox!.height).toBeGreaterThanOrEqual(40);
 
+    await page.getByRole("button", { name: "Request a Free Tracking Audit" }).scrollIntoViewIfNeeded();
     await expect(page.getByRole("button", { name: "Request a Free Tracking Audit" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Back" })).toBeVisible();
     await assertNoHorizontalOverflow(page);
