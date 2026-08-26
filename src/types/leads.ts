@@ -24,7 +24,15 @@ export interface LeadCapturePayload {
   message?: string;
   websiteUrl?: string;
   monthlyAdSpend?: string;
-  adPlatforms?: string;
+  monthlyAdSpendBand?: string;
+  adPlatforms?: string | string[];
+  industry?: string;
+  role?: string;
+  decisionInfluence?: string;
+  trackingMaturity?: string;
+  primaryConversionType?: string;
+  measurementProblem?: string;
+  urgency?: string;
   serviceInterest?: string[];
   monthlyBudget?: string;
   attribution?: LeadAttribution;
