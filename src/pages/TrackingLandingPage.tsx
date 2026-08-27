@@ -16,7 +16,6 @@ import {
   Gauge,
   Globe2,
   Loader2,
-  Settings2,
   Route,
   Send,
   ShieldCheck,
