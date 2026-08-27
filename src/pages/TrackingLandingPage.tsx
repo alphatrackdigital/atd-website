@@ -501,7 +501,7 @@ const TrackingLandingPage = () => {
     <>
       <SEO
         title="Free Conversion Tracking Audit | AlphaTrack Digital"
-        description="Request a free conversion tracking audit to find broken tracking, weak attribution and missing lead-source data across one core conversion journey."
+        description="Request a free conversion tracking audit to find gaps in your tracking, see where lead-source information gets lost and understand whether your marketing reports can be trusted."
         canonicalUrl="/offer/tracking-audit"
       />
 
@@ -552,6 +552,7 @@ const TrackingLandingPage = () => {
                   <ArrowDown className="h-4 w-4" aria-hidden="true" />
                 </a>
               </div>
+            </motion.div>
 
             <motion.div
               id="claim"
@@ -565,7 +566,7 @@ const TrackingLandingPage = () => {
                   <CheckCircle2 className="mx-auto h-12 w-12 text-primary" aria-hidden="true" />
                   <h2 className="mt-4 text-2xl font-semibold">Application received.</h2>
                   <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
-                    Thanks for requesting a Free Conversion Tracking Audit. We’ll review your application for fit and scope. If we can proceed, we’ll confirm the audit scope and let you know whether any read-only evidence is needed. Please do not send passwords or account credentials.
+                    Thanks for requesting a Free Conversion Tracking Audit. We’ll review your application to see if the free audit is a good fit. If it is, we’ll confirm what we’ll review and tell you if we need any read-only access. Please do not send passwords or account credentials.
                   </p>
                   <p className="mx-auto mt-4 max-w-md text-xs leading-5 text-muted-foreground">
                     We aim to review applications within one business day, but submitting the form does not automatically mean the audit has been accepted.
@@ -610,7 +611,7 @@ const TrackingLandingPage = () => {
                       {step === 1
                         ? "We review every application."
                         : step === 2
-                          ? "This helps us check fit and scope."
+                          ? "This helps us see if the free audit is a good fit."
                           : "Tell us what isn’t clear in your tracking or reports."}
                     </p>
                   </div>
@@ -876,11 +877,11 @@ const TrackingLandingPage = () => {
         </div>
       </section>
 
-      <PageSection surface="quiet" spacing="spacious" className="py-16 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection id="measurement-journey" surface="quiet" spacing="spacious" className="scroll-mt-20 py-16 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          eyebrow="The measurement journey"
-          title="Your marketing result passes through multiple handoffs."
-          description="A click can be tracked correctly at the ad platform and still lose context before it reaches your CRM. We review the journey end to end to find where confidence breaks."
+          eyebrow="What happens after the click"
+          title="Your marketing results pass through several steps."
+          description="An ad click can look fine at the start and still lose important information before it becomes a lead or sale. We check that journey to find where the problem starts."
           align="center"
           maxWidth="2xl"
           className="mb-12 md:mb-16"
@@ -948,15 +949,15 @@ const TrackingLandingPage = () => {
           </div>
 
           <p className="mx-auto mt-10 max-w-3xl text-center text-sm leading-6 text-muted-foreground">
-            When one handoff fails, ad platforms, analytics and CRM reports can all tell different versions of the same result.
+            If one step loses information, your ad reports, website data and sales records can all show a different picture.
           </p>
         </div>
       </PageSection>
 
       <PageSection id="audit-coverage" spacing="spacious" className="scroll-mt-20 py-16 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          title="We diagnose the journey across five areas."
-          description="Five diagnostic lenses show whether the journey is being measured consistently enough to trust."
+          title="We check five parts of your tracking."
+          description="For your reports to be useful, these five parts need to work together."
           align="center"
           maxWidth="2xl"
           className="mb-10 md:mb-14"
@@ -990,9 +991,9 @@ const TrackingLandingPage = () => {
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.72fr_1.28fr] lg:items-center lg:gap-14">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/85">What you get</p>
-            <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-4xl">Clear findings. Clear next steps.</h2>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-4xl">You get clear findings and next steps.</h2>
             <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground md:text-base">
-              The scorecard shows what we found, why it matters and what should be investigated or fixed first.
+              We show what we found, why it matters and what should be fixed first.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2">
@@ -1005,7 +1006,7 @@ const TrackingLandingPage = () => {
             </div>
 
             <p className="mt-6 max-w-lg text-xs leading-5 text-muted-foreground">
-              Diagnosis and recommendations are included. Implementation is scoped separately.
+              The free audit includes the review and recommendations. Fixing the issues is separate.
             </p>
           </div>
 
@@ -1032,13 +1033,13 @@ const TrackingLandingPage = () => {
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Evidence</p>
                 <p className="mt-2 text-sm leading-6 text-foreground/82">
-                  Campaign source is present at landing-page entry but is not reliably preserved through lead creation.
+                  The campaign source is visible when a visitor arrives, but it is sometimes lost when the lead is created.
                 </p>
               </div>
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Business impact</p>
                 <p className="mt-2 text-sm leading-6 text-foreground/82">
-                  Paid leads may appear as direct or unknown in downstream reporting.
+                  Some paid leads may show up as direct or unknown, making campaign results harder to judge.
                 </p>
               </div>
             </div>
@@ -1046,7 +1047,7 @@ const TrackingLandingPage = () => {
             <div className="mt-6 border-t border-white/[0.07] pt-5">
               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Recommended next step</p>
               <p className="mt-2 text-sm leading-6 text-foreground/82">
-                Verify source persistence across form submission and the CRM handoff before changing campaign optimization.
+                Check that the campaign source stays attached from the website form through to the CRM before changing your campaigns.
               </p>
             </div>
           </motion.article>
@@ -1061,23 +1062,23 @@ const TrackingLandingPage = () => {
             </div>
             <h2 className="mt-5 text-2xl font-bold tracking-tight md:text-4xl">We start with the least access possible.</h2>
             <p className="mt-4 text-sm leading-7 text-muted-foreground md:text-base">
-              Public evidence first. Read-only verification only when it materially improves the diagnosis. Passwords are never requested.
+              We start with public information. If we need to confirm something, we may ask for read-only access. We never ask for passwords.
             </p>
           </div>
 
           <div className="rounded-[28px] bg-white/[0.018] p-5 ring-1 ring-white/[0.055] sm:p-6">
             <div className="border-l-2 border-primary/55 pl-4 sm:pl-5">
               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/70">Level 0</p>
-              <h3 className="mt-1.5 text-base font-semibold">Public evidence</h3>
-              <p className="mt-1.5 text-sm leading-6 text-muted-foreground">We start here. No credentials required.</p>
+              <h3 className="mt-1.5 text-base font-semibold">Public information</h3>
+              <p className="mt-1.5 text-sm leading-6 text-muted-foreground">We start here. No account access needed.</p>
             </div>
 
             <div className="mt-5 ml-4 rounded-2xl bg-white/[0.025] p-4 sm:ml-8 sm:p-5">
               <div className="border-l-2 border-atd-cyan/45 pl-4">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-atd-cyan/70">Level 1</p>
-                <h3 className="mt-1.5 text-base font-semibold">Read-only verification</h3>
+                <h3 className="mt-1.5 text-base font-semibold">Read-only access</h3>
                 <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
-                  Used only when deeper evidence materially improves a finding.
+                  Only if we need to confirm something we cannot see publicly.
                 </p>
               </div>
 
@@ -1086,7 +1087,7 @@ const TrackingLandingPage = () => {
                   <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Level 2</p>
                   <h3 className="mt-1.5 text-base font-semibold text-foreground/88">Paid implementation</h3>
                   <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
-                    Edit access only when separately scoped to fix issues.
+                    Access to make changes is only requested if you hire us to fix the issues.
                   </p>
                 </div>
               </div>
@@ -1097,8 +1098,8 @@ const TrackingLandingPage = () => {
 
       <PageSection surface="quiet" spacing="spacious" className="py-16 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          title="From application to scorecard."
-          description="A simple four-step process, with no implementation commitment required."
+          title="Here’s how the audit works."
+          description="You apply, we check fit, review one journey and send your scorecard."
           align="center"
           maxWidth="2xl"
           className="mb-12 md:mb-16"
@@ -1144,10 +1145,10 @@ const TrackingLandingPage = () => {
           <div className="container relative mx-auto px-5 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-3xl text-center">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-                Find where your measurement <span className="text-primary">journey breaks.</span>
+                Find out where your <span className="text-primary">tracking breaks.</span>
               </h2>
               <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
-                Apply for a Free Conversion Tracking Audit and get a clearer picture of what your marketing is actually producing.
+                Apply for a free audit and get a clearer view of what your marketing is really producing.
               </p>
               <Button asChild size="lg" className="mt-8 rounded-xl bg-primary px-8 text-primary-foreground hover:bg-primary/90">
                 <Link to={finalCtaTo}>{TRACKING_AUDIT_ANCHOR_CTA.label}</Link>
