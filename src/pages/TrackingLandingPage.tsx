@@ -456,7 +456,7 @@ const TrackingLandingPage = () => {
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: 0.08 }}
-              className="w-full scroll-mt-24 rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.018)_100%)] p-4 shadow-[0_22px_70px_rgba(0,0,0,0.24)] sm:p-7 md:p-8 lg:sticky lg:top-28"
+              className="w-full scroll-mt-24 rounded-2xl border border-white/[0.09] bg-[#0c1118]/95 p-4 shadow-[0_24px_70px_rgba(0,0,0,0.22)] sm:p-7 md:p-8 lg:sticky lg:top-24"
             >
               {isSubmitted ? (
                 <div className="py-7 text-center" aria-live="polite">
@@ -698,37 +698,14 @@ const TrackingLandingPage = () => {
         </div>
       </section>
 
-      <PageSection surface="quiet" spacing="spacious" className="py-12 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection id="audit-coverage" surface="quiet" border="both" spacing="spacious" className="scroll-mt-20 py-12 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          eyebrow="The problem"
-          title="You should know what your marketing is actually producing."
-          description="When the measurement path is incomplete, more spend can create more activity without creating more confidence."
+          eyebrow="What we check"
+          title="Five parts of your tracking."
+          description="We score one conversion journey across five areas."
           align="center"
           maxWidth="xl"
-          className="mb-9 md:mb-14"
-        />
-
-        <div className="mx-auto grid max-w-6xl gap-4 md:grid-cols-3">
-          {PROBLEM_SIGNALS.map(({ icon: Icon, title, description }) => (
-            <article key={title} className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5 md:p-6">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/[0.08] text-primary">
-                <Icon className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <h3 className="mt-4 text-base font-semibold text-foreground">{title}</h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
-            </article>
-          ))}
-        </div>
-      </PageSection>
-
-      <PageSection id="audit-coverage" surface="glow" border="both" spacing="spacious" className="scroll-mt-20 py-12 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
-        <SectionIntro
-          eyebrow="Tracking Health Scorecard"
-          title="Five dimensions of measurement confidence"
-          description="The audit is structured around the parts of the measurement journey that need to work together for your data to be useful."
-          align="center"
-          maxWidth="xl"
-          className="mb-9 md:mb-14"
+          className="mb-8 md:mb-12"
         />
 
         <div className="mx-auto grid max-w-6xl gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -742,11 +719,11 @@ const TrackingLandingPage = () => {
         </div>
       </PageSection>
 
-      <PageSection spacing="spacious" className="py-12 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection spacing="spacious" className="py-12 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-12">
           <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-6 md:p-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/90">What you receive</p>
-            <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-3xl">A diagnostic you can act on.</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/90">What you get</p>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-3xl">Clear findings. Clear next steps.</h2>
             <div className="mt-6 space-y-4">
               {DELIVERABLES.map((item) => (
                 <div key={item} className="flex items-start gap-3">
@@ -759,7 +736,7 @@ const TrackingLandingPage = () => {
             <div className="mt-7 border-t border-white/[0.07] pt-6">
               <p className="text-sm font-semibold text-foreground">Free audit boundary</p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                The free audit is diagnostic. Implementation, tag changes, CRM rebuilds, dashboard builds and ongoing monitoring are separate paid work if needed.
+                The free audit covers diagnosis and recommendations. Implementation is scoped separately if you want help fixing the issues.
               </p>
             </div>
           </div>
@@ -769,22 +746,22 @@ const TrackingLandingPage = () => {
               <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-primary" aria-hidden="true" />
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/90">Access safety</p>
-                <h2 className="mt-2 text-2xl font-bold tracking-tight md:text-3xl">Start with the least access possible.</h2>
+                <h2 className="mt-2 text-2xl font-bold tracking-tight md:text-3xl">Your accounts stay under your control.</h2>
               </div>
             </div>
             <p className="mt-5 text-sm leading-6 text-muted-foreground">
-              We start with public, no-credential evidence. If account evidence is needed to confirm an important finding, we ask for the lowest practical viewer or read-only access, or use a screenshare/export where appropriate.
+              We start with public evidence. If something important needs confirmation, we use the lowest practical read-only access, a screenshare or an export.
             </p>
             <div className="mt-6 rounded-xl border border-white/[0.08] bg-black/10 p-4">
               <p className="text-sm font-semibold text-foreground">Never send us a password.</p>
-              <p className="mt-1.5 text-sm leading-6 text-muted-foreground">Passwords, API keys and admin credentials are not part of the free audit request process.</p>
+              <p className="mt-1.5 text-sm leading-6 text-muted-foreground">We do not ask for passwords, API keys or admin credentials.</p>
             </div>
           </div>
         </div>
       </PageSection>
 
-      <PageSection surface="quiet" border="both" spacing="spacious" className="py-12 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
-        <SectionIntro eyebrow="How it works" title="Application first. Diagnosis second." description="Submitting the form starts a fit-and-scope review; it does not automatically create an audit slot or sales opportunity." align="center" maxWidth="xl" className="mb-10 md:mb-14" />
+      <PageSection surface="quiet" border="both" spacing="spacious" className="py-12 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
+        <SectionIntro eyebrow="How it works" title="Four simple steps." description="Apply, we review fit, we diagnose one journey, you get the scorecard." align="center" maxWidth="xl" className="mb-8 md:mb-12" />
 
         <div className="mx-auto grid max-w-6xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {PROCESS_STEPS.map((item) => (
@@ -802,7 +779,7 @@ const TrackingLandingPage = () => {
           items={AUDIT_FAQS}
           eyebrow="Before you apply"
           title="Common questions"
-          description="What to expect from the Free Conversion Tracking Audit."
+          description="Quick answers before you apply."
           variant="minimal"
           density="compact"
           defaultOpenItem={0}
@@ -811,7 +788,7 @@ const TrackingLandingPage = () => {
         />
 
         <CTASection
-          title={<><span className="md:block">Know what your marketing is</span> <span className="text-gradient">actually producing?</span></>}
+          title={<><span className="md:block">Ready to see what your</span> <span className="text-gradient">tracking is missing?</span></>}
           description=""
           primaryCta={TRACKING_AUDIT_ANCHOR_CTA}
           secondaryCta={null}
