@@ -131,6 +131,15 @@ describe("ExitIntentPopup", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
+  it("does not compete with the Tracking Audit application", () => {
+    renderWithPageProviders(<ExitIntentPopup />, { route: "/offer/tracking-audit" });
+
+    openPopup();
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(window.dataLayer).not.toContainEqual({ event: "exit_popup_view" });
+  });
+
   it("opens on mobile after 60 seconds", async () => {
     vi.useFakeTimers();
     Object.defineProperty(window, "matchMedia", {
