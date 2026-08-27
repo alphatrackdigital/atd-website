@@ -221,12 +221,6 @@ const SCORECARD_PREVIEW = [
   { label: "Data reliability", status: "Mixed", width: "46%" },
 ] as const;
 
-const ACCESS_LEVELS = [
-  { level: "Level 0", title: "Public evidence", description: "We start here. No credentials required." },
-  { level: "Level 1", title: "Read-only verification", description: "Only when deeper evidence materially improves the diagnosis." },
-  { level: "Level 2", title: "Paid implementation", description: "Edit access only when separately scoped to fix issues." },
-] as const;
-
 const PROCESS_STEPS = [
   { number: "01", title: "Apply", description: "Tell us about your business and one conversion journey." },
   { number: "02", title: "Fit review", description: "We confirm whether the free audit is a good fit and within scope." },
