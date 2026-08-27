@@ -1,0 +1,111 @@
+name: Cloudflare Website Exact-SHA QA
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_sha:
+        description: Exact 40-character Git SHA to deploy to the website QA Worker
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-website-qa
+  cancel-in-progress: false
+
+jobs:
+  deploy-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_STAGING_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_STAGING_ACCOUNT_ID }}
+      REQUESTED_SHA: ${{ inputs.git_sha }}
+      WORKER_NAME: atd-website-qa
+
+    steps:
+      - name: Validate exact SHA and provider credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$REQUESTED_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "git_sha must be an exact lowercase 40-character Git SHA."
+            exit 1
+          fi
+          test -n "$CLOUDFLARE_API_TOKEN"
+          test -n "$CLOUDFLARE_ACCOUNT_ID"
+
+      - name: Check out exact requested SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_sha }}
+          fetch-depth: 1
+
+      - name: Verify checked-out SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          test "$ACTUAL_SHA" = "$REQUESTED_SHA"
+          echo "Exact SHA verified: $ACTUAL_SHA"
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run canonical release preparation
+        run: npm run release:prepare
+
+      - name: Embed exact-SHA deployment manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs');
+          const manifest = {
+            schemaVersion: 1,
+            app: 'atd-website',
+            environment: 'qa',
+            gitSha: process.env.REQUESTED_SHA,
+            workerName: process.env.WORKER_NAME,
+            runtimeMode: 'workers-static-assets',
+            builtAt: new Date().toISOString(),
+            githubRun: `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
+          };
+          fs.mkdirSync('dist/__atd', { recursive: true });
+          fs.writeFileSync('dist/__atd/deployment.json', JSON.stringify(manifest, null, 2) + '\n');
+          NODE
+
+      - name: Cloudflare Worker dry-run
+        run: npx --yes wrangler@4 deploy --dry-run --config cloudflare/wrangler.website-qa.jsonc --outdir .wrangler-dry-run
+
+      - name: Deploy exact SHA to Cloudflare website QA Worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4 deploy --config cloudflare/wrangler.website-qa.jsonc 2>&1 | tee cloudflare-deploy.log
+
+      - name: Write provider evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qa-evidence
+          cp dist/__atd/deployment.json qa-evidence/deployment.json 2>/dev/null || true
+          cp cloudflare-deploy.log qa-evidence/cloudflare-deploy.log 2>/dev/null || true
+          printf '%s\n' "$REQUESTED_SHA" > qa-evidence/requested-sha.txt
+
+      - name: Upload QA deployment evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudflare-atd-website-qa-${{ inputs.git_sha }}
+          if-no-files-found: error
+          path: qa-evidence
