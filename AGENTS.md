@@ -1,40 +1,70 @@
-# Codex Project Rules
+# Codex Project Rules — ATD Website
 
-These rules apply to Codex work in this repository. They are intended to preserve usage while keeping implementation quality high.
+This repository is the canonical public website frontend for AlphaTrack Digital.
 
-If Codex hits a usage limit mid-task, Claude Code is the backup/continuation agent. See [docs/codex-handoffs/AI_AGENT_CONTINUITY_PROTOCOL.md](docs/codex-handoffs/AI_AGENT_CONTINUITY_PROTOCOL.md) for agent roles, the mandatory startup/handoff routine, and safety boundaries.
+## Development authority
 
-## Usage Discipline
+- GitHub is the source of truth and integration boundary.
+- Work on isolated feature branches/worktrees; do not edit `main` directly.
+- Local Codex and Codex Cloud must not independently own the same source branch at the same time.
+- Local → Cloud handoff requires a coherent change, relevant checks, commit, push, and exact SHA checkpoint.
+- Codex Cloud may use a synthetic `work` branch and expose no raw Git remote; verify the selected source branch and exact starting SHA instead.
+- Return Cloud changes through Codex Cloud's native **Create PR** flow.
+- When continuing an existing feature branch, the Cloud PR must target that source branch, not `main`.
+- GitHub Actions remains the authoritative release/build gate.
 
-- Keep routine responses concise. Summarize only what changed, what was skipped, and any blocker.
-- Avoid broad repo scans unless the task requires them. Prefer targeted `rg` searches and focused file reads.
-- Avoid repeated status summaries, long explanations, and large command-output recaps unless requested.
-- Batch related file reads, edits, and checks instead of using many small tool calls.
-- Do not update Notion, browser screenshots, external services, or project documentation after every small change unless requested or the change affects launch/readiness state.
-- Do not browse the web unless the user asks for current information, the information is likely stale, or official docs are needed for a technical decision.
+## Provider boundaries
 
-## Testing And Validation
+- Frontend exact-SHA QA: Cloudflare Worker `atd-website-qa`.
+- Public production: Namecheap/cPanel LiteSpeed.
+- Backend/API runtime: separate backend service/repository; do not move backend work into this frontend repo.
+- The retired Vercel `atd-website-test` project must not be recreated.
+- Netlify frontend previews are not the canonical website QA path.
+- Provider deployment is separate from Local/Cloud code generation.
 
-- Do not run tests after every small UI, copy, spacing, or styling change.
-- For UI-only changes, inspect the diff and report that tests were intentionally skipped.
-- Run targeted tests when changing form behavior, API payloads, tracking, authentication, schema mappings, data persistence, or business logic.
-- Run full tests/build only before commit, deploy, or when the user explicitly asks.
-- If skipping tests creates meaningful risk, say so clearly and name the targeted validation that should be run later.
+## Production guardrails
 
-## Tooling
+Do not perform or authorize any of the following unless the task carries separate explicit approval:
 
-- Use `rg`/`rg --files` for search before slower alternatives.
-- Prefer `apply_patch` for manual edits.
-- Use browser automation only for meaningful visual or interaction verification, not for every small CSS tweak.
-- Use external connectors such as Notion, Netlify, GitHub, and Brevo only when the current task needs live state or an explicit update.
-- When commands are needed, prefer targeted commands over noisy full-suite commands.
+- cPanel production deployment;
+- DNS/custom-domain changes;
+- production-secret changes;
+- backend provider migration;
+- Vercel project recreation;
+- Meta campaign activation;
+- bypassing PR/release-gate checks.
 
-## Project-Specific Notes
+## Testing and validation
 
-- Brevo/contact-form work must preserve attribute schema alignment:
-  - `SERVICE_INTEREST` is a Brevo multiple-choice attribute and should be sent as an array.
-  - `MONTHLY_BUDGET` should use Brevo category values `1`-`4`.
-  - Keep consent, attribution, source, route, and offer fields explicit.
-- Netlify deploys may be blocked by account credit/plan state. Do not assume deploy success; verify before registering webhooks or marking production QA complete.
-- Preserve existing user or generated changes. Do not revert unrelated work.
+- UI-only changes may use focused checks during iteration.
+- Form behavior, API payloads, tracking, consent, attribution, authentication, schema mappings and business logic require targeted tests.
+- Before provider QA or production packaging, run the canonical release gate:
 
+```bash
+npm install --ignore-scripts --package-lock=false
+npm run release:prepare
+```
+
+- Cloudflare frontend QA should use the deliberate exact-SHA workflow, not an automatic provider preview.
+- Preserve global QA noindex behavior on `atd-website-qa`.
+
+## Tracking / Brevo notes
+
+- `SERVICE_INTEREST` is a Brevo multiple-choice attribute and should be sent as an array.
+- `MONTHLY_BUDGET` should use Brevo category values `1`-`4`.
+- Keep consent, attribution, source, route and offer fields explicit.
+- Do not assume frontend QA proves backend/Brevo E2E; backend runtime verification remains a separate gate.
+
+## Handoff
+
+For a material Local ↔ Cloud transfer record:
+
+- repository;
+- source branch;
+- exact SHA;
+- execution owner handing off / next owner;
+- checks already run;
+- remaining scope;
+- provider/runtime restrictions.
+
+Do not hand off uncommitted local-only work.
