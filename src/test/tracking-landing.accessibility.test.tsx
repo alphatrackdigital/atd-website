@@ -21,31 +21,31 @@ describe("TrackingLandingPage accessibility", () => {
     fireEvent.change(screen.getByLabelText("Last Name"), { target: { value: "Smith" } });
     fireEvent.change(screen.getByLabelText("Work Email"), { target: { value: "jane@example.com" } });
     fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Example Ltd" } });
-    fireEvent.change(screen.getByLabelText("Website"), { target: { value: "https://example.com" } });
+    fireEvent.change(screen.getByLabelText("Website"), { target: { value: "example.com" } });
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
     await waitFor(() => {
       expect(screen.getByLabelText("Industry")).toBeInTheDocument();
     });
-    expect(screen.getByLabelText("Your Role")).toBeInTheDocument();
-    expect(screen.getByLabelText("Decision Influence")).toBeInTheDocument();
-    expect(screen.getByLabelText("Monthly Paid-Media Spend")).toBeInTheDocument();
-    expect(screen.getByRole("group", { name: "Paid Channels" })).toBeInTheDocument();
-    expect(screen.getByLabelText("Tracking Maturity")).toBeInTheDocument();
-    expect(screen.getByLabelText("Primary Conversion")).toBeInTheDocument();
-    expect(screen.getByLabelText("Biggest Measurement Problem")).toBeInTheDocument();
-    expect(screen.getByLabelText("Timing / Urgency")).toBeInTheDocument();
-    expect(screen.getByLabelText("Send me occasional ATD marketing insights and updates.")).toBeInTheDocument();
+    expect(screen.getByLabelText("Your role")).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Your role in this decision" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Monthly ad spend" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Where do you advertise?" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "How confident are you in your tracking?" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "What matters most?" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "What’s going wrong?" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "How soon do you want this addressed?" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Send me occasional ATD marketing insights.")).toBeInTheDocument();
   });
 
   it("presents the application-first audit scope and links the final call to action to the form", () => {
     renderWithPageProviders(<TrackingLandingPage />, { route: "/offer/tracking-audit" });
 
     expect(
-      screen.getByRole("heading", { name: "You should know what your marketing is actually producing." }),
+      screen.getByRole("heading", { name: "Know what your marketing is actually producing." }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Five dimensions of measurement confidence" }),
+      screen.getByRole("heading", { name: "Five parts of your tracking." }),
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Common questions" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Request a Free Tracking Audit" })).toHaveAttribute(
