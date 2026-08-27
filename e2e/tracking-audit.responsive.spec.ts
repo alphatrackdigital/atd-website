@@ -18,6 +18,20 @@ const completeStepOne = async (page: Page) => {
   await page.getByRole("button", { name: "Continue" }).click();
 };
 
+const selectOption = async (page: Page, label: string, option: string) => {
+  await page.getByLabel(label).click();
+  await page.getByRole("option", { name: option }).click();
+};
+
+const completeStepTwo = async (page: Page) => {
+  await selectOption(page, "Industry", "Professional services");
+  await selectOption(page, "Your role", "Founder / CEO");
+  await page.getByRole("radio", { name: "Final decision maker" }).check();
+  await selectOption(page, "Monthly ad spend", "GHS 3k–6k");
+  await page.getByRole("checkbox", { name: "Meta" }).check();
+  await page.getByRole("button", { name: "Continue" }).click();
+};
+
 test.describe("General Tracking Audit responsive application", () => {
   test("mobile step one is usable without horizontal overflow", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
@@ -26,7 +40,7 @@ test.describe("General Tracking Audit responsive application", () => {
     await expect(
       page.getByRole("heading", { name: /Know what your marketing is actually producing/i }),
     ).toBeVisible();
-    await expect(page.getByText("1 of 2")).toBeVisible();
+    await expect(page.getByText("Step 1 of 3")).toBeVisible();
     await expect(page.getByLabel("First Name")).toBeVisible();
     await expect(page.getByLabel("Website")).toBeVisible();
 
@@ -44,7 +58,7 @@ test.describe("General Tracking Audit responsive application", () => {
 
     await completeStepOne(page);
 
-    await expect(page.getByText("2 of 2")).toBeVisible();
+    await expect(page.getByText("Step 2 of 3")).toBeVisible();
     const claim = page.locator("#claim");
     await expect.poll(async () => (await claim.boundingBox())?.y ?? -1).toBeGreaterThanOrEqual(64);
     const claimBox = await claim.boundingBox();
@@ -63,8 +77,15 @@ test.describe("General Tracking Audit responsive application", () => {
     expect(industryBox!.width).toBeLessThanOrEqual(390);
     expect(industryBox!.height).toBeGreaterThanOrEqual(40);
 
-    await page.getByRole("button", { name: "Request Free Audit" }).scrollIntoViewIfNeeded();
-    await expect(page.getByRole("button", { name: "Request Free Audit" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Continue" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Back" })).toBeVisible();
+    await assertNoHorizontalOverflow(page);
+
+    await completeStepTwo(page);
+    await expect(page.getByText("Step 3 of 3")).toBeVisible();
+    await expect(page.getByRole("group", { name: "How confident are you in your tracking?" })).toBeVisible();
+    await page.getByRole("button", { name: "Request My Free Audit" }).scrollIntoViewIfNeeded();
+    await expect(page.getByRole("button", { name: "Request My Free Audit" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Back" })).toBeVisible();
     await assertNoHorizontalOverflow(page);
   });
