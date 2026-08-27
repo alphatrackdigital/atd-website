@@ -123,6 +123,27 @@ const Header = () => {
   const headerElevated = scrolled || desktopServicesOpen || desktopExpertiseOpen || mobileOpen;
   const strategyCallTo = withCampaignSearch(BOOK_A_FREE_STRATEGY_CALL_CTA.to, location.search);
   const featuredExpertisePages = expertisePages.filter((item) => featuredExpertiseSlugs.includes(item.slug));
+  const isTrackingAuditLanding = location.pathname === "/offer/tracking-audit";
+
+  if (isTrackingAuditLanding) {
+    return (
+      <header className="fixed left-0 right-0 top-0 z-50 border-b border-white/[0.06] bg-background/88 backdrop-blur-xl">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="flex h-[70px] items-center">
+            <Link to="/" aria-label="AlphaTrack Digital Home" className="flex items-center">
+              <img
+                src="/logo-wordmark-240.webp"
+                alt="AlphaTrack Digital"
+                className="h-6 w-auto sm:h-[26px]"
+                width={240}
+                height={56}
+              />
+            </Link>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="fixed left-0 right-0 top-0 z-50 transition-all duration-300">
