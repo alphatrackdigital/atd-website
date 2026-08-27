@@ -908,79 +908,205 @@ const TrackingLandingPage = () => {
         </div>
       </section>
 
-      <PageSection id="audit-coverage" surface="quiet" border="both" spacing="spacious" className="scroll-mt-20 py-12 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection surface="quiet" border="both" spacing="spacious" className="py-14 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          eyebrow="What we check"
-          title="Five parts of your tracking."
-          description="We score one conversion journey across five areas."
+          eyebrow="The measurement journey"
+          title="Your marketing result passes through multiple handoffs."
+          description="A click can be tracked correctly at the ad platform and still lose context before it reaches your CRM. We review the journey end to end to find where confidence breaks."
           align="center"
-          maxWidth="xl"
-          className="mb-8 md:mb-12"
+          maxWidth="2xl"
+          className="mb-10 md:mb-14"
         />
 
-        <div className="mx-auto grid max-w-6xl gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {HEALTH_DIMENSIONS.map(({ icon: Icon, title, description }) => (
-            <article key={title} className="rounded-2xl border border-white/[0.08] bg-background/45 p-5">
-              <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
-              <h3 className="mt-4 text-sm font-semibold text-foreground">{title}</h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
-            </article>
-          ))}
+        <div className="mx-auto max-w-6xl">
+          <div className="relative">
+            <div className="absolute left-[8%] right-[8%] top-8 hidden h-px bg-gradient-to-r from-atd-blue/20 via-primary/45 to-atd-cyan/20 lg:block" aria-hidden="true" />
+
+            <div className="relative grid gap-4 sm:grid-cols-2 lg:grid-cols-5 lg:gap-3">
+              {MEASUREMENT_JOURNEY.map(({ icon: Icon, title, description, signal }, index) => (
+                <article key={title} className="relative rounded-2xl border border-white/[0.08] bg-[#0b1118]/80 p-5 shadow-[0_14px_45px_rgba(0,0,0,0.12)]">
+                  <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-primary/25 bg-primary/[0.08] text-primary">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/65">{String(index + 1).padStart(2, "0")} · {signal}</p>
+                  <h3 className="mt-1.5 text-base font-semibold text-foreground">{title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
+                </article>
+              ))}
+            </div>
+
+            <div className="relative mt-6 hidden h-12 lg:block" aria-label="Common break points in the measurement journey">
+              {JOURNEY_BREAKS.map((item) => (
+                <div key={item.label} className="absolute top-0 -translate-x-1/2" style={{ left: item.position }}>
+                  <span className="block h-4 w-px bg-red-400/35" aria-hidden="true" />
+                  <span className="mt-1 inline-flex whitespace-nowrap rounded-full border border-red-400/15 bg-red-400/[0.055] px-2.5 py-1 text-[10px] font-medium text-red-200/70">
+                    {item.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-wrap justify-center gap-2 lg:hidden">
+            {JOURNEY_BREAKS.map((item) => (
+              <span key={item.label} className="rounded-full border border-red-400/15 bg-red-400/[0.05] px-3 py-1.5 text-[11px] text-red-200/70">
+                {item.label}
+              </span>
+            ))}
+          </div>
+
+          <p className="mx-auto mt-8 max-w-3xl text-center text-sm leading-6 text-muted-foreground">
+            When even one handoff fails, ad platforms, analytics and CRM reports can all tell different versions of the same result.
+          </p>
         </div>
       </PageSection>
 
-      <PageSection spacing="spacious" className="py-12 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-12">
-          <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-6 md:p-8">
+      <PageSection id="audit-coverage" spacing="spacious" className="scroll-mt-20 py-14 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+        <SectionIntro
+          eyebrow="What we check"
+          title="We diagnose the journey across five areas."
+          description="We score one conversion journey across the parts that need to work together for your data to be useful."
+          align="center"
+          maxWidth="2xl"
+          className="mb-10 md:mb-14"
+        />
+
+        <div className="relative mx-auto max-w-6xl">
+          <div className="absolute left-[9%] right-[9%] top-6 hidden h-px bg-gradient-to-r from-primary/20 via-primary/50 to-primary/20 lg:block" aria-hidden="true" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 lg:gap-3">
+            {HEALTH_DIMENSIONS.map(({ icon: Icon, number, title, description }) => (
+              <article key={title} className="relative">
+                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-primary/30 bg-[#0a1118] text-primary shadow-[0_0_0_6px_rgba(5,10,16,0.95)]">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <div className="mt-4 border-t border-white/[0.07] pt-4 lg:border-t-0 lg:pt-0">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/65">{number}</p>
+                  <h3 className="mt-1.5 text-sm font-semibold text-foreground">{title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </PageSection>
+
+      <PageSection surface="quiet" border="both" spacing="spacious" className="py-14 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-center lg:gap-12">
+          <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/90">What you get</p>
-            <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-3xl">Clear findings. Clear next steps.</h2>
-            <div className="mt-6 space-y-4">
-              {DELIVERABLES.map((item) => (
-                <div key={item} className="flex items-start gap-3">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
-                  <p className="text-sm leading-6 text-foreground/85">{item}</p>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-4xl">Clear findings. Clear next steps.</h2>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground md:text-base">
+              You receive a Tracking Health Scorecard that shows what we found, why it matters to the business and what should be investigated or fixed first.
+            </p>
+
+            <div className="mt-6 space-y-3">
+              {["Tracking Health Scorecard", "Prioritized findings", "Recommended next actions"].map((item) => (
+                <div key={item} className="flex items-center gap-3 text-sm text-foreground/85">
+                  <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                  {item}
                 </div>
               ))}
             </div>
 
-            <div className="mt-7 border-t border-white/[0.07] pt-6">
-              <p className="text-sm font-semibold text-foreground">Free audit boundary</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                The free audit covers diagnosis and recommendations. Implementation is scoped separately if you want help fixing the issues.
-              </p>
-            </div>
+            <p className="mt-6 text-xs leading-5 text-muted-foreground">
+              The free audit covers diagnosis and recommendations. Implementation is scoped separately if you want help fixing the issues.
+            </p>
           </div>
 
-          <div className="rounded-2xl border border-primary/15 bg-[linear-gradient(145deg,rgba(51,204,153,0.07),rgba(0,51,153,0.06)_58%,rgba(255,255,255,0.018))] p-6 md:p-8">
-            <div className="flex items-start gap-3">
-              <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-primary" aria-hidden="true" />
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/90">Access safety</p>
-                <h2 className="mt-2 text-2xl font-bold tracking-tight md:text-3xl">Your accounts stay under your control.</h2>
+          <article className="overflow-hidden rounded-2xl border border-white/[0.09] bg-[#0b1118] shadow-[0_28px_90px_rgba(0,0,0,0.20)]">
+            <div className="border-b border-white/[0.07] bg-white/[0.025] px-5 py-4 sm:px-6">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">Illustrative scorecard finding</p>
+                  <p className="mt-1 text-base font-semibold">Attribution · Needs attention</p>
+                </div>
+                <span className="rounded-full border border-amber-300/15 bg-amber-300/[0.07] px-3 py-1 text-[11px] font-medium text-amber-100/80">High priority</span>
               </div>
             </div>
-            <p className="mt-5 text-sm leading-6 text-muted-foreground">
-              We start with public evidence. If something important needs confirmation, we use the lowest practical read-only access, a screenshare or an export.
-            </p>
-            <div className="mt-6 rounded-xl border border-white/[0.08] bg-black/10 p-4">
-              <p className="text-sm font-semibold text-foreground">Never send us a password.</p>
-              <p className="mt-1.5 text-sm leading-6 text-muted-foreground">We do not ask for passwords, API keys or admin credentials.</p>
+
+            <div className="grid gap-px bg-white/[0.06] sm:grid-cols-2">
+              <div className="bg-[#0b1118] p-5 sm:p-6">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Evidence</p>
+                <p className="mt-2 text-sm leading-6 text-foreground/82">
+                  Campaign source is present at landing-page entry but is not reliably preserved through lead creation.
+                </p>
+              </div>
+              <div className="bg-[#0b1118] p-5 sm:p-6">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Business impact</p>
+                <p className="mt-2 text-sm leading-6 text-foreground/82">
+                  Paid leads may appear as direct or unknown in downstream reporting.
+                </p>
+              </div>
+              <div className="bg-[#0b1118] p-5 sm:p-6 sm:col-span-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Recommended next step</p>
+                <p className="mt-2 text-sm leading-6 text-foreground/82">
+                  Verify source persistence across form submission and the CRM handoff before changing campaign optimization.
+                </p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </PageSection>
+
+      <PageSection spacing="spacious" className="py-14 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-center lg:gap-12">
+            <div>
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/20 bg-primary/[0.07] text-primary">
+                <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/90">Access safety</p>
+              <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-4xl">We start with the least access possible.</h2>
+              <p className="mt-4 text-sm leading-7 text-muted-foreground md:text-base">
+                Public evidence first. Read-only verification only when it materially improves the diagnosis. Passwords are never requested.
+              </p>
+            </div>
+
+            <div className="relative">
+              <div className="absolute left-[16.5%] right-[16.5%] top-6 hidden h-px bg-gradient-to-r from-primary/25 via-primary/45 to-atd-blue/25 md:block" aria-hidden="true" />
+              <div className="grid gap-4 md:grid-cols-3">
+                {ACCESS_LEVELS.map((item, index) => (
+                  <article key={item.level} className="relative rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5">
+                    <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-primary/25 bg-[#091017] text-xs font-bold text-primary">
+                      {index}
+                    </div>
+                    <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/65">{item.level}</p>
+                    <h3 className="mt-1.5 text-sm font-semibold text-foreground">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.description}</p>
+                  </article>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </PageSection>
 
-      <PageSection surface="quiet" border="both" spacing="spacious" className="py-12 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
-        <SectionIntro eyebrow="How it works" title="Four simple steps." description="Apply, we review fit, we diagnose one journey, you get the scorecard." align="center" maxWidth="xl" className="mb-8 md:mb-12" />
+      <PageSection surface="quiet" border="both" spacing="spacious" className="py-14 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+        <SectionIntro
+          eyebrow="How it works"
+          title="From application to scorecard."
+          description="Apply, we review fit, we diagnose one journey, and you receive the scorecard."
+          align="center"
+          maxWidth="2xl"
+          className="mb-10 md:mb-14"
+        />
 
-        <div className="mx-auto grid max-w-6xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {PROCESS_STEPS.map((item) => (
-            <article key={item.number} className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/25 bg-primary/[0.08] text-xs font-bold text-primary">{item.number}</span>
-              <h3 className="mt-4 text-base font-semibold">{item.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.description}</p>
-            </article>
-          ))}
+        <div className="relative mx-auto max-w-6xl">
+          <div className="absolute left-[11%] right-[11%] top-5 hidden h-px bg-gradient-to-r from-primary/20 via-primary/45 to-primary/20 lg:block" aria-hidden="true" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {PROCESS_STEPS.map((item, index) => (
+              <article key={item.number} className="relative rounded-2xl border border-white/[0.08] bg-[#0a1017]/75 p-5">
+                <span className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-primary/25 bg-[#081018] text-xs font-bold text-primary">
+                  {item.number}
+                </span>
+                <h3 className="mt-4 text-base font-semibold">{item.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.description}</p>
+                {index < PROCESS_STEPS.length - 1 && (
+                  <ArrowRight className="absolute -right-3 top-3 hidden h-4 w-4 text-primary/35 lg:block" aria-hidden="true" />
+                )}
+              </article>
+            ))}
+          </div>
         </div>
       </PageSection>
 
@@ -989,7 +1115,7 @@ const TrackingLandingPage = () => {
           items={AUDIT_FAQS}
           eyebrow="Before you apply"
           title="Common questions"
-          description="Quick answers before you apply."
+          description="The essentials before you request an audit."
           variant="minimal"
           density="compact"
           defaultOpenItem={0}
@@ -998,8 +1124,8 @@ const TrackingLandingPage = () => {
         />
 
         <CTASection
-          title={<><span className="md:block">Ready to see what your</span> <span className="text-gradient">tracking is missing?</span></>}
-          description=""
+          title={<><span className="md:block">Find where your measurement</span> <span className="text-gradient">journey breaks.</span></>}
+          description="Apply for a Free Conversion Tracking Audit and get a clearer picture of what your marketing is actually producing."
           primaryCta={TRACKING_AUDIT_ANCHOR_CTA}
           secondaryCta={null}
           variant="service-close"
