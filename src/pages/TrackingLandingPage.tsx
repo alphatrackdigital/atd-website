@@ -14,7 +14,9 @@ import {
   CheckCircle2,
   Code2,
   Gauge,
+  Globe2,
   Loader2,
+  Settings2,
   Route,
   Send,
   ShieldCheck,
@@ -189,56 +191,75 @@ const URGENCY_OPTIONS = [
   { value: "exploring", label: "Exploring" },
 ] as const;
 
-const HEALTH_DIMENSIONS = [
-  { icon: Code2, title: "Conversion capture", description: "Are key actions recorded?" },
-  { icon: Gauge, title: "Signal quality", description: "Are platform signals reliable?" },
-  { icon: Route, title: "Attribution", description: "Can conversions be tied to source?" },
-  { icon: Send, title: "Lead visibility", description: "Can you see what happens after conversion?" },
-  { icon: BarChart3, title: "Data reliability", description: "Can your team trust the numbers?" },
+const MEASUREMENT_JOURNEY = [
+  { icon: BarChart3, title: "Paid media", description: "A campaign earns the click.", signal: "Source captured" },
+  { icon: Globe2, title: "Website", description: "The visitor lands and moves through the page.", signal: "Context carried" },
+  { icon: CheckCircle2, title: "Conversion", description: "A form, call, message or purchase happens.", signal: "Event recorded" },
+  { icon: Send, title: "CRM / lead handoff", description: "The lead reaches the system your team works from.", signal: "Source preserved" },
+  { icon: Gauge, title: "Business outcome", description: "Revenue or pipeline should connect back to acquisition.", signal: "Result visible" },
 ] as const;
 
-const DELIVERABLES = [
-  "Tracking Health Scorecard",
-  "Prioritized findings",
-  "Clear next steps",
+const JOURNEY_BREAKS = [
+  { label: "Lost source", position: "left-[20%]" },
+  { label: "Duplicate / missing event", position: "left-[40%]" },
+  { label: "Handoff loses context", position: "left-[60%]" },
+  { label: "Revenue disconnects", position: "left-[80%]" },
+] as const;
+
+const HEALTH_DIMENSIONS = [
+  { icon: Code2, number: "01", title: "Conversion capture", description: "Are the actions that matter actually recorded?" },
+  { icon: Gauge, number: "02", title: "Signal quality", description: "Are browser and platform signals reliable enough to use?" },
+  { icon: Route, number: "03", title: "Attribution", description: "Can conversions still be tied to the campaign or source?" },
+  { icon: Send, number: "04", title: "Lead visibility", description: "Does source context survive the lead handoff?" },
+  { icon: BarChart3, number: "05", title: "Data reliability", description: "Can your team make decisions from the combined picture?" },
+] as const;
+
+const SCORECARD_PREVIEW = [
+  { label: "Conversion capture", status: "Strong", width: "82%" },
+  { label: "Signal quality", status: "Review", width: "58%" },
+  { label: "Attribution", status: "Weak", width: "36%" },
+  { label: "Lead visibility", status: "Review", width: "52%" },
+  { label: "Data reliability", status: "Mixed", width: "46%" },
+] as const;
+
+const ACCESS_LEVELS = [
+  { level: "Level 0", title: "Public evidence", description: "We start here. No credentials required." },
+  { level: "Level 1", title: "Read-only verification", description: "Only when deeper evidence materially improves the diagnosis." },
+  { level: "Level 2", title: "Paid implementation", description: "Edit access only when separately scoped to fix issues." },
 ] as const;
 
 const PROCESS_STEPS = [
   { number: "01", title: "Apply", description: "Tell us about your business and one conversion journey." },
-  { number: "02", title: "We review fit", description: "We confirm whether the free audit is a good fit." },
-  { number: "03", title: "We diagnose", description: "We start with public evidence and ask for read-only evidence only if needed." },
-  { number: "04", title: "You get the scorecard", description: "We send the findings and the most important next steps." },
+  { number: "02", title: "Fit review", description: "We confirm whether the free audit is a good fit and within scope." },
+  { number: "03", title: "Diagnose", description: "We review the journey, starting with public evidence." },
+  { number: "04", title: "Scorecard", description: "You receive prioritized findings and clear next steps." },
 ] as const;
 
 const AUDIT_FAQS: FAQItem[] = [
   {
-    question: "Is the audit really free?",
-    answer: "Yes. The audit is a bounded diagnostic for eligible businesses. Implementation or repair work is separate.",
+    question: "Will you need access to our accounts?",
+    answer: "Not always. We start with public evidence. If an important finding needs confirmation, we may ask for the lowest practical viewer/read-only access, a screenshare or an export.",
   },
   {
-    question: "Do you need access to my accounts?",
-    answer: "Not always. We start with public evidence. If something important needs confirmation, we may ask for viewer/read-only access, a screenshare or an export.",
+    question: "What does the free audit cover?",
+    answer: "One company, one website domain, one core conversion journey and up to two paid platforms where relevant. The deliverable is a Tracking Health Scorecard with prioritized findings and recommendations.",
   },
   {
-    question: "Will you ask for my passwords?",
-    answer: "No. Do not send passwords, API keys or other credentials by email or form.",
+    question: "Is implementation included?",
+    answer: "No. The free audit diagnoses and prioritizes issues. Tag changes, code changes, CRM work, migrations and ongoing implementation are scoped separately.",
   },
   {
-    question: "What platforms do you review?",
-    answer: "We review the measurement journey around your website, analytics, paid platforms, attribution and lead handoff. The free scope covers one core journey and up to two paid platforms where relevant.",
-  },
-  {
-    question: "Will you fix the issues during the audit?",
-    answer: "No. The free audit diagnoses and prioritizes issues. If you want AlphaTrack Digital to implement the recommendations, that is scoped separately.",
-  },
-  {
-    question: "How quickly will I hear back?",
+    question: "How long does the review take?",
     answer: "We aim to review applications within one business day. Audit acceptance and delivery timing depend on fit, scope and current capacity.",
+  },
+  {
+    question: "What if our setup is more complex?",
+    answer: "We keep the free audit deliberately bounded. If the journey requires deeper forensic work, multiple systems or a broader CRM/automation review, we will tell you before proceeding and scope that work separately.",
   },
 ];
 
 const TRACKING_AUDIT_ANCHOR_CTA = {
-  label: "Request a Free Tracking Audit",
+  label: "Request My Free Audit",
   to: "/offer/tracking-audit#claim",
 } as const;
 
