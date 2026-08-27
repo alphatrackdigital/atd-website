@@ -14,7 +14,7 @@ describe("TrackingLandingPage accessibility", () => {
     expect(screen.getByRole("button", { name: "Continue" })).toBeInTheDocument();
   });
 
-  it("moves to the structured measurement-context step after valid step one", async () => {
+  it("moves to the compact fit-and-spend step after valid step one", async () => {
     renderWithPageProviders(<TrackingLandingPage />, { route: "/offer/tracking-audit" });
 
     fireEvent.change(screen.getByLabelText("First Name"), { target: { value: "Jane" } });
@@ -29,13 +29,11 @@ describe("TrackingLandingPage accessibility", () => {
     });
     expect(screen.getByLabelText("Your role")).toBeInTheDocument();
     expect(screen.getByRole("group", { name: "Your role in this decision" })).toBeInTheDocument();
-    expect(screen.getByRole("group", { name: "Monthly ad spend" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Monthly ad spend")).toBeInTheDocument();
     expect(screen.getByRole("group", { name: "Where do you advertise?" })).toBeInTheDocument();
-    expect(screen.getByRole("group", { name: "How confident are you in your tracking?" })).toBeInTheDocument();
-    expect(screen.getByRole("group", { name: "What matters most?" })).toBeInTheDocument();
-    expect(screen.getByRole("group", { name: "What’s going wrong?" })).toBeInTheDocument();
-    expect(screen.getByRole("group", { name: "How soon do you want this addressed?" })).toBeInTheDocument();
-    expect(screen.getByLabelText("Send me occasional ATD marketing insights.")).toBeInTheDocument();
+    expect(screen.getByText("Step 2 of 3")).toBeInTheDocument();
+    expect(screen.queryByRole("group", { name: "How confident are you in your tracking?" })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Send me occasional ATD marketing insights.")).not.toBeInTheDocument();
   });
 
   it("presents the application-first audit scope and links the final call to action to the form", () => {
