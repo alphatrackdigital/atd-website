@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { z } from "zod";
 import { toast } from "sonner";
 import {
+  ArrowLeft,
   ArrowRight,
   BarChart3,
   Check,
@@ -47,7 +48,18 @@ const normalizeWebsiteUrl = (value: string) => {
 const isValidWebsiteUrl = (value: string) => {
   try {
     const url = new URL(normalizeWebsiteUrl(value));
-    return (url.protocol === "http:" || url.protocol === "https:") && Boolean(url.hostname);
+    const hostname = url.hostname.toLowerCase();
+
+    if (url.protocol !== "http:" && url.protocol !== "https:") return false;
+    if (!hostname.includes(".") || hostname.startsWith(".") || hostname.endsWith(".")) return false;
+    if (hostname === "localhost" || hostname.includes("..")) return false;
+
+    const labels = hostname.split(".");
+    const validLabel = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i;
+    if (labels.some((label) => !validLabel.test(label))) return false;
+
+    const topLevelDomain = labels.at(-1) ?? "";
+    return /^[a-z]{2,63}$/i.test(topLevelDomain) || /^xn--[a-z0-9-]{2,59}$/i.test(topLevelDomain);
   } catch {
     return false;
   }
@@ -379,6 +391,8 @@ const TrackingLandingPage = () => {
     defaultValues: { adPlatforms: [], marketingOptIn: false },
   });
 
+  const websiteRegistration = register("websiteUrl");
+
   const handleMeaningfulInteraction = () => {
     if (!formStartAt.current) formStartAt.current = Date.now();
     if (formStartTracked.current) return;
@@ -490,8 +504,8 @@ const TrackingLandingPage = () => {
         </div>
 
         <div className="container relative mx-auto px-5 sm:px-6 lg:px-8">
-          <div className="mx-auto grid max-w-6xl gap-9 lg:grid-cols-[minmax(0,0.95fr)_minmax(420px,480px)] lg:items-start lg:gap-14">
-            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="pt-2 lg:pt-7">
+          <div className="mx-auto grid max-w-6xl gap-9 lg:grid-cols-[minmax(0,0.95fr)_minmax(420px,480px)] lg:items-center lg:gap-14">
+            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="pt-2 lg:pt-0">
               <HeroEyebrow>Free Conversion Tracking Audit</HeroEyebrow>
 
               <h1 className="title-safe mt-5 max-w-[36rem] text-[2.55rem] font-extrabold leading-[1.02] tracking-tight sm:text-5xl md:text-[3.4rem] lg:text-[3.6rem]">
@@ -537,8 +551,20 @@ const TrackingLandingPage = () => {
               ) : (
                 <>
                   <div className="mb-6">
-                    <div className="text-xs font-medium text-muted-foreground">
-                      Step {step} of 3
+                    <div className="flex min-h-8 items-center justify-between gap-4">
+                      {step === 1 ? (
+                        <span className="text-xs font-medium text-muted-foreground">Step 1 of 3</span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => moveToStep(step === 2 ? 1 : 2)}
+                          className="-ml-1 inline-flex min-h-8 items-center gap-1.5 rounded-lg px-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                        >
+                          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                          Back
+                        </button>
+                      )}
+                      {step > 1 && <span className="text-xs font-medium text-muted-foreground">Step {step} of 3</span>}
                     </div>
                     <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.08]" aria-hidden="true">
                       <div
@@ -594,7 +620,23 @@ const TrackingLandingPage = () => {
                         </Field>
 
                         <Field label="Website" htmlFor="f-url" error={errors.websiteUrl?.message}>
-                          <Input id="f-url" type="text" inputMode="url" placeholder="yourcompany.com" autoComplete="url" autoCapitalize="none" autoCorrect="off" className={fieldClassName} aria-invalid={!!errors.websiteUrl} aria-describedby={errors.websiteUrl ? "f-url-err" : undefined} {...register("websiteUrl")} />
+                          <Input
+                            id="f-url"
+                            type="text"
+                            inputMode="url"
+                            placeholder="yourcompany.com"
+                            autoComplete="url"
+                            autoCapitalize="none"
+                            autoCorrect="off"
+                            className={fieldClassName}
+                            aria-invalid={!!errors.websiteUrl}
+                            aria-describedby={errors.websiteUrl ? "f-url-err" : undefined}
+                            {...websiteRegistration}
+                            onBlur={(event) => {
+                              websiteRegistration.onBlur(event);
+                              void trigger("websiteUrl");
+                            }}
+                          />
                         </Field>
 
                         <Button type="button" size="lg" onClick={handleStepOneContinue} className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
