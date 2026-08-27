@@ -251,6 +251,61 @@ const Field = ({ label, htmlFor, error, children }: { label: string; htmlFor: st
   </div>
 );
 
+const ChoiceGrid = ({
+  legend,
+  name,
+  value,
+  onChange,
+  options,
+  error,
+  helper,
+  columns = "two",
+}: {
+  legend: string;
+  name: string;
+  value?: string;
+  onChange: (value: string) => void;
+  options: readonly ChoiceOption[];
+  error?: string;
+  helper?: string;
+  columns?: "two" | "three";
+}) => (
+  <fieldset className="space-y-2.5" aria-invalid={!!error} aria-describedby={error ? name + "-err" : undefined}>
+    <legend className="text-sm font-medium text-foreground/90">{legend}</legend>
+    {helper && <p className="text-xs leading-5 text-muted-foreground">{helper}</p>}
+    <div className={columns === "three" ? "grid grid-cols-2 gap-2 sm:grid-cols-3" : "grid grid-cols-2 gap-2"}>
+      {options.map((option) => {
+        const checked = value === option.value;
+        const id = name + "-" + option.value;
+        return (
+          <label
+            key={option.value}
+            htmlFor={id}
+            className={[
+              "flex min-h-11 cursor-pointer items-center justify-center rounded-xl border px-3 py-2 text-center text-xs font-medium leading-4 transition-colors sm:text-[13px]",
+              checked
+                ? "border-primary/45 bg-primary/[0.12] text-primary shadow-[inset_0_0_0_1px_rgba(51,204,153,0.05)]"
+                : "border-white/[0.08] bg-white/[0.025] text-foreground/78 hover:border-white/[0.14] hover:bg-white/[0.045]",
+            ].join(" ")}
+          >
+            <input
+              id={id}
+              type="radio"
+              name={name}
+              value={option.value}
+              checked={checked}
+              onChange={() => onChange(option.value)}
+              className="sr-only"
+            />
+            {option.label}
+          </label>
+        );
+      })}
+    </div>
+    {error && <p id={name + "-err"} role="alert" className="text-xs text-red-400">{error}</p>}
+  </fieldset>
+);
+
 const TrackingLandingPage = () => {
   const [step, setStep] = useState<1 | 2>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
