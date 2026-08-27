@@ -381,7 +381,7 @@ const TrackingLandingPage = () => {
         lastName: data.lastName,
         email: data.email,
         company: data.company,
-        websiteUrl: data.websiteUrl,
+        websiteUrl: normalizeWebsiteUrl(data.websiteUrl),
         industry: data.industry,
         role: data.role,
         decisionInfluence: data.decisionInfluence,
@@ -417,11 +417,11 @@ const TrackingLandingPage = () => {
     <>
       <SEO
         title="Free Conversion Tracking Audit | AlphaTrack Digital"
-        description="Request a free conversion tracking audit to understand whether your marketing data can be trusted and where measurement confidence breaks down."
+        description="Request a free conversion tracking audit to find broken tracking, weak attribution and missing lead-source data across one core conversion journey."
         canonicalUrl="/offer/tracking-audit"
       />
 
-      <section className="relative overflow-hidden border-b border-white/[0.05] pb-12 pt-7 md:pb-20 md:pt-32 lg:pb-24 lg:pt-36">
+      <section className="relative overflow-hidden border-b border-white/[0.05] pb-12 pt-7 md:pb-16 md:pt-24 lg:pb-20 lg:pt-28">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_74%_46%_at_50%_-8%,rgba(0,51,153,0.16)_0%,rgba(0,175,239,0.055)_43%,transparent_74%)]" />
           <div className="absolute right-[-7rem] top-16 h-80 w-80 rounded-full bg-primary/[0.055] blur-[120px]" />
@@ -429,40 +429,26 @@ const TrackingLandingPage = () => {
         </div>
 
         <div className="container relative mx-auto px-5 sm:px-6 lg:px-8">
-          <div className="mx-auto grid max-w-6xl gap-9 lg:grid-cols-[minmax(0,1fr)_minmax(430px,500px)] lg:items-start lg:gap-12">
-            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="pt-2 lg:pt-10">
+          <div className="mx-auto grid max-w-6xl gap-9 lg:grid-cols-[minmax(0,0.95fr)_minmax(420px,480px)] lg:items-start lg:gap-14">
+            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="pt-2 lg:pt-7">
               <HeroEyebrow>Free Conversion Tracking Audit</HeroEyebrow>
 
-              <h1 className="title-safe mt-5 max-w-3xl text-[2.45rem] font-extrabold leading-[1.03] tracking-tight sm:text-5xl md:text-[4rem] lg:text-[4.25rem]">
-                Know whether your marketing data can be <span className="title-safe-inline text-gradient-atd-hero">trusted.</span>
+              <h1 className="title-safe mt-5 max-w-[12ch] text-[2.55rem] font-extrabold leading-[1.02] tracking-tight sm:text-5xl md:text-[3.45rem] lg:text-[3.75rem]">
+                Know what your marketing is <span className="title-safe-inline text-gradient-atd-hero">actually producing.</span>
               </h1>
 
-              <p className="mt-5 max-w-[41rem] text-base leading-7 text-muted-foreground md:text-lg md:leading-8">
-                If you’re already investing in digital acquisition but can’t clearly see which campaigns produce qualified leads or customers, we’ll review the measurement path behind one core journey and show you where confidence breaks down.
+              <p className="mt-5 max-w-[35rem] text-base leading-7 text-foreground/72 md:text-lg md:leading-8">
+                We review one conversion journey to find broken tracking, weak attribution and missing lead-source data.
               </p>
 
-              <div className="mt-6 grid gap-2.5 text-sm text-foreground/78 sm:grid-cols-3 lg:flex lg:flex-wrap lg:gap-x-5">
-                {["Application-based", "No passwords", "Read-only if evidence is needed"].map((item) => (
+              <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-foreground/78">
+                {["No passwords", "Read-only access only if needed"].map((item) => (
                   <span key={item} className="flex items-center gap-2">
                     <Check className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
                     {item}
                   </span>
                 ))}
               </div>
-
-              <div className="mt-7 rounded-2xl border border-primary/15 bg-primary/[0.055] p-4 sm:max-w-xl sm:p-5">
-                <p className="text-sm font-semibold text-foreground">What the free audit covers</p>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  One company, one website domain, one core conversion journey and up to two paid platforms where relevant. You receive a Tracking Health Scorecard with prioritized findings.
-                </p>
-              </div>
-
-              <Button asChild variant="outline" className="group mt-7 hidden h-11 rounded-xl border-primary/25 bg-primary/[0.045] px-5 hover:border-primary/45 hover:bg-primary/[0.09] md:inline-flex">
-                <Link to="/service/conversion-tracking">
-                  Explore our measurement approach
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-                </Link>
-              </Button>
             </motion.div>
 
             <motion.div
@@ -489,17 +475,22 @@ const TrackingLandingPage = () => {
                 </div>
               ) : (
                 <>
-                  <div className="mb-5 flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/90">Request your free audit</p>
-                      <h2 className="mt-2 text-xl font-semibold">Tell us enough to review fit and scope.</h2>
+                  <div className="mb-6">
+                    <div className="flex items-center justify-between gap-4 text-xs font-medium text-muted-foreground">
+                      <span>Step {step} of 2</span>
+                      <span>{step === 1 ? "About 2 minutes" : "Almost done"}</span>
                     </div>
-                    <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.035] px-3 py-1 text-xs font-medium text-muted-foreground">{step} of 2</span>
-                  </div>
-
-                  <div className="mb-6 flex gap-2" aria-hidden="true">
-                    <span className="h-1.5 flex-1 rounded-full bg-primary" />
-                    <span className={`h-1.5 flex-1 rounded-full ${step === 2 ? "bg-primary" : "bg-white/10"}`} />
+                    <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.08]" aria-hidden="true">
+                      <div className={`h-full rounded-full bg-primary transition-all duration-300 ${step === 1 ? "w-1/2" : "w-full"}`} />
+                    </div>
+                    <h2 className="mt-5 text-xl font-semibold">
+                      {step === 1 ? "Tell us about your business." : "A few quick questions."}
+                    </h2>
+                    <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
+                      {step === 1
+                        ? "We review every application before accepting an audit."
+                        : "Choose the options that best describe your setup."}
+                    </p>
                   </div>
 
                   <div className="hidden" aria-hidden="true">
@@ -527,7 +518,7 @@ const TrackingLandingPage = () => {
                         </Field>
 
                         <Field label="Website" htmlFor="f-url" error={errors.websiteUrl?.message}>
-                          <Input id="f-url" type="url" placeholder="https://yourcompany.com" autoComplete="url" className={fieldClassName} aria-invalid={!!errors.websiteUrl} aria-describedby={errors.websiteUrl ? "f-url-err" : undefined} {...register("websiteUrl")} />
+                          <Input id="f-url" type="text" inputMode="url" placeholder="yourcompany.com" autoComplete="url" autoCapitalize="none" autoCorrect="off" className={fieldClassName} aria-invalid={!!errors.websiteUrl} aria-describedby={errors.websiteUrl ? "f-url-err" : undefined} {...register("websiteUrl")} />
                         </Field>
 
                         <Button type="button" size="lg" onClick={handleContinue} className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
@@ -536,7 +527,7 @@ const TrackingLandingPage = () => {
                         </Button>
 
                         <p className="text-center text-xs leading-5 text-muted-foreground">
-                          Application-based. We review fit and scope before accepting an audit.
+                          Takes about 2 minutes.
                         </p>
                       </div>
                     ) : (
