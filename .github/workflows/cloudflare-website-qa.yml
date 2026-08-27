@@ -1,6 +1,9 @@
 name: Cloudflare Website Exact-SHA QA
 
 on:
+  push:
+    branches:
+      - qa/website
   workflow_dispatch:
     inputs:
       git_sha:
@@ -13,7 +16,7 @@ permissions:
 
 concurrency:
   group: cloudflare-website-qa
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy-qa:
@@ -22,7 +25,7 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_STAGING_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_STAGING_ACCOUNT_ID }}
-      REQUESTED_SHA: ${{ inputs.git_sha }}
+      REQUESTED_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.git_sha || github.sha }}
       WORKER_NAME: atd-website-qa
 
     steps:
@@ -106,6 +109,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: cloudflare-atd-website-qa-${{ inputs.git_sha }}
+          name: cloudflare-atd-website-qa-${{ env.REQUESTED_SHA }}
           if-no-files-found: error
           path: qa-evidence
