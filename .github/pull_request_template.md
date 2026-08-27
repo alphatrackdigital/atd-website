@@ -1,12 +1,29 @@
+## Scope
+
+Describe the frontend change and any Tracking/Brevo/API contract impact.
+
+## Execution / handoff checkpoint
+
+- Current execution owner: Local / Cloud
+- Source branch:
+- Exact starting/checkpoint SHA:
+- Local ↔ Cloud handoff occurred: Yes / No
+- If Cloud continued an existing branch, confirm the Cloud PR targets that source branch rather than `main`.
+
 ## Checks
 
-- [ ] I ran `npm run test`.
-- [ ] I ran `npm run build`.
-- [ ] This PR needs a Netlify Deploy Preview.
-- [ ] This PR is ready to consume a production deploy after merge.
+- [ ] I ran the targeted tests required by this change.
+- [ ] I ran `npm run release:prepare` when this change is a provider-QA/release candidate.
+- [ ] Cloudflare exact-SHA QA is required for this change.
+- [ ] This PR is eligible for cPanel production only after separate release authorization.
 
-## Netlify Notes
+## Provider notes
 
-Add `[skip netlify]` or `[skip ci]` to the PR title when no Deploy Preview is needed.
+- Website runtime QA uses `atd-website-qa` on Cloudflare.
+- Public production remains on cPanel.
+- Do not recreate `atd-website-test` on Vercel.
+- Do not use a frontend provider preview when source/CI validation is sufficient.
 
-Batch small fixes before merging to `main` so production deploy credits are used only for real releases.
+## Production authorization
+
+State explicitly whether this PR authorizes a production deployment. Default: **No**.

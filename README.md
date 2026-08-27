@@ -14,7 +14,7 @@ Use this branch for:
 - Header, footer, navigation, and shared frontend components
 - SEO, copy, styling, and responsive design
 
-Backend/API work belongs on the `backend` branch.
+Backend/API production and runtime work belongs in `alphatrackdigital/atd-backend-test`. Historical backend-related branches/files in this repository are not the canonical backend implementation path.
 
 ## Tech Stack
 
@@ -121,15 +121,19 @@ The repository still contains Netlify-compatible function code and `netlify.toml
 
 Brevo API routes such as `/api/leads` and `/api/brevo-subscribe` require a Node/serverless runtime. They will not run on static-only cPanel hosting without a separate API deployment or hosting migration.
 
-## Frontend Staging
+## Frontend QA
 
-Primary frontend test/staging environment:
+Canonical non-production frontend runtime QA is the deliberate Cloudflare exact-SHA lane:
 
 ```text
-https://alphatrackdigital.netlify.app
+https://atd-website-qa.alphatrackdigital.workers.dev
 ```
 
-Use Netlify Deploy Previews and the optional `staging` branch for routine frontend review. Keep Vercel as fallback/comparison infrastructure only, not the normal review path.
+Use the manually triggered `Cloudflare Website Exact-SHA QA` GitHub Actions workflow when provider-hosted frontend proof is materially required. The deployment manifest at `/__atd/deployment.json` must match the reviewed Git SHA.
+
+Do not recreate the retired Vercel `atd-website-test` project. Netlify frontend previews are not the canonical website QA path.
+
+Public production remains on Namecheap/cPanel and is separately gated.
 
 Live backend/API service used by the public Namecheap/cPanel website:
 
@@ -172,3 +176,16 @@ netlify/functions/*
 
 - `docs/playwright-ui-targeting.md` — Playwright locator workflow for Codex and UI QA.
 - `docs/netlify-credit-control.md` — Netlify project roles, staging workflow, and credit-control rules.
+
+
+## Hybrid Codex workflow
+
+GitHub is the synchronization and integration authority. Local Codex and Codex Cloud are development workers.
+
+For a Local → Cloud handoff:
+
+```text
+feature branch → tests → commit → push exact SHA → Codex Cloud task → Cloud PR into source branch → GitHub CI/release gate
+```
+
+Do not have Local and Cloud edit the same source branch simultaneously. Production deployment remains separately authorized from code generation.
