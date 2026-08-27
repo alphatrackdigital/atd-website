@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 
 import SEO from "@/components/shared/SEO";
-import CTASection from "@/components/shared/CTASection";
 import FAQAccordion, { type FAQItem } from "@/components/shared/FAQAccordion";
 import HeroEyebrow from "@/components/shared/HeroEyebrow";
 import PageSection from "@/components/shared/PageSection";
@@ -38,6 +37,7 @@ import {
 } from "@/components/ui/select";
 import { companyProfile } from "@/data/companyProfile";
 import { submitLead } from "@/lib/leads";
+import { withCampaignSearch } from "@/lib/campaignAttribution";
 import { pushLeadSubmissionEvent } from "@/lib/tracking";
 
 const normalizeWebsiteUrl = (value: string) => {
@@ -390,6 +390,8 @@ const SingleChoiceChips = ({
 );
 
 const TrackingLandingPage = () => {
+  const location = useLocation();
+  const finalCtaTo = withCampaignSearch(TRACKING_AUDIT_ANCHOR_CTA.to, location.search);
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -520,7 +522,7 @@ const TrackingLandingPage = () => {
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_62%_50%_at_31%_40%,rgba(0,175,239,0.12)_0%,rgba(0,51,153,0.08)_38%,transparent_72%),radial-gradient(ellipse_46%_48%_at_73%_30%,rgba(51,204,153,0.10)_0%,transparent_72%)]" />
           <div
-            className="absolute inset-0 opacity-[0.24]"
+            className="absolute inset-0 opacity-[0.16]"
             style={{
               backgroundImage:
                 "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
@@ -528,8 +530,6 @@ const TrackingLandingPage = () => {
               maskImage: "linear-gradient(to bottom, black 5%, rgba(0,0,0,0.72) 58%, transparent 100%)",
             }}
           />
-          <div className="absolute left-[9%] top-[30%] h-px w-[34%] rotate-[-8deg] bg-gradient-to-r from-transparent via-atd-cyan/20 to-transparent" />
-          <div className="absolute left-[22%] top-[55%] h-px w-[24%] rotate-[11deg] bg-gradient-to-r from-transparent via-primary/18 to-transparent" />
           <div className="absolute right-[-7rem] top-16 h-80 w-80 rounded-full bg-primary/[0.065] blur-[120px]" />
           <div className="absolute bottom-[-5rem] left-[-8rem] h-96 w-96 rounded-full bg-atd-blue/[0.14] blur-[150px]" />
         </div>
@@ -556,28 +556,26 @@ const TrackingLandingPage = () => {
                 ))}
               </div>
 
-              <div className="mt-8 max-w-[31rem] rounded-2xl border border-white/[0.08] bg-black/20 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.16)] backdrop-blur-sm sm:p-5">
+              <div className="relative mt-8 max-w-[29rem] pl-4 sm:pl-5">
+                <div className="absolute bottom-1 left-0 top-1 w-px bg-gradient-to-b from-primary/45 via-atd-cyan/25 to-transparent" aria-hidden="true" />
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">Illustrative preview</p>
-                    <p className="mt-1 text-sm font-semibold text-foreground">Tracking Health Scorecard</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Illustrative preview</p>
+                    <p className="mt-1 text-sm font-semibold text-foreground/92">Tracking Health Scorecard</p>
                   </div>
-                  <BarChart3 className="h-5 w-5 text-primary" aria-hidden="true" />
+                  <BarChart3 className="h-4.5 w-4.5 text-primary/75" aria-hidden="true" />
                 </div>
 
-                <div className="mt-4 space-y-3">
+                <div className="mt-4 space-y-2.5">
                   {SCORECARD_PREVIEW.map((item) => (
-                    <div key={item.label} className="grid grid-cols-[minmax(0,1fr)_92px] items-center gap-3">
-                      <div>
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="text-[12px] text-foreground/78">{item.label}</span>
-                          <span className="text-[10px] font-medium text-muted-foreground">{item.status}</span>
-                        </div>
-                        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
-                          <div className="h-full rounded-full bg-gradient-to-r from-atd-blue via-atd-cyan to-primary" style={{ width: item.width }} />
-                        </div>
+                    <div key={item.label}>
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="text-[11px] text-foreground/68">{item.label}</span>
+                        <span className="text-[10px] font-medium text-muted-foreground/80">{item.status}</span>
                       </div>
-                      <div className="hidden h-px bg-gradient-to-r from-white/[0.08] to-transparent sm:block" aria-hidden="true" />
+                      <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-white/[0.055]">
+                        <div className="h-full rounded-full bg-gradient-to-r from-atd-blue/80 via-atd-cyan/80 to-primary/80" style={{ width: item.width }} />
+                      </div>
                     </div>
                   ))}
                 </div>
