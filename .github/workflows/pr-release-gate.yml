@@ -65,3 +65,6 @@ jobs:
 
       - name: Run release gate
         run: npm run release:prepare
+
+      - name: Validate Cloudflare website QA bundle
+        run: npx --yes wrangler@4 deploy --dry-run --config cloudflare/wrangler.website-qa.jsonc --outdir .wrangler-dry-run
