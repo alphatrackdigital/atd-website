@@ -563,7 +563,7 @@ const TrackingLandingPage = () => {
                     <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Illustrative preview</p>
                     <p className="mt-1 text-sm font-semibold text-foreground/92">Tracking Health Scorecard</p>
                   </div>
-                  <BarChart3 className="h-4.5 w-4.5 text-primary/75" aria-hidden="true" />
+                  <BarChart3 className="h-[18px] w-[18px] text-primary/75" aria-hidden="true" />
                 </div>
 
                 <div className="mt-4 space-y-2.5">
@@ -905,230 +905,287 @@ const TrackingLandingPage = () => {
         </div>
       </section>
 
-      <PageSection surface="quiet" border="both" spacing="spacious" className="py-14 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection surface="quiet" spacing="spacious" className="py-16 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
           eyebrow="The measurement journey"
           title="Your marketing result passes through multiple handoffs."
           description="A click can be tracked correctly at the ad platform and still lose context before it reaches your CRM. We review the journey end to end to find where confidence breaks."
           align="center"
           maxWidth="2xl"
-          className="mb-10 md:mb-14"
+          className="mb-12 md:mb-16"
         />
 
         <div className="mx-auto max-w-6xl">
-          <div className="relative">
-            <div className="absolute left-[8%] right-[8%] top-8 hidden h-px bg-gradient-to-r from-atd-blue/20 via-primary/45 to-atd-cyan/20 lg:block" aria-hidden="true" />
+          <div className="relative hidden pt-10 lg:block">
+            <motion.div
+              className="absolute left-[10%] right-[10%] top-[3.85rem] h-px bg-gradient-to-r from-atd-blue/25 via-primary/55 to-atd-cyan/25"
+              initial={{ scaleX: 0 }}
+              whileInView={{ scaleX: 1 }}
+              viewport={{ once: true, amount: 0.45 }}
+              transition={{ duration: 0.75, ease: "easeOut" }}
+              style={{ transformOrigin: "left" }}
+              aria-hidden="true"
+            />
 
-            <div className="relative grid gap-4 sm:grid-cols-2 lg:grid-cols-5 lg:gap-3">
+            {JOURNEY_BREAKS.map((item) => (
+              <div key={item.label} className="absolute top-[3.52rem] z-20 -translate-x-1/2" style={{ left: item.position }}>
+                <span className="block h-2.5 w-2.5 rotate-45 border border-amber-300/45 bg-[#0b1118]" aria-hidden="true" />
+                <span className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium text-amber-100/65">
+                  {item.label}
+                </span>
+              </div>
+            ))}
+
+            <div className="relative grid grid-cols-5 gap-8">
               {MEASUREMENT_JOURNEY.map(({ icon: Icon, title, description, signal }, index) => (
-                <article key={title} className="relative rounded-2xl border border-white/[0.08] bg-[#0b1118]/80 p-5 shadow-[0_14px_45px_rgba(0,0,0,0.12)]">
-                  <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-primary/25 bg-primary/[0.08] text-primary">
+                <article key={title} className="text-center">
+                  <div className="relative z-10 mx-auto flex h-11 w-11 items-center justify-center rounded-full border border-primary/25 bg-[#0a1017] text-primary shadow-[0_0_0_7px_rgba(8,14,20,0.94)]">
                     <Icon className="h-5 w-5" aria-hidden="true" />
                   </div>
-                  <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/65">{String(index + 1).padStart(2, "0")} · {signal}</p>
+                  <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.15em] text-primary/60">
+                    {String(index + 1).padStart(2, "0")} · {signal}
+                  </p>
                   <h3 className="mt-1.5 text-base font-semibold text-foreground">{title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
+                  <p className="mx-auto mt-2 max-w-[12rem] text-sm leading-6 text-muted-foreground">{description}</p>
                 </article>
               ))}
             </div>
-
-            <div className="relative mt-6 hidden h-12 lg:block" aria-label="Common break points in the measurement journey">
-              {JOURNEY_BREAKS.map((item) => (
-                <div key={item.label} className="absolute top-0 -translate-x-1/2" style={{ left: item.position }}>
-                  <span className="block h-4 w-px bg-red-400/35" aria-hidden="true" />
-                  <span className="mt-1 inline-flex whitespace-nowrap rounded-full border border-red-400/15 bg-red-400/[0.055] px-2.5 py-1 text-[10px] font-medium text-red-200/70">
-                    {item.label}
-                  </span>
-                </div>
-              ))}
-            </div>
           </div>
 
-          <div className="mt-6 flex flex-wrap justify-center gap-2 lg:hidden">
-            {JOURNEY_BREAKS.map((item) => (
-              <span key={item.label} className="rounded-full border border-red-400/15 bg-red-400/[0.05] px-3 py-1.5 text-[11px] text-red-200/70">
-                {item.label}
-              </span>
+          <div className="lg:hidden">
+            {MEASUREMENT_JOURNEY.map(({ icon: Icon, title, description, signal }, index) => (
+              <div key={title} className="relative pb-8 pl-14 last:pb-0">
+                {index < MEASUREMENT_JOURNEY.length - 1 && (
+                  <div className="absolute bottom-0 left-[21px] top-10 w-px bg-gradient-to-b from-primary/40 to-atd-blue/15" aria-hidden="true" />
+                )}
+                <div className="absolute left-0 top-0 flex h-11 w-11 items-center justify-center rounded-full border border-primary/25 bg-[#0a1017] text-primary">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-primary/60">
+                  {String(index + 1).padStart(2, "0")} · {signal}
+                </p>
+                <h3 className="mt-1 text-base font-semibold">{title}</h3>
+                <p className="mt-1.5 text-sm leading-6 text-muted-foreground">{description}</p>
+                {JOURNEY_BREAKS[index] && (
+                  <div className="mt-3 flex items-center gap-2 text-[11px] font-medium text-amber-100/65">
+                    <span className="h-2 w-2 rotate-45 border border-amber-300/45" aria-hidden="true" />
+                    {JOURNEY_BREAKS[index].label}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
 
-          <p className="mx-auto mt-8 max-w-3xl text-center text-sm leading-6 text-muted-foreground">
-            When even one handoff fails, ad platforms, analytics and CRM reports can all tell different versions of the same result.
+          <p className="mx-auto mt-10 max-w-3xl text-center text-sm leading-6 text-muted-foreground">
+            When one handoff fails, ad platforms, analytics and CRM reports can all tell different versions of the same result.
           </p>
         </div>
       </PageSection>
 
-      <PageSection id="audit-coverage" spacing="spacious" className="scroll-mt-20 py-14 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection id="audit-coverage" spacing="spacious" className="scroll-mt-20 py-16 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          eyebrow="What we check"
           title="We diagnose the journey across five areas."
-          description="We score one conversion journey across the parts that need to work together for your data to be useful."
+          description="Five diagnostic lenses show whether the journey is being measured consistently enough to trust."
           align="center"
           maxWidth="2xl"
           className="mb-10 md:mb-14"
         />
 
-        <div className="relative mx-auto max-w-6xl">
-          <div className="absolute left-[9%] right-[9%] top-6 hidden h-px bg-gradient-to-r from-primary/20 via-primary/50 to-primary/20 lg:block" aria-hidden="true" />
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 lg:gap-3">
-            {HEALTH_DIMENSIONS.map(({ icon: Icon, number, title, description }) => (
-              <article key={title} className="relative">
-                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-primary/30 bg-[#0a1118] text-primary shadow-[0_0_0_6px_rgba(5,10,16,0.95)]">
-                  <Icon className="h-5 w-5" aria-hidden="true" />
+        <div className="mx-auto max-w-6xl border-y border-white/[0.07]">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5">
+            {HEALTH_DIMENSIONS.map(({ icon: Icon, number, title, description }, index) => (
+              <article
+                key={title}
+                className={[
+                  "py-6 sm:px-5 lg:min-h-[15rem] lg:py-7",
+                  index % 2 === 1 ? "sm:border-l sm:border-white/[0.07]" : "",
+                  index > 1 ? "sm:border-t sm:border-white/[0.07]" : "",
+                  index > 0 ? "lg:border-l lg:border-t-0 lg:border-white/[0.07]" : "",
+                ].join(" ")}
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-2xl font-light tracking-tight text-foreground/28">{number}</span>
+                  <Icon className="h-4 w-4 text-primary/65" aria-hidden="true" />
                 </div>
-                <div className="mt-4 border-t border-white/[0.07] pt-4 lg:border-t-0 lg:pt-0">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/65">{number}</p>
-                  <h3 className="mt-1.5 text-sm font-semibold text-foreground">{title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
-                </div>
+                <h3 className="mt-8 text-base font-semibold text-foreground">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
               </article>
             ))}
           </div>
         </div>
       </PageSection>
 
-      <PageSection surface="quiet" border="both" spacing="spacious" className="py-14 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-center lg:gap-12">
+      <PageSection surface="quiet" spacing="spacious" className="py-16 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.72fr_1.28fr] lg:items-center lg:gap-14">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/90">What you get</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/85">What you get</p>
             <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-4xl">Clear findings. Clear next steps.</h2>
             <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground md:text-base">
-              You receive a Tracking Health Scorecard that shows what we found, why it matters to the business and what should be investigated or fixed first.
+              The scorecard shows what we found, why it matters and what should be investigated or fixed first.
             </p>
 
-            <div className="mt-6 space-y-3">
-              {["Tracking Health Scorecard", "Prioritized findings", "Recommended next actions"].map((item) => (
-                <div key={item} className="flex items-center gap-3 text-sm text-foreground/85">
-                  <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+            <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2">
+              {["Scorecard", "Priorities", "Next actions"].map((item) => (
+                <span key={item} className="inline-flex items-center gap-2 text-sm text-foreground/78">
+                  <Check className="h-4 w-4 text-primary" aria-hidden="true" />
                   {item}
-                </div>
+                </span>
               ))}
             </div>
 
-            <p className="mt-6 text-xs leading-5 text-muted-foreground">
-              The free audit covers diagnosis and recommendations. Implementation is scoped separately if you want help fixing the issues.
+            <p className="mt-6 max-w-lg text-xs leading-5 text-muted-foreground">
+              Diagnosis and recommendations are included. Implementation is scoped separately.
             </p>
           </div>
 
-          <article className="overflow-hidden rounded-2xl border border-white/[0.09] bg-[#0b1118] shadow-[0_28px_90px_rgba(0,0,0,0.20)]">
-            <div className="border-b border-white/[0.07] bg-white/[0.025] px-5 py-4 sm:px-6">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">Illustrative scorecard finding</p>
-                  <p className="mt-1 text-base font-semibold">Attribution · Needs attention</p>
-                </div>
-                <span className="rounded-full border border-amber-300/15 bg-amber-300/[0.07] px-3 py-1 text-[11px] font-medium text-amber-100/80">High priority</span>
+          <motion.article
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.35 }}
+            transition={{ duration: 0.45 }}
+            className="relative overflow-hidden rounded-2xl bg-white/[0.025] p-6 shadow-[0_26px_80px_rgba(0,0,0,0.18)] ring-1 ring-white/[0.08] sm:p-7"
+          >
+            <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-amber-300/55" aria-hidden="true" />
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Illustrative scorecard finding</p>
+                <h3 className="mt-2 text-xl font-semibold">Attribution</h3>
+                <p className="mt-1 text-sm text-amber-100/75">Needs attention</p>
               </div>
+              <span className="rounded-full border border-amber-300/15 bg-amber-300/[0.06] px-3 py-1 text-[11px] font-medium text-amber-100/75">
+                High priority
+              </span>
             </div>
 
-            <div className="grid gap-px bg-white/[0.06] sm:grid-cols-2">
-              <div className="bg-[#0b1118] p-5 sm:p-6">
+            <div className="mt-7 grid gap-6 sm:grid-cols-2">
+              <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Evidence</p>
                 <p className="mt-2 text-sm leading-6 text-foreground/82">
                   Campaign source is present at landing-page entry but is not reliably preserved through lead creation.
                 </p>
               </div>
-              <div className="bg-[#0b1118] p-5 sm:p-6">
+              <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Business impact</p>
                 <p className="mt-2 text-sm leading-6 text-foreground/82">
                   Paid leads may appear as direct or unknown in downstream reporting.
                 </p>
               </div>
-              <div className="bg-[#0b1118] p-5 sm:p-6 sm:col-span-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Recommended next step</p>
-                <p className="mt-2 text-sm leading-6 text-foreground/82">
-                  Verify source persistence across form submission and the CRM handoff before changing campaign optimization.
-                </p>
-              </div>
             </div>
-          </article>
-        </div>
-      </PageSection>
 
-      <PageSection spacing="spacious" className="py-14 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-6xl">
-          <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-center lg:gap-12">
-            <div>
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/20 bg-primary/[0.07] text-primary">
-                <ShieldCheck className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/90">Access safety</p>
-              <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-4xl">We start with the least access possible.</h2>
-              <p className="mt-4 text-sm leading-7 text-muted-foreground md:text-base">
-                Public evidence first. Read-only verification only when it materially improves the diagnosis. Passwords are never requested.
+            <div className="mt-6 border-t border-white/[0.07] pt-5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Recommended next step</p>
+              <p className="mt-2 text-sm leading-6 text-foreground/82">
+                Verify source persistence across form submission and the CRM handoff before changing campaign optimization.
               </p>
             </div>
+          </motion.article>
+        </div>
+      </PageSection>
 
-            <div className="relative">
-              <div className="absolute left-[16.5%] right-[16.5%] top-6 hidden h-px bg-gradient-to-r from-primary/25 via-primary/45 to-atd-blue/25 md:block" aria-hidden="true" />
-              <div className="grid gap-4 md:grid-cols-3">
-                {ACCESS_LEVELS.map((item, index) => (
-                  <article key={item.level} className="relative rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5">
-                    <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-primary/25 bg-[#091017] text-xs font-bold text-primary">
-                      {index}
-                    </div>
-                    <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/65">{item.level}</p>
-                    <h3 className="mt-1.5 text-sm font-semibold text-foreground">{item.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.description}</p>
-                  </article>
-                ))}
+      <PageSection spacing="spacious" className="py-16 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-center lg:gap-14">
+          <div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/[0.07] text-primary">
+              <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <h2 className="mt-5 text-2xl font-bold tracking-tight md:text-4xl">We start with the least access possible.</h2>
+            <p className="mt-4 text-sm leading-7 text-muted-foreground md:text-base">
+              Public evidence first. Read-only verification only when it materially improves the diagnosis. Passwords are never requested.
+            </p>
+          </div>
+
+          <div className="rounded-[28px] bg-white/[0.018] p-5 ring-1 ring-white/[0.055] sm:p-6">
+            <div className="border-l-2 border-primary/55 pl-4 sm:pl-5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/70">Level 0</p>
+              <h3 className="mt-1.5 text-base font-semibold">Public evidence</h3>
+              <p className="mt-1.5 text-sm leading-6 text-muted-foreground">We start here. No credentials required.</p>
+            </div>
+
+            <div className="mt-5 ml-4 rounded-2xl bg-white/[0.025] p-4 sm:ml-8 sm:p-5">
+              <div className="border-l-2 border-atd-cyan/45 pl-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-atd-cyan/70">Level 1</p>
+                <h3 className="mt-1.5 text-base font-semibold">Read-only verification</h3>
+                <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
+                  Used only when deeper evidence materially improves a finding.
+                </p>
+              </div>
+
+              <div className="mt-5 ml-4 rounded-xl bg-black/15 p-4 sm:ml-8">
+                <div className="border-l-2 border-white/15 pl-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Level 2</p>
+                  <h3 className="mt-1.5 text-base font-semibold text-foreground/88">Paid implementation</h3>
+                  <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
+                    Edit access only when separately scoped to fix issues.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </PageSection>
 
-      <PageSection surface="quiet" border="both" spacing="spacious" className="py-14 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection surface="quiet" spacing="spacious" className="py-16 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          eyebrow="How it works"
           title="From application to scorecard."
-          description="Apply, we review fit, we diagnose one journey, and you receive the scorecard."
+          description="A simple four-step process, with no implementation commitment required."
           align="center"
           maxWidth="2xl"
-          className="mb-10 md:mb-14"
+          className="mb-12 md:mb-16"
         />
 
-        <div className="relative mx-auto max-w-6xl">
-          <div className="absolute left-[11%] right-[11%] top-5 hidden h-px bg-gradient-to-r from-primary/20 via-primary/45 to-primary/20 lg:block" aria-hidden="true" />
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {PROCESS_STEPS.map((item, index) => (
-              <article key={item.number} className="relative rounded-2xl border border-white/[0.08] bg-[#0a1017]/75 p-5">
-                <span className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-primary/25 bg-[#081018] text-xs font-bold text-primary">
+        <div className="relative mx-auto max-w-5xl">
+          <div className="absolute left-[12.5%] right-[12.5%] top-5 hidden h-px bg-white/[0.10] lg:block" aria-hidden="true" />
+          <ol className="grid gap-7 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+            {PROCESS_STEPS.map((item) => (
+              <li key={item.number} className="relative flex gap-4 border-b border-white/[0.06] pb-6 last:border-b-0 sm:block sm:border-b-0 sm:pb-0 lg:text-center">
+                <span className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-[#091017] text-xs font-bold text-primary sm:mb-5 lg:mx-auto">
                   {item.number}
                 </span>
-                <h3 className="mt-4 text-base font-semibold">{item.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.description}</p>
-                {index < PROCESS_STEPS.length - 1 && (
-                  <ArrowRight className="absolute -right-3 top-3 hidden h-4 w-4 text-primary/35 lg:block" aria-hidden="true" />
-                )}
-              </article>
+                <div>
+                  <h3 className="text-base font-semibold">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.description}</p>
+                </div>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
       </PageSection>
 
-      <div className="border-t border-white/[0.06]">
+      <div>
         <FAQAccordion
           items={AUDIT_FAQS}
           eyebrow="Before you apply"
           title="Common questions"
-          description="The essentials before you request an audit."
           variant="minimal"
           density="compact"
-          defaultOpenItem={0}
-          mobileInitialItems={3}
-          sectionSpacingClassName="py-12 md:py-20"
+          accordionClassName="!overflow-visible !rounded-none !border-0 !bg-transparent"
+          contentClassName="max-w-4xl"
+          sectionClassName="bg-transparent"
+          sectionSpacingClassName="py-14 md:py-24"
         />
 
-        <CTASection
-          title={<><span className="md:block">Find where your measurement</span> <span className="text-gradient">journey breaks.</span></>}
-          description="Apply for a Free Conversion Tracking Audit and get a clearer picture of what your marketing is actually producing."
-          primaryCta={TRACKING_AUDIT_ANCHOR_CTA}
-          secondaryCta={null}
-          variant="service-close"
-          titleClassName="max-w-[25ch]"
-        />
+        <section className="relative overflow-hidden border-t border-white/[0.05] py-20 md:py-28">
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_58%_55%_at_50%_100%,rgba(51,204,153,0.09),transparent_68%),radial-gradient(ellipse_45%_50%_at_20%_45%,rgba(0,175,239,0.055),transparent_72%)]" />
+            <div className="absolute left-[18%] right-[18%] top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+          </div>
+
+          <div className="container relative mx-auto px-5 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-3xl text-center">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+                Find where your measurement <span className="text-primary">journey breaks.</span>
+              </h2>
+              <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
+                Apply for a Free Conversion Tracking Audit and get a clearer picture of what your marketing is actually producing.
+              </p>
+              <Button asChild size="lg" className="mt-8 rounded-xl bg-primary px-8 text-primary-foreground hover:bg-primary/90">
+                <Link to={finalCtaTo}>{TRACKING_AUDIT_ANCHOR_CTA.label}</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
       </div>
+
     </>
   );
 };
