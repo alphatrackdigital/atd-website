@@ -14,6 +14,24 @@ describe("TrackingLandingPage accessibility", () => {
     expect(screen.getByRole("button", { name: "Continue" })).toBeInTheDocument();
   });
 
+  it("rejects a hostname without a public suffix and validates the website on blur", async () => {
+    renderWithPageProviders(<TrackingLandingPage />, { route: "/offer/tracking-audit" });
+
+    fireEvent.change(screen.getByLabelText("First Name"), { target: { value: "Jane" } });
+    fireEvent.change(screen.getByLabelText("Last Name"), { target: { value: "Smith" } });
+    fireEvent.change(screen.getByLabelText("Work Email"), { target: { value: "jane@example.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Example Ltd" } });
+
+    const website = screen.getByLabelText("Website");
+    fireEvent.change(website, { target: { value: "AlphaTrackDigital" } });
+    fireEvent.blur(website);
+
+    expect(await screen.findByText("Enter a valid website, e.g. company.com")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(screen.queryByLabelText("Industry")).not.toBeInTheDocument();
+  });
+
   it("moves to the compact fit-and-spend step after valid step one", async () => {
     renderWithPageProviders(<TrackingLandingPage />, { route: "/offer/tracking-audit" });
 
@@ -32,6 +50,10 @@ describe("TrackingLandingPage accessibility", () => {
     expect(screen.getByLabelText("Monthly ad spend")).toBeInTheDocument();
     expect(screen.getByRole("group", { name: "Where do you advertise?" })).toBeInTheDocument();
     expect(screen.getByText("Step 2 of 3")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Back" })).toBeInTheDocument();
+    expect(screen.getByText("Business context")).toBeInTheDocument();
+    expect(screen.getByText("Decision & spend")).toBeInTheDocument();
+    expect(screen.getByText("Advertising")).toBeInTheDocument();
     expect(screen.queryByRole("group", { name: "How confident are you in your tracking?" })).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Send me occasional ATD marketing insights.")).not.toBeInTheDocument();
   });
