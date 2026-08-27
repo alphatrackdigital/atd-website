@@ -33,6 +33,23 @@ const completeStepTwo = async (page: Page) => {
 };
 
 test.describe("General Tracking Audit responsive application", () => {
+  test("mobile website validation rejects a hostname without a public suffix", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/offer/tracking-audit");
+
+    await page.getByLabel("First Name").fill("Jane");
+    await page.getByLabel("Last Name").fill("Smith");
+    await page.getByLabel("Work Email").fill("jane@example.com");
+    await page.getByLabel("Company").fill("Example Company");
+    await page.getByLabel("Website").fill("AlphaTrackDigital");
+    await page.getByLabel("Website").blur();
+
+    await expect(page.getByText("Enter a valid website, e.g. company.com")).toBeVisible();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page.getByText("Step 1 of 3")).toBeVisible();
+    await expect(page.getByLabel("Industry")).not.toBeVisible();
+  });
+
   test("mobile step one is usable without horizontal overflow", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/offer/tracking-audit");
@@ -78,15 +95,34 @@ test.describe("General Tracking Audit responsive application", () => {
     expect(industryBox!.height).toBeGreaterThanOrEqual(40);
 
     await expect(page.getByRole("button", { name: "Continue" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Back" })).toBeVisible();
+    const stepTwoBack = page.getByRole("button", { name: "Back" });
+    await expect(stepTwoBack).toBeVisible();
+    await expect(page.getByText("Business context")).toBeVisible();
+    await expect(page.getByText("Decision & spend")).toBeVisible();
+    await expect(page.getByText("Advertising")).toBeVisible();
+    const stepTwoBackBox = await stepTwoBack.boundingBox();
+    const stepTwoHeadingBox = await page.getByRole("heading", { name: "A little about your marketing." }).boundingBox();
+    expect(stepTwoBackBox).not.toBeNull();
+    expect(stepTwoHeadingBox).not.toBeNull();
+    expect(stepTwoBackBox!.y).toBeLessThan(stepTwoHeadingBox!.y);
     await assertNoHorizontalOverflow(page);
 
     await completeStepTwo(page);
     await expect(page.getByText("Step 3 of 3")).toBeVisible();
     await expect(page.getByRole("group", { name: "How confident are you in your tracking?" })).toBeVisible();
+    await expect(page.getByText("Tracking", { exact: true })).toBeVisible();
+    await expect(page.getByText("Conversion", { exact: true })).toBeVisible();
+    await expect(page.getByText("Main issue", { exact: true })).toBeVisible();
+    await expect(page.getByText("Timing", { exact: true })).toBeVisible();
+    const stepThreeBack = page.getByRole("button", { name: "Back" });
+    const stepThreeBackBox = await stepThreeBack.boundingBox();
+    const stepThreeHeadingBox = await page.getByRole("heading", { name: "What do you want to understand?" }).boundingBox();
+    expect(stepThreeBackBox).not.toBeNull();
+    expect(stepThreeHeadingBox).not.toBeNull();
+    expect(stepThreeBackBox!.y).toBeLessThan(stepThreeHeadingBox!.y);
     await page.getByRole("button", { name: "Request My Free Audit" }).scrollIntoViewIfNeeded();
     await expect(page.getByRole("button", { name: "Request My Free Audit" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Back" })).toBeVisible();
+    await expect(page.getByText("No passwords, API keys or admin credentials.", { exact: true })).not.toBeVisible();
     await assertNoHorizontalOverflow(page);
   });
 
