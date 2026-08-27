@@ -65,16 +65,21 @@ describe("TrackingLandingPage accessibility", () => {
       screen.getByRole("heading", { name: "Know what your marketing is actually producing." }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Your marketing result passes through multiple handoffs." }),
+      screen.getByRole("heading", { name: "Your marketing results pass through several steps." }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "We diagnose the journey across five areas." }),
+      screen.getByRole("heading", { name: "We check five parts of your tracking." }),
     ).toBeInTheDocument();
     expect(screen.getByText("Illustrative scorecard finding")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "We start with the least access possible." }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "From application to scorecard." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Here’s how the audit works." })).toBeInTheDocument();
+    expect(screen.queryByText("Illustrative preview")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "See what we review" })).toHaveAttribute(
+      "href",
+      "#measurement-journey",
+    );
     expect(screen.getByRole("heading", { name: "Common questions" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Request My Free Audit" })).toHaveAttribute(
       "href",
