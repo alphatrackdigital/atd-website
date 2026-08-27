@@ -537,20 +537,28 @@ const TrackingLandingPage = () => {
               ) : (
                 <>
                   <div className="mb-6">
-                    <div className="flex items-center justify-between gap-4 text-xs font-medium text-muted-foreground">
-                      <span>Step {step} of 2</span>
-                      <span>{step === 1 ? "About 2 minutes" : "Almost done"}</span>
+                    <div className="text-xs font-medium text-muted-foreground">
+                      Step {step} of 3
                     </div>
                     <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.08]" aria-hidden="true">
-                      <div className={`h-full rounded-full bg-primary transition-all duration-300 ${step === 1 ? "w-1/2" : "w-full"}`} />
+                      <div
+                        className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out"
+                        style={{ width: `${(step / 3) * 100}%` }}
+                      />
                     </div>
                     <h2 className="mt-5 text-xl font-semibold">
-                      {step === 1 ? "Tell us about your business." : "A few quick questions."}
+                      {step === 1
+                        ? "Tell us about your business."
+                        : step === 2
+                          ? "A little about your marketing."
+                          : "What do you want to understand?"}
                     </h2>
                     <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
                       {step === 1
-                        ? "We review every application before accepting an audit."
-                        : "Choose the options that best describe your setup."}
+                        ? "We review every application."
+                        : step === 2
+                          ? "This helps us check fit and scope."
+                          : "Tell us where measurement is breaking down."}
                     </p>
                   </div>
 
@@ -560,7 +568,14 @@ const TrackingLandingPage = () => {
 
                   <form id="tracking-audit-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate aria-label="Request a Free Tracking Audit">
                     {step === 1 ? (
-                      <div className="space-y-4" onChangeCapture={handleMeaningfulInteraction}>
+                      <motion.div
+                        key="tracking-audit-step-1"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.18 }}
+                        className="space-y-4"
+                        onChangeCapture={handleMeaningfulInteraction}
+                      >
                         <div className="grid gap-4 sm:grid-cols-2">
                           <Field label="First Name" htmlFor="f-first" error={errors.firstName?.message}>
                             <Input id="f-first" placeholder="Jane" autoComplete="given-name" className={fieldClassName} aria-invalid={!!errors.firstName} aria-describedby={errors.firstName ? "f-first-err" : undefined} {...register("firstName")} />
@@ -582,17 +597,23 @@ const TrackingLandingPage = () => {
                           <Input id="f-url" type="text" inputMode="url" placeholder="yourcompany.com" autoComplete="url" autoCapitalize="none" autoCorrect="off" className={fieldClassName} aria-invalid={!!errors.websiteUrl} aria-describedby={errors.websiteUrl ? "f-url-err" : undefined} {...register("websiteUrl")} />
                         </Field>
 
-                        <Button type="button" size="lg" onClick={handleContinue} className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
+                        <Button type="button" size="lg" onClick={handleStepOneContinue} className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
                           Continue
                           <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
                         </Button>
 
                         <p className="text-center text-xs leading-5 text-muted-foreground">
-                          Takes about 2 minutes.
+                          About 2 minutes total.
                         </p>
-                      </div>
-                    ) : (
-                      <div className="space-y-5">
+                      </motion.div>
+                    ) : step === 2 ? (
+                      <motion.div
+                        key="tracking-audit-step-2"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.18 }}
+                        className="space-y-5"
+                      >
                         <div className="grid gap-4 sm:grid-cols-2">
                           <Field label="Industry" htmlFor="f-industry" error={errors.industry?.message}>
                             <Controller control={control} name="industry" render={({ field }) => (
@@ -632,17 +653,18 @@ const TrackingLandingPage = () => {
                           />
                         )} />
 
-                        <Controller control={control} name="monthlyAdSpendBand" render={({ field }) => (
-                          <ChoiceGrid
-                            legend="Monthly ad spend"
-                            name="monthlyAdSpendBand"
-                            value={field.value}
-                            onChange={field.onChange}
-                            options={SPEND_OPTIONS}
-                            error={errors.monthlyAdSpendBand?.message}
-                            columns="three"
-                          />
-                        )} />
+                        <Field label="Monthly ad spend" htmlFor="f-spend" error={errors.monthlyAdSpendBand?.message}>
+                          <Controller control={control} name="monthlyAdSpendBand" render={({ field }) => (
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger id="f-spend" className={fieldClassName} aria-invalid={!!errors.monthlyAdSpendBand} aria-describedby={errors.monthlyAdSpendBand ? "f-spend-err" : undefined}>
+                                <SelectValue placeholder="Select spend range" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {SPEND_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                          )} />
+                        </Field>
 
                         <Controller control={control} name="adPlatforms" render={({ field }) => (
                           <fieldset aria-invalid={!!errors.adPlatforms} aria-describedby={errors.adPlatforms ? "f-platforms-err" : undefined} className="space-y-2.5">
@@ -683,40 +705,56 @@ const TrackingLandingPage = () => {
                           </fieldset>
                         )} />
 
+                        <div className="grid grid-cols-[auto_1fr] gap-2.5 pt-1">
+                          <Button type="button" variant="outline" onClick={() => moveToStep(1)} className="rounded-xl border-white/10 px-4">Back</Button>
+                          <Button type="button" size="lg" onClick={handleStepTwoContinue} className="rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
+                            Continue
+                            <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
+                          </Button>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="tracking-audit-step-3"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.18 }}
+                        className="space-y-5"
+                      >
                         <Controller control={control} name="trackingMaturity" render={({ field }) => (
-                          <ChoiceGrid
+                          <SingleChoiceChips
                             legend="How confident are you in your tracking?"
                             name="trackingMaturity"
                             value={field.value}
                             onChange={field.onChange}
                             options={MATURITY_OPTIONS}
                             error={errors.trackingMaturity?.message}
-                            columns="three"
                           />
                         )} />
 
                         <Controller control={control} name="primaryConversionType" render={({ field }) => (
-                          <ChoiceGrid
+                          <SingleChoiceChips
                             legend="What matters most?"
                             name="primaryConversionType"
                             value={field.value}
                             onChange={field.onChange}
                             options={CONVERSION_OPTIONS}
                             error={errors.primaryConversionType?.message}
-                            columns="three"
                           />
                         )} />
 
-                        <Controller control={control} name="measurementProblem" render={({ field }) => (
-                          <ChoiceGrid
-                            legend="What’s going wrong?"
-                            name="measurementProblem"
-                            value={field.value}
-                            onChange={field.onChange}
-                            options={PROBLEM_OPTIONS}
-                            error={errors.measurementProblem?.message}
-                          />
-                        )} />
+                        <Field label="What’s going wrong?" htmlFor="f-problem" error={errors.measurementProblem?.message}>
+                          <Controller control={control} name="measurementProblem" render={({ field }) => (
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger id="f-problem" className={fieldClassName} aria-invalid={!!errors.measurementProblem} aria-describedby={errors.measurementProblem ? "f-problem-err" : undefined}>
+                                <SelectValue placeholder="Select the closest issue" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {PROBLEM_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                          )} />
+                        </Field>
 
                         <Controller control={control} name="urgency" render={({ field }) => (
                           <ChoiceGrid
@@ -740,16 +778,16 @@ const TrackingLandingPage = () => {
                         </div>
 
                         <div className="grid grid-cols-[auto_1fr] gap-2.5 pt-1">
-                          <Button type="button" variant="outline" onClick={() => setStep(1)} className="rounded-xl border-white/10 px-4">Back</Button>
+                          <Button type="button" variant="outline" onClick={() => moveToStep(2)} className="rounded-xl border-white/10 px-4">Back</Button>
                           <Button type="submit" size="lg" disabled={isSubmitting} className="rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
-                            {isSubmitting ? <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" aria-hidden="true" />Submitting…</> : "Request Free Audit"}
+                            {isSubmitting ? <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" aria-hidden="true" />Submitting…</> : "Request My Free Audit"}
                           </Button>
                         </div>
 
                         <p className="text-center text-[11px] leading-4 text-muted-foreground">
                           No passwords, API keys or admin credentials.
                         </p>
-                      </div>
+                      </motion.div>
                     )}
                   </form>
                 </>
