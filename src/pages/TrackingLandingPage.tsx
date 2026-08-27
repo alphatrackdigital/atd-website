@@ -13,12 +13,10 @@ import {
   CheckCircle2,
   Code2,
   Gauge,
-  Layers3,
   Loader2,
   Route,
   Send,
   ShieldCheck,
-  Target,
 } from "lucide-react";
 
 import SEO from "@/components/shared/SEO";
@@ -40,12 +38,32 @@ import { companyProfile } from "@/data/companyProfile";
 import { submitLead } from "@/lib/leads";
 import { pushLeadSubmissionEvent } from "@/lib/tracking";
 
+const normalizeWebsiteUrl = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+};
+
+const isValidWebsiteUrl = (value: string) => {
+  try {
+    const url = new URL(normalizeWebsiteUrl(value));
+    return (url.protocol === "http:" || url.protocol === "https:") && Boolean(url.hostname);
+  } catch {
+    return false;
+  }
+};
+
 const auditSchema = z.object({
   firstName: z.string().trim().min(1, "Required").max(100),
   lastName: z.string().trim().min(1, "Required").max(100),
   email: z.string().trim().email("Enter a valid work email").max(255),
   company: z.string().trim().min(1, "Required").max(200),
-  websiteUrl: z.string().trim().url("Enter a full website URL, including https://").max(500),
+  websiteUrl: z
+    .string()
+    .trim()
+    .min(1, "Enter your website")
+    .max(500)
+    .refine(isValidWebsiteUrl, "Enter a valid website, e.g. company.com"),
   industry: z.enum(["professional_services", "education_training", "ecommerce_dtc", "real_estate", "other"], {
     required_error: "Select your industry",
   }),
@@ -61,13 +79,13 @@ const auditSchema = z.object({
   ),
   adPlatforms: z.array(z.enum(["meta_ads", "google_ads", "microsoft_ads", "linkedin_ads", "tiktok_ads", "other", "none_currently"])).min(1, "Select at least one option"),
   trackingMaturity: z.enum(["not_sure", "basic", "partial", "disconnected", "confident"], {
-    required_error: "Select the closest description",
+    required_error: "Select your tracking confidence",
   }),
   primaryConversionType: z.enum(["lead_form", "booked_call_appointment", "whatsapp_message", "ecommerce_purchase", "application_enrolment", "other"], {
-    required_error: "Select your primary conversion",
+    required_error: "Select your main conversion",
   }),
   measurementProblem: z.enum(["unclear_campaign_performance", "conflicting_numbers", "missing_conversion_tracking", "leads_without_attribution", "browser_server_signal_gap", "other"], {
-    required_error: "Select the biggest measurement problem",
+    required_error: "Select the closest issue",
   }),
   urgency: z.enum(["before_scaling", "within_30_days", "one_to_three_months", "exploring"], {
     required_error: "Select your timing",
@@ -78,80 +96,85 @@ const auditSchema = z.object({
 type AuditFormData = z.infer<typeof auditSchema>;
 type AuditPlatform = AuditFormData["adPlatforms"][number];
 
+type ChoiceOption = {
+  value: string;
+  label: string;
+};
+
 const INDUSTRY_OPTIONS = [
-  { value: "professional_services", label: "Professional Services" },
-  { value: "education_training", label: "Education / Training" },
+  { value: "professional_services", label: "Professional services" },
+  { value: "education_training", label: "Education / training" },
   { value: "ecommerce_dtc", label: "Ecommerce / DTC" },
-  { value: "real_estate", label: "Real Estate" },
+  { value: "real_estate", label: "Real estate" },
   { value: "other", label: "Other" },
 ] as const;
 
 const ROLE_OPTIONS = [
   { value: "founder_ceo", label: "Founder / CEO" },
-  { value: "marketing_lead", label: "Marketing Manager / Head" },
-  { value: "growth_performance", label: "Growth / Performance Marketer" },
-  { value: "operations_commercial", label: "Operations / Commercial Leader" },
+  { value: "marketing_lead", label: "Marketing lead" },
+  { value: "growth_performance", label: "Growth / performance" },
+  { value: "operations_commercial", label: "Operations / commercial" },
   { value: "other", label: "Other" },
 ] as const;
 
 const DECISION_OPTIONS = [
   { value: "final_decision_maker", label: "Final decision maker" },
-  { value: "strong_influence", label: "Strong influence / recommends vendors" },
-  { value: "contributor", label: "Contributor to the decision" },
-  { value: "researching", label: "Researching / exploring" },
+  { value: "strong_influence", label: "Strong influence" },
+  { value: "contributor", label: "Contributor" },
+  { value: "researching", label: "Researching" },
 ] as const;
 
 const SPEND_OPTIONS = [
-  { value: "paused_or_not_spending", label: "Paused / not currently spending" },
-  { value: "under_1500", label: "Under GHS 1,500" },
-  { value: "1500_2999", label: "GHS 1,500–2,999" },
-  { value: "3000_5999", label: "GHS 3,000–5,999" },
-  { value: "6000_14999", label: "GHS 6,000–14,999" },
-  { value: "15000_plus", label: "GHS 15,000+" },
-  { value: "not_sure", label: "Not sure / prefer not to say" },
+  { value: "paused_or_not_spending", label: "Not spending" },
+  { value: "under_1500", label: "Under GHS 1.5k" },
+  { value: "1500_2999", label: "GHS 1.5k–3k" },
+  { value: "3000_5999", label: "GHS 3k–6k" },
+  { value: "6000_14999", label: "GHS 6k–15k" },
+  { value: "15000_plus", label: "GHS 15k+" },
+  { value: "not_sure", label: "Not sure" },
 ] as const;
 
 const PLATFORM_OPTIONS: Array<{ value: AuditPlatform; label: string }> = [
-  { value: "meta_ads", label: "Meta Ads" },
-  { value: "google_ads", label: "Google Ads" },
-  { value: "microsoft_ads", label: "Microsoft Ads" },
-  { value: "linkedin_ads", label: "LinkedIn Ads" },
-  { value: "tiktok_ads", label: "TikTok Ads" },
+  { value: "meta_ads", label: "Meta" },
+  { value: "google_ads", label: "Google" },
+  { value: "microsoft_ads", label: "Microsoft" },
+  { value: "linkedin_ads", label: "LinkedIn" },
+  { value: "tiktok_ads", label: "TikTok" },
   { value: "other", label: "Other" },
   { value: "none_currently", label: "None currently" },
 ];
 
 const MATURITY_OPTIONS = [
-  { value: "not_sure", label: "Not sure what is currently tracked" },
-  { value: "basic", label: "Basic pixel/pageview setup; little conversion visibility" },
-  { value: "partial", label: "Some conversions tracked, but gaps or reliability concerns exist" },
-  { value: "disconnected", label: "Multiple systems exist, but attribution/CRM data is disconnected or conflicting" },
-  { value: "confident", label: "Tracking appears mature; I want an independent validation" },
+  { value: "not_sure", label: "Not sure" },
+  { value: "basic", label: "Basic" },
+  { value: "partial", label: "Partly working" },
+  { value: "disconnected", label: "Disconnected" },
+  { value: "confident", label: "Confident — want validation" },
 ] as const;
 
 const CONVERSION_OPTIONS = [
   { value: "lead_form", label: "Lead form" },
-  { value: "booked_call_appointment", label: "Booked call / appointment" },
+  { value: "booked_call_appointment", label: "Booked call" },
   { value: "whatsapp_message", label: "WhatsApp / message" },
-  { value: "ecommerce_purchase", label: "Ecommerce purchase" },
+  { value: "ecommerce_purchase", label: "Purchase" },
   { value: "application_enrolment", label: "Application / enrolment" },
   { value: "other", label: "Other" },
 ] as const;
 
 const PROBLEM_OPTIONS = [
-  { value: "unclear_campaign_performance", label: "I can’t tell which campaigns produce qualified leads/customers" },
-  { value: "conflicting_numbers", label: "My platforms, analytics and CRM report different numbers" },
-  { value: "missing_conversion_tracking", label: "Important conversion actions are not reliably captured" },
-  { value: "leads_without_attribution", label: "Leads reach our CRM/inbox without useful source attribution" },
-  { value: "browser_server_signal_gap", label: "We have Pixel/server-side/CAPI or signal-quality concerns" },
+  { value: "unclear_campaign_performance", label: "I can’t tell which campaigns work" },
+  { value: "conflicting_numbers", label: "My numbers don’t match" },
+  { value: "missing_conversion_tracking", label: "Conversions are missing" },
+  { value: "leads_without_attribution", label: "Lead sources are missing" },
+  { value: "browser_server_signal_gap", label: "Pixel / CAPI concerns" },
   { value: "other", label: "Other" },
 ] as const;
 
 const URGENCY_OPTIONS = [
-  { value: "before_scaling", label: "Before we increase spend / scale" },
+  { value: "before_scaling", label: "Before scaling" },
   { value: "within_30_days", label: "Within 30 days" },
-  { value: "one_to_three_months", label: "In 1–3 months" },
-  { value: "exploring", label: "Exploring / not urgent" },
+  { value: "one_to_three_months", label: "1–3 months" },
+  { value: "exploring", label: "Exploring" },
 ] as const;
 
 const PROBLEM_SIGNALS = [
