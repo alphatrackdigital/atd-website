@@ -26,9 +26,9 @@ const selectOption = async (page: Page, label: string, option: string) => {
 const completeStepTwo = async (page: Page) => {
   await selectOption(page, "Industry", "Professional services");
   await selectOption(page, "Your role", "Founder / CEO");
-  await page.getByRole("radio", { name: "Final decision maker" }).check();
+  await page.getByText("Final decision maker", { exact: true }).click();
   await selectOption(page, "Monthly ad spend", "GHS 3k–6k");
-  await page.getByRole("checkbox", { name: "Meta" }).check();
+  await page.getByText("Meta", { exact: true }).click();
   await page.getByRole("button", { name: "Continue" }).click();
 };
 
