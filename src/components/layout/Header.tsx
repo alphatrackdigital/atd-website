@@ -123,7 +123,8 @@ const Header = () => {
   const headerElevated = scrolled || desktopServicesOpen || desktopExpertiseOpen || mobileOpen;
   const strategyCallTo = withCampaignSearch(BOOK_A_FREE_STRATEGY_CALL_CTA.to, location.search);
   const featuredExpertisePages = expertisePages.filter((item) => featuredExpertiseSlugs.includes(item.slug));
-  const isTrackingAuditLanding = location.pathname === "/offer/tracking-audit";
+  const isTrackingAuditLanding =
+    location.pathname === "/offer/tracking-audit" || location.pathname === "/offer/tracking-audit/";
 
   if (isTrackingAuditLanding) {
     return (
