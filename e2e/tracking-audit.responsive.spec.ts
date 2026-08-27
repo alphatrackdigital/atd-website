@@ -137,6 +137,10 @@ test.describe("General Tracking Audit responsive application", () => {
 
     await expect(heroHeading).toBeVisible();
     await expect(form).toBeVisible();
+    const continueBelow = page.getByRole("link", { name: "See what we review" });
+    await expect(continueBelow).toBeVisible();
+    await expect(continueBelow).toHaveAttribute("href", "#measurement-journey");
+    await expect(page.getByText("Illustrative preview")).not.toBeVisible();
     await assertNoHorizontalOverflow(page);
 
     const heroBox = await heroHeading.boundingBox();
