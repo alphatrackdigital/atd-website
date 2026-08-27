@@ -177,43 +177,25 @@ const URGENCY_OPTIONS = [
   { value: "exploring", label: "Exploring" },
 ] as const;
 
-const PROBLEM_SIGNALS = [
-  {
-    icon: Target,
-    title: "Wasted spend is hard to spot",
-    description: "You are investing in acquisition, but you cannot confidently separate productive campaigns from expensive noise.",
-  },
-  {
-    icon: Layers3,
-    title: "Your systems disagree",
-    description: "Ad platforms, analytics and CRM reports tell different stories, so routine performance decisions become harder than they should be.",
-  },
-  {
-    icon: Route,
-    title: "Leads lose their source",
-    description: "Enquiries reach your inbox or CRM, but the campaign and channel context needed to judge quality is missing or unreliable.",
-  },
-] as const;
-
 const HEALTH_DIMENSIONS = [
-  { icon: Code2, title: "Conversion Capture", description: "Are the important actions actually recorded?" },
-  { icon: Gauge, title: "Signal Quality", description: "Are the captured signals technically useful and reliable?" },
-  { icon: Route, title: "Attribution", description: "Can acquisition context follow the conversion journey?" },
-  { icon: Send, title: "Lead Visibility", description: "Can you see what happens to leads after they convert?" },
-  { icon: BarChart3, title: "Data Reliability", description: "Can your team reasonably use the combined data to make decisions?" },
+  { icon: Code2, title: "Conversion capture", description: "Are key actions recorded?" },
+  { icon: Gauge, title: "Signal quality", description: "Are platform signals reliable?" },
+  { icon: Route, title: "Attribution", description: "Can conversions be tied to source?" },
+  { icon: Send, title: "Lead visibility", description: "Can you see what happens after conversion?" },
+  { icon: BarChart3, title: "Data reliability", description: "Can your team trust the numbers?" },
 ] as const;
 
 const DELIVERABLES = [
-  "A Tracking Health Scorecard across the five measurement dimensions",
-  "Prioritized findings showing where confidence breaks down",
-  "Practical recommendations for what to investigate or fix first",
+  "Tracking Health Scorecard",
+  "Prioritized findings",
+  "Clear next steps",
 ] as const;
 
 const PROCESS_STEPS = [
-  { number: "01", title: "Apply", description: "Share the business and measurement context behind one core conversion journey." },
-  { number: "02", title: "Fit review", description: "We review your application for fit, scope and current audit capacity." },
-  { number: "03", title: "Diagnostic", description: "If accepted, we start with public evidence and request the lowest practical read-only evidence only when needed." },
-  { number: "04", title: "Scorecard", description: "You receive the diagnostic scorecard and prioritized findings. Implementation is scoped separately if you want help fixing issues." },
+  { number: "01", title: "Apply", description: "Tell us about your business and one conversion journey." },
+  { number: "02", title: "We review fit", description: "We confirm whether the free audit is a good fit." },
+  { number: "03", title: "We diagnose", description: "We start with public evidence and ask for read-only evidence only if needed." },
+  { number: "04", title: "You get the scorecard", description: "We send the findings and the most important next steps." },
 ] as const;
 
 const AUDIT_FAQS: FAQItem[] = [
@@ -223,7 +205,7 @@ const AUDIT_FAQS: FAQItem[] = [
   },
   {
     question: "Do you need access to my accounts?",
-    answer: "Not always. We start with public/no-credential evidence. If an important finding needs confirmation, we may request the lowest practical viewer/read-only access or ask you to share evidence by screenshare or export.",
+    answer: "Not always. We start with public evidence. If something important needs confirmation, we may ask for viewer/read-only access, a screenshare or an export.",
   },
   {
     question: "Will you ask for my passwords?",
@@ -231,7 +213,7 @@ const AUDIT_FAQS: FAQItem[] = [
   },
   {
     question: "What platforms do you review?",
-    answer: "The audit focuses on the measurement journey: website conversion behavior, GTM/GA4 where applicable, paid-platform conversion evidence, source attribution and lead/CRM visibility. Deep platform review is limited to the scoped journey and up to two paid platforms.",
+    answer: "We review the measurement journey around your website, analytics, paid platforms, attribution and lead handoff. The free scope covers one core journey and up to two paid platforms where relevant.",
   },
   {
     question: "Will you fix the issues during the audit?",
