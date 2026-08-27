@@ -14,7 +14,7 @@ const completeStepOne = async (page: Page) => {
   await page.getByLabel("Last Name").fill("Smith");
   await page.getByLabel("Work Email").fill("jane@example.com");
   await page.getByLabel("Company").fill("Example Company");
-  await page.getByLabel("Website").fill("https://example.com");
+  await page.getByLabel("Website").fill("example.com");
   await page.getByRole("button", { name: "Continue" }).click();
 };
 
@@ -24,7 +24,7 @@ test.describe("General Tracking Audit responsive application", () => {
     await page.goto("/offer/tracking-audit");
 
     await expect(
-      page.getByRole("heading", { name: /Know whether your marketing data can be trusted/i }),
+      page.getByRole("heading", { name: /Know what your marketing is actually producing/i }),
     ).toBeVisible();
     await expect(page.getByText("1 of 2")).toBeVisible();
     await expect(page.getByLabel("First Name")).toBeVisible();
@@ -63,8 +63,8 @@ test.describe("General Tracking Audit responsive application", () => {
     expect(industryBox!.width).toBeLessThanOrEqual(390);
     expect(industryBox!.height).toBeGreaterThanOrEqual(40);
 
-    await page.getByRole("button", { name: "Request a Free Tracking Audit" }).scrollIntoViewIfNeeded();
-    await expect(page.getByRole("button", { name: "Request a Free Tracking Audit" })).toBeVisible();
+    await page.getByRole("button", { name: "Request Free Audit" }).scrollIntoViewIfNeeded();
+    await expect(page.getByRole("button", { name: "Request Free Audit" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Back" })).toBeVisible();
     await assertNoHorizontalOverflow(page);
   });
@@ -74,7 +74,7 @@ test.describe("General Tracking Audit responsive application", () => {
     await page.goto("/offer/tracking-audit");
 
     const heroHeading = page.getByRole("heading", {
-      name: /Know whether your marketing data can be trusted/i,
+      name: /Know what your marketing is actually producing/i,
     });
     const form = page.getByRole("form", { name: "Request a Free Tracking Audit" });
 
