@@ -8,6 +8,20 @@ const routerFuture = {
 } as const;
 
 describe("Header mobile nav", () => {
+  it("uses a logo-only header on the Tracking Audit landing page", () => {
+    render(
+      <MemoryRouter initialEntries={["/offer/tracking-audit"]} future={routerFuture}>
+        <Header />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("link", { name: "AlphaTrack Digital Home" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /toggle menu/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /book a free strategy call/i })).not.toBeInTheDocument();
+    expect(screen.queryByText("Services")).not.toBeInTheDocument();
+  });
+
+
   it("locks body scroll when open and closes on Escape", async () => {
     render(
       <MemoryRouter future={routerFuture}>
