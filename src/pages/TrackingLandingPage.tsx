@@ -358,7 +358,7 @@ const SingleChoiceChips = ({
 );
 
 const TrackingLandingPage = () => {
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
@@ -390,7 +390,16 @@ const TrackingLandingPage = () => {
     });
   };
 
-  const handleContinue = async () => {
+  const moveToStep = (nextStep: 1 | 2 | 3) => {
+    setStep(nextStep);
+    window.requestAnimationFrame(() => {
+      if (window.matchMedia("(max-width: 1023px)").matches) {
+        document.getElementById("claim")?.scrollIntoView({ block: "start", behavior: "auto" });
+      }
+    });
+  };
+
+  const handleStepOneContinue = async () => {
     const valid = await trigger(STEP_ONE_FIELDS, { shouldFocus: true });
     if (!valid) return;
 
@@ -402,12 +411,13 @@ const TrackingLandingPage = () => {
         lead_source: "tracking_audit_offer",
       });
     }
-    setStep(2);
-    window.requestAnimationFrame(() => {
-      if (window.matchMedia("(max-width: 1023px)").matches) {
-        document.getElementById("claim")?.scrollIntoView({ block: "start", behavior: "auto" });
-      }
-    });
+    moveToStep(2);
+  };
+
+  const handleStepTwoContinue = async () => {
+    const valid = await trigger(STEP_TWO_FIELDS, { shouldFocus: true });
+    if (!valid) return;
+    moveToStep(3);
   };
 
   const onSubmit = async (data: AuditFormData) => {
