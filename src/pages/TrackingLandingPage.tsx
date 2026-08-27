@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { z } from "zod";
 import { toast } from "sonner";
 import {
+  ArrowDown,
   ArrowLeft,
   ArrowRight,
   BarChart3,
@@ -179,7 +180,7 @@ const PROBLEM_OPTIONS = [
   { value: "conflicting_numbers", label: "My numbers don’t match" },
   { value: "missing_conversion_tracking", label: "Conversions are missing" },
   { value: "leads_without_attribution", label: "Lead sources are missing" },
-  { value: "browser_server_signal_gap", label: "Pixel / CAPI concerns" },
+  { value: "browser_server_signal_gap", label: "Browser and server tracking don’t match" },
   { value: "other", label: "Other" },
 ] as const;
 
@@ -191,63 +192,55 @@ const URGENCY_OPTIONS = [
 ] as const;
 
 const MEASUREMENT_JOURNEY = [
-  { icon: BarChart3, title: "Paid media", description: "A campaign earns the click.", signal: "Source captured" },
-  { icon: Globe2, title: "Website", description: "The visitor lands and moves through the page.", signal: "Context carried" },
-  { icon: CheckCircle2, title: "Conversion", description: "A form, call, message or purchase happens.", signal: "Event recorded" },
-  { icon: Send, title: "CRM / lead handoff", description: "The lead reaches the system your team works from.", signal: "Source preserved" },
-  { icon: Gauge, title: "Business outcome", description: "Revenue or pipeline should connect back to acquisition.", signal: "Result visible" },
+  { icon: BarChart3, title: "Paid ads", description: "Someone clicks one of your ads.", signal: "Click" },
+  { icon: Globe2, title: "Website", description: "They visit your website and take a look around.", signal: "Visit" },
+  { icon: CheckCircle2, title: "Conversion", description: "They fill a form, book, message or buy.", signal: "Action" },
+  { icon: Send, title: "CRM / sales", description: "The lead reaches the system or team that follows up.", signal: "Lead" },
+  { icon: Gauge, title: "Business result", description: "You should be able to trace the lead or sale back to marketing.", signal: "Result" },
 ] as const;
 
 const JOURNEY_BREAKS = [
-  { label: "Lost source", position: "20%" },
-  { label: "Duplicate / missing event", position: "40%" },
-  { label: "Handoff loses context", position: "60%" },
-  { label: "Revenue disconnects", position: "80%" },
+  { label: "Source gets lost", position: "20%" },
+  { label: "Action is not tracked", position: "40%" },
+  { label: "Lead loses its source", position: "60%" },
+  { label: "Sale can’t be traced", position: "80%" },
 ] as const;
 
 const HEALTH_DIMENSIONS = [
-  { icon: Code2, number: "01", title: "Conversion capture", description: "Are the actions that matter actually recorded?" },
-  { icon: Gauge, number: "02", title: "Signal quality", description: "Are browser and platform signals reliable enough to use?" },
-  { icon: Route, number: "03", title: "Attribution", description: "Can conversions still be tied to the campaign or source?" },
-  { icon: Send, number: "04", title: "Lead visibility", description: "Does source context survive the lead handoff?" },
-  { icon: BarChart3, number: "05", title: "Data reliability", description: "Can your team make decisions from the combined picture?" },
-] as const;
-
-const SCORECARD_PREVIEW = [
-  { label: "Conversion capture", status: "Strong", width: "82%" },
-  { label: "Signal quality", status: "Review", width: "58%" },
-  { label: "Attribution", status: "Weak", width: "36%" },
-  { label: "Lead visibility", status: "Review", width: "52%" },
-  { label: "Data reliability", status: "Mixed", width: "46%" },
+  { icon: Code2, number: "01", title: "Conversion capture", description: "Are the actions that matter being tracked?" },
+  { icon: Gauge, number: "02", title: "Signal quality", description: "Is the right data reaching your ad platforms?" },
+  { icon: Route, number: "03", title: "Attribution", description: "Can you tell which campaign or source produced a result?" },
+  { icon: Send, number: "04", title: "Lead visibility", description: "Can you see where each lead came from?" },
+  { icon: BarChart3, number: "05", title: "Data reliability", description: "Do your reports agree enough to make decisions?" },
 ] as const;
 
 const PROCESS_STEPS = [
-  { number: "01", title: "Apply", description: "Tell us about your business and one conversion journey." },
-  { number: "02", title: "Fit review", description: "We confirm whether the free audit is a good fit and within scope." },
-  { number: "03", title: "Diagnose", description: "We review the journey, starting with public evidence." },
-  { number: "04", title: "Scorecard", description: "You receive prioritized findings and clear next steps." },
+  { number: "01", title: "Apply", description: "Tell us about your business and the result you want to track." },
+  { number: "02", title: "Fit review", description: "We check that the free audit is a good fit." },
+  { number: "03", title: "Review", description: "We check one customer journey and look for gaps." },
+  { number: "04", title: "Scorecard", description: "You get clear findings and next steps." },
 ] as const;
 
 const AUDIT_FAQS: FAQItem[] = [
   {
     question: "Will you need access to our accounts?",
-    answer: "Not always. We start with public evidence. If an important finding needs confirmation, we may ask for the lowest practical viewer/read-only access, a screenshare or an export.",
+    answer: "Usually not at first. We start with what we can see publicly. If we need to confirm something, we may ask for read-only access, a screenshare or an export.",
   },
   {
     question: "What does the free audit cover?",
-    answer: "One company, one website domain, one core conversion journey and up to two paid platforms where relevant. The deliverable is a Tracking Health Scorecard with prioritized findings and recommendations.",
+    answer: "One company, one website, one main conversion journey and up to two paid ad platforms where relevant. You receive a Tracking Health Scorecard with the main findings and recommended next steps.",
   },
   {
     question: "Is implementation included?",
-    answer: "No. The free audit diagnoses and prioritizes issues. Tag changes, code changes, CRM work, migrations and ongoing implementation are scoped separately.",
+    answer: "No. The free audit tells you what we found and what should happen next. If you want us to fix the issues, that work is scoped separately.",
   },
   {
     question: "How long does the review take?",
-    answer: "We aim to review applications within one business day. Audit acceptance and delivery timing depend on fit, scope and current capacity.",
+    answer: "We aim to review applications within one business day. If your application is accepted, we’ll confirm the audit timing before we begin.",
   },
   {
     question: "What if our setup is more complex?",
-    answer: "We keep the free audit deliberately bounded. If the journey requires deeper forensic work, multiple systems or a broader CRM/automation review, we will tell you before proceeding and scope that work separately.",
+    answer: "If your setup needs a deeper review across several systems, we’ll tell you before proceeding and explain what would need to be scoped separately.",
   },
 ];
 
@@ -538,7 +531,7 @@ const TrackingLandingPage = () => {
               </h1>
 
               <p className="mt-5 max-w-[35rem] text-base leading-7 text-foreground/72 md:text-lg md:leading-8">
-                We review one conversion journey to show where tracking breaks, where attribution becomes unreliable, and where lead-source visibility is lost.
+                We review one customer journey to show where your tracking breaks and why your marketing reports may not be telling the full story.
               </p>
 
               <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-foreground/78">
@@ -550,31 +543,15 @@ const TrackingLandingPage = () => {
                 ))}
               </div>
 
-              <div className="relative mt-8 max-w-[29rem] pl-4 sm:pl-5">
-                <div className="absolute bottom-1 left-0 top-1 w-px bg-gradient-to-b from-primary/45 via-atd-cyan/25 to-transparent" aria-hidden="true" />
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Illustrative preview</p>
-                    <p className="mt-1 text-sm font-semibold text-foreground/92">Tracking Health Scorecard</p>
-                  </div>
-                  <BarChart3 className="h-[18px] w-[18px] text-primary/75" aria-hidden="true" />
-                </div>
-
-                <div className="mt-4 space-y-2.5">
-                  {SCORECARD_PREVIEW.map((item) => (
-                    <div key={item.label}>
-                      <div className="flex items-center justify-between gap-4">
-                        <span className="text-[11px] text-foreground/68">{item.label}</span>
-                        <span className="text-[10px] font-medium text-muted-foreground/80">{item.status}</span>
-                      </div>
-                      <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-white/[0.055]">
-                        <div className="h-full rounded-full bg-gradient-to-r from-atd-blue/80 via-atd-cyan/80 to-primary/80" style={{ width: item.width }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <div className="mt-7">
+                <a
+                  href="#measurement-journey"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-foreground/62 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                >
+                  See what we review
+                  <ArrowDown className="h-4 w-4" aria-hidden="true" />
+                </a>
               </div>
-            </motion.div>
 
             <motion.div
               id="claim"
@@ -634,7 +611,7 @@ const TrackingLandingPage = () => {
                         ? "We review every application."
                         : step === 2
                           ? "This helps us check fit and scope."
-                          : "Tell us where measurement is breaking down."}
+                          : "Tell us what isn’t clear in your tracking or reports."}
                     </p>
                   </div>
 
