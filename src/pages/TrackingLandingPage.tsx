@@ -200,10 +200,10 @@ const MEASUREMENT_JOURNEY = [
 ] as const;
 
 const JOURNEY_BREAKS = [
-  { label: "Lost source", position: "left-[20%]" },
-  { label: "Duplicate / missing event", position: "left-[40%]" },
-  { label: "Handoff loses context", position: "left-[60%]" },
-  { label: "Revenue disconnects", position: "left-[80%]" },
+  { label: "Lost source", position: "20%" },
+  { label: "Duplicate / missing event", position: "40%" },
+  { label: "Handoff loses context", position: "60%" },
+  { label: "Revenue disconnects", position: "80%" },
 ] as const;
 
 const HEALTH_DIMENSIONS = [
@@ -519,9 +519,20 @@ const TrackingLandingPage = () => {
 
       <section className="relative overflow-hidden border-b border-white/[0.05] pb-12 pt-7 md:pb-16 md:pt-24 lg:pb-20 lg:pt-28">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_74%_46%_at_50%_-8%,rgba(0,51,153,0.16)_0%,rgba(0,175,239,0.055)_43%,transparent_74%)]" />
-          <div className="absolute right-[-7rem] top-16 h-80 w-80 rounded-full bg-primary/[0.055] blur-[120px]" />
-          <div className="absolute bottom-[-5rem] left-[-8rem] h-96 w-96 rounded-full bg-atd-blue/[0.12] blur-[150px]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_62%_50%_at_31%_40%,rgba(0,175,239,0.12)_0%,rgba(0,51,153,0.08)_38%,transparent_72%),radial-gradient(ellipse_46%_48%_at_73%_30%,rgba(51,204,153,0.10)_0%,transparent_72%)]" />
+          <div
+            className="absolute inset-0 opacity-[0.24]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
+              backgroundSize: "46px 46px",
+              maskImage: "linear-gradient(to bottom, black 5%, rgba(0,0,0,0.72) 58%, transparent 100%)",
+            }}
+          />
+          <div className="absolute left-[9%] top-[30%] h-px w-[34%] rotate-[-8deg] bg-gradient-to-r from-transparent via-atd-cyan/20 to-transparent" />
+          <div className="absolute left-[22%] top-[55%] h-px w-[24%] rotate-[11deg] bg-gradient-to-r from-transparent via-primary/18 to-transparent" />
+          <div className="absolute right-[-7rem] top-16 h-80 w-80 rounded-full bg-primary/[0.065] blur-[120px]" />
+          <div className="absolute bottom-[-5rem] left-[-8rem] h-96 w-96 rounded-full bg-atd-blue/[0.14] blur-[150px]" />
         </div>
 
         <div className="container relative mx-auto px-5 sm:px-6 lg:px-8">
@@ -534,7 +545,7 @@ const TrackingLandingPage = () => {
               </h1>
 
               <p className="mt-5 max-w-[35rem] text-base leading-7 text-foreground/72 md:text-lg md:leading-8">
-                We review one conversion journey to find broken tracking, weak attribution and missing lead-source data.
+                We review one conversion journey to show where tracking breaks, where attribution becomes unreliable, and where lead-source visibility is lost.
               </p>
 
               <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-foreground/78">
@@ -545,6 +556,33 @@ const TrackingLandingPage = () => {
                   </span>
                 ))}
               </div>
+
+              <div className="mt-8 max-w-[31rem] rounded-2xl border border-white/[0.08] bg-black/20 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.16)] backdrop-blur-sm sm:p-5">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">Illustrative preview</p>
+                    <p className="mt-1 text-sm font-semibold text-foreground">Tracking Health Scorecard</p>
+                  </div>
+                  <BarChart3 className="h-5 w-5 text-primary" aria-hidden="true" />
+                </div>
+
+                <div className="mt-4 space-y-3">
+                  {SCORECARD_PREVIEW.map((item) => (
+                    <div key={item.label} className="grid grid-cols-[minmax(0,1fr)_92px] items-center gap-3">
+                      <div>
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-[12px] text-foreground/78">{item.label}</span>
+                          <span className="text-[10px] font-medium text-muted-foreground">{item.status}</span>
+                        </div>
+                        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
+                          <div className="h-full rounded-full bg-gradient-to-r from-atd-blue via-atd-cyan to-primary" style={{ width: item.width }} />
+                        </div>
+                      </div>
+                      <div className="hidden h-px bg-gradient-to-r from-white/[0.08] to-transparent sm:block" aria-hidden="true" />
+                    </div>
+                  ))}
+                </div>
+              </div>
             </motion.div>
 
             <motion.div
@@ -552,7 +590,7 @@ const TrackingLandingPage = () => {
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: 0.08 }}
-              className="w-full scroll-mt-24 rounded-2xl border border-white/[0.09] bg-[#0c1118]/95 p-4 shadow-[0_24px_70px_rgba(0,0,0,0.22)] sm:p-7 md:p-8 lg:sticky lg:top-24"
+              className="w-full scroll-mt-24 rounded-2xl border border-white/[0.10] bg-[linear-gradient(180deg,rgba(14,20,29,0.98),rgba(10,15,22,0.96))] p-4 shadow-[0_28px_90px_rgba(0,0,0,0.28),0_0_70px_rgba(51,204,153,0.035)] backdrop-blur-xl sm:p-7 md:p-8 lg:sticky lg:top-24"
             >
               {isSubmitted ? (
                 <div className="py-7 text-center" aria-live="polite">
