@@ -141,12 +141,18 @@ test.describe("General Tracking Audit responsive application", () => {
     await expect(continueBelow).toBeVisible();
     await expect(continueBelow).toHaveAttribute("href", "#measurement-journey");
     await expect(page.getByText("Illustrative preview")).not.toBeVisible();
+    await expect(page.getByText("Illustrative scorecard finding")).not.toBeVisible();
     await assertNoHorizontalOverflow(page);
 
     const heroBox = await heroHeading.boundingBox();
     const formBox = await form.boundingBox();
+    const claimBox = await page.locator("#claim").boundingBox();
+    const cueBox = await continueBelow.boundingBox();
     expect(heroBox).not.toBeNull();
     expect(formBox).not.toBeNull();
+    expect(claimBox).not.toBeNull();
+    expect(cueBox).not.toBeNull();
     expect(heroBox!.x).toBeLessThan(formBox!.x);
+    expect(cueBox!.y).toBeGreaterThanOrEqual(claimBox!.y + claimBox!.height);
   });
 });
