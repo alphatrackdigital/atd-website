@@ -108,6 +108,10 @@ jobs:
           await advertising.locator('label').filter({ hasText: /^Meta$/ }).locator('input').check({ force: true });
           await advertising.locator('label').filter({ hasText: /^Google$/ }).locator('input').check({ force: true });
 
+          assert.equal(await page.locator('input[name="decisionInfluence"][value="final_decision_maker"]').isChecked(), true);
+          assert.equal(await advertising.locator('label').filter({ hasText: /^Meta$/ }).locator('input').isChecked(), true);
+          assert.equal(await advertising.locator('label').filter({ hasText: /^Google$/ }).locator('input').isChecked(), true);
+
           await page.getByRole('button', { name: 'Continue' }).click();
           await page.getByText('What do you want to understand?').waitFor({ state: 'visible' });
 
@@ -119,9 +123,6 @@ jobs:
 
           await page.getByText('Before scaling', { exact: true }).click({ force: true });
 
-          assert.equal(await page.locator('input[name="decisionInfluence"][value="final_decision_maker"]').isChecked(), true);
-          assert.equal(await advertising.locator('label').filter({ hasText: /^Meta$/ }).locator('input').isChecked(), true);
-          assert.equal(await advertising.locator('label').filter({ hasText: /^Google$/ }).locator('input').isChecked(), true);
           assert.equal(await page.locator('input[name="trackingMaturity"][value="disconnected"]').isChecked(), true);
           assert.equal(await page.locator('input[name="primaryConversionType"][value="lead_form"]').isChecked(), true);
           assert.equal(await page.locator('input[name="urgency"][value="before_scaling"]').isChecked(), true);
