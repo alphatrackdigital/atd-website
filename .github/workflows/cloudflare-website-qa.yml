@@ -107,16 +107,22 @@ jobs:
           set -euo pipefail
 
           DIRECT_STATUS="$(curl -sS -o /tmp/qa-direct.json -w '%{http_code}' "$QA_BACKEND_URL/api/leads")"
-          test "$DIRECT_STATUS" = "403"
-
           PROXY_GET_STATUS="$(curl -sS -o /tmp/qa-proxy-get.json -w '%{http_code}' "$QA_BASE_URL/api/leads")"
-          test "$PROXY_GET_STATUS" = "405"
-
           PROXY_POST_STATUS="$(curl -sS -o /tmp/qa-proxy-post.json -w '%{http_code}' \
             -X POST \
             -H 'Content-Type: application/json' \
             --data '{}' \
             "$QA_BASE_URL/api/leads")"
+
+          echo "direct_status=$DIRECT_STATUS"
+          echo "proxy_get_status=$PROXY_GET_STATUS"
+          echo "proxy_post_status=$PROXY_POST_STATUS"
+          echo "direct_body=$(cat /tmp/qa-direct.json)"
+          echo "proxy_get_body=$(cat /tmp/qa-proxy-get.json)"
+          echo "proxy_post_body=$(cat /tmp/qa-proxy-post.json)"
+
+          test "$DIRECT_STATUS" = "403"
+          test "$PROXY_GET_STATUS" = "405"
           test "$PROXY_POST_STATUS" = "400"
 
           curl -fsS "$QA_BASE_URL/__atd/deployment.json" -o /tmp/qa-deployment.json
