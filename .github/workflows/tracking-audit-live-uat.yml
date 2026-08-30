@@ -120,7 +120,7 @@ jobs:
           await page.locator('#f-problem').click();
           await page.getByRole('option', { name: 'My numbers don’t match' }).click();
 
-          await page.locator('input[name="urgency"][value="before_scaling"]').check({ force: true });
+          await page.getByText('Before scaling', { exact: true }).click({ force: true });
 
           await page.waitForTimeout(1800);
 
