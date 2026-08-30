@@ -192,18 +192,34 @@ const URGENCY_OPTIONS = [
 ] as const;
 
 const MEASUREMENT_JOURNEY = [
-  { icon: BarChart3, title: "Paid ads", description: "Someone clicks one of your ads.", signal: "Click" },
-  { icon: Globe2, title: "Website", description: "They visit your website and take a look around.", signal: "Visit" },
-  { icon: CheckCircle2, title: "Conversion", description: "They fill a form, book, message or buy.", signal: "Action" },
-  { icon: Send, title: "CRM / sales", description: "The lead reaches the system or team that follows up.", signal: "Lead" },
-  { icon: Gauge, title: "Business result", description: "You should be able to trace the lead or sale back to marketing.", signal: "Result" },
+  { icon: BarChart3, title: "Ad click" },
+  { icon: Globe2, title: "Website" },
+  { icon: Send, title: "Lead" },
+  { icon: Gauge, title: "Sale" },
 ] as const;
 
 const JOURNEY_BREAKS = [
-  { label: "Source gets lost", position: "20%" },
-  { label: "Action is not tracked", position: "40%" },
-  { label: "Lead loses its source", position: "60%" },
-  { label: "Sale can’t be traced", position: "80%" },
+  { label: "Source lost", position: "25%" },
+  { label: "Form not tracked", position: "50%" },
+  { label: "Lead source missing", position: "75%" },
+] as const;
+
+const AUDIT_DELIVERABLES = [
+  {
+    icon: CheckCircle2,
+    title: "What we found",
+    description: "The tracking gaps or weak points we found in the journey.",
+  },
+  {
+    icon: Gauge,
+    title: "Why it matters",
+    description: "How those gaps can affect your reports and decisions.",
+  },
+  {
+    icon: Route,
+    title: "What to do next",
+    description: "The fixes or checks we recommend you prioritise first.",
+  },
 ] as const;
 
 const HEALTH_DIMENSIONS = [
@@ -543,15 +559,6 @@ const TrackingLandingPage = () => {
                 ))}
               </div>
 
-              <div className="mt-7">
-                <a
-                  href="#measurement-journey"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-foreground/62 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-                >
-                  See what we review
-                  <ArrowDown className="h-4 w-4" aria-hidden="true" />
-                </a>
-              </div>
             </motion.div>
 
             <motion.div
@@ -874,82 +881,91 @@ const TrackingLandingPage = () => {
               )}
             </motion.div>
           </div>
+
+          <div className="mt-8 flex justify-center md:mt-10">
+            <a
+              href="#measurement-journey"
+              className="group inline-flex flex-col items-center gap-2 text-center text-xs font-medium tracking-wide text-foreground/55 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+            >
+              <span>See what we review</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.02] transition-colors group-hover:border-primary/25 group-hover:bg-primary/[0.05]">
+                <ArrowDown className="h-4 w-4 motion-safe:animate-bounce motion-reduce:animate-none" aria-hidden="true" />
+              </span>
+            </a>
+          </div>
         </div>
       </section>
 
       <PageSection id="measurement-journey" surface="quiet" spacing="spacious" className="scroll-mt-20 py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
           eyebrow="What happens after the click"
-          title="Your marketing results pass through several steps."
-          description="An ad click can look fine at the start and still lose important information before it becomes a lead or sale. We check that journey to find where the problem starts."
+          title="Your results pass through a few key steps."
+          description="We check where important information gets lost between the ad click and the final lead or sale."
           align="center"
           maxWidth="2xl"
-          className="mb-12 md:mb-16"
+          className="mb-10 md:mb-12"
         />
 
-        <div className="mx-auto max-w-6xl">
-          <div className="relative hidden pt-10 lg:block">
+        <div className="mx-auto max-w-5xl">
+          <div className="relative hidden px-8 pt-6 md:block">
             <motion.div
-              className="absolute left-[10%] right-[10%] top-[3.85rem] h-px bg-gradient-to-r from-atd-blue/25 via-primary/55 to-atd-cyan/25"
+              className="absolute left-[12.5%] right-[12.5%] top-[2.7rem] h-px bg-gradient-to-r from-atd-blue/25 via-primary/55 to-atd-cyan/25"
               initial={{ scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
-              viewport={{ once: true, amount: 0.45 }}
-              transition={{ duration: 0.75, ease: "easeOut" }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.65, ease: "easeOut" }}
               style={{ transformOrigin: "left" }}
               aria-hidden="true"
             />
 
             {JOURNEY_BREAKS.map((item) => (
-              <div key={item.label} className="absolute top-[3.52rem] z-20 -translate-x-1/2" style={{ left: item.position }}>
+              <div key={item.label} className="absolute top-[2.34rem] z-20 -translate-x-1/2" style={{ left: item.position }}>
                 <span className="block h-2.5 w-2.5 rotate-45 border border-amber-300/45 bg-[#0b1118]" aria-hidden="true" />
-                <span className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium text-amber-100/65">
+                <span className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium text-amber-100/60">
                   {item.label}
                 </span>
               </div>
             ))}
 
-            <div className="relative grid grid-cols-5 gap-8">
-              {MEASUREMENT_JOURNEY.map(({ icon: Icon, title, description, signal }, index) => (
-                <article key={title} className="text-center">
+            <div className="relative grid grid-cols-4 gap-10">
+              {MEASUREMENT_JOURNEY.map(({ icon: Icon, title }, index) => (
+                <div key={title} className="text-center">
                   <div className="relative z-10 mx-auto flex h-11 w-11 items-center justify-center rounded-full border border-primary/25 bg-[#0a1017] text-primary shadow-[0_0_0_7px_rgba(8,14,20,0.94)]">
                     <Icon className="h-5 w-5" aria-hidden="true" />
                   </div>
-                  <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.15em] text-primary/60">
-                    {String(index + 1).padStart(2, "0")} · {signal}
+                  <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.15em] text-primary/55">
+                    {String(index + 1).padStart(2, "0")}
                   </p>
-                  <h3 className="mt-1.5 text-base font-semibold text-foreground">{title}</h3>
-                  <p className="mx-auto mt-2 max-w-[12rem] text-sm leading-6 text-muted-foreground">{description}</p>
-                </article>
+                  <h3 className="mt-1 text-base font-semibold text-foreground">{title}</h3>
+                </div>
               ))}
             </div>
           </div>
 
-          <div className="lg:hidden">
-            {MEASUREMENT_JOURNEY.map(({ icon: Icon, title, description, signal }, index) => (
-              <div key={title} className="relative pb-8 pl-14 last:pb-0">
+          <div className="mx-auto max-w-md md:hidden">
+            {MEASUREMENT_JOURNEY.map(({ icon: Icon, title }, index) => (
+              <div key={title} className="relative flex items-center gap-4 pb-7 last:pb-0">
                 {index < MEASUREMENT_JOURNEY.length - 1 && (
                   <div className="absolute bottom-0 left-[21px] top-10 w-px bg-gradient-to-b from-primary/40 to-atd-blue/15" aria-hidden="true" />
                 )}
-                <div className="absolute left-0 top-0 flex h-11 w-11 items-center justify-center rounded-full border border-primary/25 bg-[#0a1017] text-primary">
+                <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-[#0a1017] text-primary">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-primary/60">
-                  {String(index + 1).padStart(2, "0")} · {signal}
-                </p>
-                <h3 className="mt-1 text-base font-semibold">{title}</h3>
-                <p className="mt-1.5 text-sm leading-6 text-muted-foreground">{description}</p>
-                {JOURNEY_BREAKS[index] && (
-                  <div className="mt-3 flex items-center gap-2 text-[11px] font-medium text-amber-100/65">
-                    <span className="h-2 w-2 rotate-45 border border-amber-300/45" aria-hidden="true" />
-                    {JOURNEY_BREAKS[index].label}
-                  </div>
-                )}
+                <div className="min-w-0">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-primary/55">
+                    {String(index + 1).padStart(2, "0")}
+                  </p>
+                  <h3 className="mt-0.5 text-base font-semibold">{title}</h3>
+                  {JOURNEY_BREAKS[index] && (
+                    <p className="mt-1.5 text-[11px] text-amber-100/60">{JOURNEY_BREAKS[index].label}</p>
+                  )}
+                </div>
               </div>
             ))}
           </div>
 
-          <p className="mx-auto mt-10 max-w-3xl text-center text-sm leading-6 text-muted-foreground">
-            If one step loses information, your ad reports, website data and sales records can all show a different picture.
+          <p className="mx-auto mt-9 max-w-2xl text-center text-sm leading-6 text-muted-foreground">
+            If one step loses the source or the action, the final report can give you the wrong picture.
           </p>
         </div>
       </PageSection>
@@ -988,69 +1004,36 @@ const TrackingLandingPage = () => {
       </PageSection>
 
       <PageSection surface="quiet" spacing="spacious" className="py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.72fr_1.28fr] lg:items-center lg:gap-14">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/85">What you get</p>
-            <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-4xl">You get clear findings and next steps.</h2>
-            <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground md:text-base">
-              We show what we found, why it matters and what should be fixed first.
-            </p>
+        <SectionIntro
+          eyebrow="What you get"
+          title="A clear answer to three questions."
+          description="Your Tracking Health Scorecard shows what we found, why it matters and what to do next."
+          align="center"
+          maxWidth="2xl"
+          className="mb-10 md:mb-12"
+        />
 
-            <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2">
-              {["Scorecard", "Priorities", "Next actions"].map((item) => (
-                <span key={item} className="inline-flex items-center gap-2 text-sm text-foreground/78">
-                  <Check className="h-4 w-4 text-primary" aria-hidden="true" />
-                  {item}
-                </span>
-              ))}
-            </div>
+        <div className="relative mx-auto max-w-5xl">
+          <div className="absolute left-[16.5%] right-[16.5%] top-6 hidden h-px bg-gradient-to-r from-primary/20 via-primary/45 to-atd-cyan/20 md:block" aria-hidden="true" />
 
-            <p className="mt-6 max-w-lg text-xs leading-5 text-muted-foreground">
-              The free audit includes the review and recommendations. Fixing the issues is separate.
-            </p>
+          <div className="grid gap-7 md:grid-cols-3 md:gap-8">
+            {AUDIT_DELIVERABLES.map(({ icon: Icon, title, description }, index) => (
+              <article key={title} className="relative text-center md:px-4">
+                <div className="relative z-10 mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-[#0a1017] text-primary shadow-[0_0_0_6px_rgba(8,14,20,0.94)]">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/55">
+                  {String(index + 1).padStart(2, "0")}
+                </p>
+                <h3 className="mt-1.5 text-base font-semibold">{title}</h3>
+                <p className="mx-auto mt-2 max-w-[16rem] text-sm leading-6 text-muted-foreground">{description}</p>
+              </article>
+            ))}
           </div>
 
-          <motion.article
-            initial={{ opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.35 }}
-            transition={{ duration: 0.45 }}
-            className="relative overflow-hidden rounded-2xl bg-white/[0.025] p-6 shadow-[0_26px_80px_rgba(0,0,0,0.18)] ring-1 ring-white/[0.08] sm:p-7"
-          >
-            <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-amber-300/55" aria-hidden="true" />
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Illustrative scorecard finding</p>
-                <h3 className="mt-2 text-xl font-semibold">Attribution</h3>
-                <p className="mt-1 text-sm text-amber-100/75">Needs attention</p>
-              </div>
-              <span className="rounded-full border border-amber-300/15 bg-amber-300/[0.06] px-3 py-1 text-[11px] font-medium text-amber-100/75">
-                High priority
-              </span>
-            </div>
-
-            <div className="mt-7 grid gap-6 sm:grid-cols-2">
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Evidence</p>
-                <p className="mt-2 text-sm leading-6 text-foreground/82">
-                  The campaign source is visible when a visitor arrives, but it is sometimes lost when the lead is created.
-                </p>
-              </div>
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Business impact</p>
-                <p className="mt-2 text-sm leading-6 text-foreground/82">
-                  Some paid leads may show up as direct or unknown, making campaign results harder to judge.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 border-t border-white/[0.07] pt-5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Recommended next step</p>
-              <p className="mt-2 text-sm leading-6 text-foreground/82">
-                Check that the campaign source stays attached from the website form through to the CRM before changing your campaigns.
-              </p>
-            </div>
-          </motion.article>
+          <p className="mx-auto mt-9 max-w-2xl text-center text-xs leading-5 text-muted-foreground">
+            The free audit includes the review and recommendations. Fixing the issues is separate.
+          </p>
         </div>
       </PageSection>
 
