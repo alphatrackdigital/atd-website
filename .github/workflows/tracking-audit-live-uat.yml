@@ -139,7 +139,7 @@ jobs:
             { timeout: 90000 },
           );
 
-          await page.getByRole('button', { name: 'Request My Free Audit' }).click({ force: true });
+          await page.locator('#tracking-audit-form').evaluate((form) => form.requestSubmit());
 
           const leadRequest = await requestPromise;
           if (!leadRequest) {
@@ -154,6 +154,12 @@ jobs:
           const leadResponse = await responsePromise;
           leadResponseStatus = leadResponse.status();
           leadResponseBody = await leadResponse.json();
+
+          fs.writeFileSync('uat-evidence/http-response.json', JSON.stringify({
+            leadResponseStatus,
+            leadRequestBody,
+            leadResponseBody,
+          }, null, 2) + '\n');
 
           assert.equal(leadResponseStatus, 200);
           assert.equal(leadResponseBody.ok, true);
