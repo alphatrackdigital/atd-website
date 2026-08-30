@@ -28,7 +28,8 @@ const proxyQaLead = async (request, env) => {
 
   const headers = new Headers(request.headers);
   headers.delete("host");
-  headers.delete("origin");
+  headers.set("origin", "https://atd-website-qa.alphatrackdigital.workers.dev");
+  headers.set("x-atd-qa-proxy", "tracking-audit-e2e");
 
   const upstreamRequest = new Request(env.QA_LEADS_ENDPOINT, {
     method: request.method,
