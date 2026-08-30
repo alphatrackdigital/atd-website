@@ -11,6 +11,6 @@
     "not_found_handling": "404-page"
   },
   "vars": {
-    "QA_LEADS_ENDPOINT": "https://atd-backend-test-git-staging-alphatrackdigital.vercel.app/api/leads"
+    "QA_LEADS_ENDPOINT": "https://deploy-preview-19--alphatra-serv.netlify.app/api/leads"
   }
 }
