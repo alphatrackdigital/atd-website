@@ -80,6 +80,13 @@ jobs:
 
           await page.goto(qaUrl, { waitUntil: 'networkidle' });
 
+          // The consent manager can appear after page load and block pointer events.
+          // This controlled UAT keeps consent unset and blocks Meta/Facebook network calls separately.
+          await page.evaluate(() => {
+            const root = document.getElementById('lanyard_root');
+            if (root) root.style.display = 'none';
+          });
+
           await page.getByLabel('First Name').fill('ATD');
           await page.getByLabel('Last Name').fill('UAT');
           await page.getByLabel('Work Email').fill(testEmail);
@@ -101,8 +108,8 @@ jobs:
           await page.getByRole('option', { name: 'GHS 6k–15k' }).click();
 
           const advertising = page.getByRole('group', { name: 'Where do you advertise?' });
-          await advertising.getByText('Meta', { exact: true }).click();
-          await advertising.getByText('Google', { exact: true }).click();
+          await advertising.locator('label').filter({ hasText: /^Meta$/ }).locator('input').check({ force: true });
+          await advertising.locator('label').filter({ hasText: /^Google$/ }).locator('input').check({ force: true });
 
           await page.getByRole('button', { name: 'Continue' }).click();
           await page.getByText('What do you want to understand?').waitFor({ state: 'visible' });
