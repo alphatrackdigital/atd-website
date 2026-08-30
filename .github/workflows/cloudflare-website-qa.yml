@@ -98,6 +98,39 @@ jobs:
           set -euo pipefail
           npx --yes wrangler@4 deploy --config cloudflare/wrangler.website-qa.jsonc 2>&1 | tee cloudflare-deploy.log
 
+      - name: Verify QA proxy safety without creating a lead
+        shell: bash
+        env:
+          QA_BASE_URL: https://atd-website-qa.alphatrackdigital.workers.dev
+          QA_BACKEND_URL: https://deploy-preview-19--alphatra-serv.netlify.app
+        run: |
+          set -euo pipefail
+
+          DIRECT_STATUS="$(curl -sS -o /tmp/qa-direct.json -w '%{http_code}' "$QA_BACKEND_URL/api/leads")"
+          test "$DIRECT_STATUS" = "403"
+
+          PROXY_GET_STATUS="$(curl -sS -o /tmp/qa-proxy-get.json -w '%{http_code}' "$QA_BASE_URL/api/leads")"
+          test "$PROXY_GET_STATUS" = "405"
+
+          PROXY_POST_STATUS="$(curl -sS -o /tmp/qa-proxy-post.json -w '%{http_code}' \
+            -X POST \
+            -H 'Content-Type: application/json' \
+            --data '{}' \
+            "$QA_BASE_URL/api/leads")"
+          test "$PROXY_POST_STATUS" = "400"
+
+          curl -fsS "$QA_BASE_URL/__atd/deployment.json" -o /tmp/qa-deployment.json
+          node <<'NODE'
+          const fs = require('fs');
+          const manifest = JSON.parse(fs.readFileSync('/tmp/qa-deployment.json', 'utf8'));
+          if (manifest.gitSha !== process.env.REQUESTED_SHA) {
+            throw new Error(`QA manifest SHA mismatch: expected ${process.env.REQUESTED_SHA}, got ${manifest.gitSha}`);
+          }
+          if (manifest.leadsEndpointMode !== 'qa-worker-proxy') {
+            throw new Error(`Unexpected leads endpoint mode: ${manifest.leadsEndpointMode}`);
+          }
+          NODE
+
       - name: Write provider evidence
         if: always()
         shell: bash
