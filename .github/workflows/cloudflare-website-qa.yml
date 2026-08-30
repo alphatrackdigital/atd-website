@@ -131,7 +131,7 @@ jobs:
           node <<'NODE'
           const fs = require('fs');
           const probe = JSON.parse(fs.readFileSync('/tmp/qa-dependency-probe.json', 'utf8'));
-          if (probe.mongo?.database !== 'alphatrack_qa_tracking_audit') {
+          if (probe.mongo?.database !== 'alphatrack_tracking_audit_qa') {
             throw new Error('Unexpected QA Mongo database.');
           }
           if (probe.meta?.configured !== false) {
