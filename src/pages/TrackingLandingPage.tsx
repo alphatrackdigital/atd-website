@@ -521,7 +521,7 @@ const TrackingLandingPage = () => {
         canonicalUrl="/offer/tracking-audit"
       />
 
-      <section className="relative overflow-hidden border-b border-white/[0.05] pb-12 pt-7 md:pb-16 md:pt-24 lg:pb-20 lg:pt-28">
+      <section className="relative overflow-hidden border-b border-white/[0.05] pb-12 pt-7 md:pb-16 md:pt-24 lg:min-h-[calc(100svh-64px)] lg:pb-24 lg:pt-24">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_62%_50%_at_31%_40%,rgba(0,175,239,0.12)_0%,rgba(0,51,153,0.08)_38%,transparent_72%),radial-gradient(ellipse_46%_48%_at_73%_30%,rgba(51,204,153,0.10)_0%,transparent_72%)]" />
           <div
@@ -882,7 +882,7 @@ const TrackingLandingPage = () => {
             </motion.div>
           </div>
 
-          <div className="mt-8 flex justify-center md:mt-10">
+          <div className="mt-8 flex justify-center md:mt-10 lg:hidden">
             <a
               href="#measurement-journey"
               className="group inline-flex flex-col items-center gap-2 text-center text-xs font-medium tracking-wide text-foreground/55 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
@@ -890,6 +890,18 @@ const TrackingLandingPage = () => {
               <span>See what we review</span>
               <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.02] transition-colors group-hover:border-primary/25 group-hover:bg-primary/[0.05]">
                 <ArrowDown className="h-4 w-4 motion-safe:animate-bounce motion-reduce:animate-none" aria-hidden="true" />
+              </span>
+            </a>
+          </div>
+
+          <div className="pointer-events-none absolute bottom-5 left-1/2 hidden -translate-x-1/2 justify-center lg:flex">
+            <a
+              href="#measurement-journey"
+              className="group pointer-events-auto inline-flex flex-col items-center gap-1.5 text-center text-xs font-medium tracking-wide text-foreground/55 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+            >
+              <span>See what we review</span>
+              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.02] transition-colors group-hover:border-primary/25 group-hover:bg-primary/[0.05]">
+                <ArrowDown className="h-3.5 w-3.5 motion-safe:animate-bounce motion-reduce:animate-none" aria-hidden="true" />
               </span>
             </a>
           </div>
