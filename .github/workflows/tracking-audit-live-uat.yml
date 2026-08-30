@@ -82,10 +82,7 @@ jobs:
 
           // The consent manager can appear after page load and block pointer events.
           // This controlled UAT keeps consent unset and blocks Meta/Facebook network calls separately.
-          await page.evaluate(() => {
-            const root = document.getElementById('lanyard_root');
-            if (root) root.style.display = 'none';
-          });
+          await page.addStyleTag({ content: '#lanyard_root { display: none !important; pointer-events: none !important; }' });
 
           await page.getByLabel('First Name').fill('ATD');
           await page.getByLabel('Last Name').fill('UAT');
@@ -122,17 +119,39 @@ jobs:
 
           await page.getByText('Before scaling', { exact: true }).click({ force: true });
 
+          assert.equal(await page.locator('input[name="decisionInfluence"][value="final_decision_maker"]').isChecked(), true);
+          assert.equal(await advertising.locator('label').filter({ hasText: /^Meta$/ }).locator('input').isChecked(), true);
+          assert.equal(await advertising.locator('label').filter({ hasText: /^Google$/ }).locator('input').isChecked(), true);
+          assert.equal(await page.locator('input[name="trackingMaturity"][value="disconnected"]').isChecked(), true);
+          assert.equal(await page.locator('input[name="primaryConversionType"][value="lead_form"]').isChecked(), true);
+          assert.equal(await page.locator('input[name="urgency"][value="before_scaling"]').isChecked(), true);
+
           await page.waitForTimeout(1800);
 
-          const responsePromise = page.waitForResponse((response) =>
-            response.url().includes('/api/leads') &&
-            response.request().method() === 'POST'
+          const requestPromise = page.waitForRequest(
+            (request) => request.url().includes('/api/leads') && request.method() === 'POST',
+            { timeout: 5000 },
+          ).catch(() => null);
+
+          const responsePromise = page.waitForResponse(
+            (response) => response.url().includes('/api/leads') && response.request().method() === 'POST',
+            { timeout: 90000 },
           );
 
-          await page.getByRole('button', { name: 'Request My Free Audit' }).click();
+          await page.getByRole('button', { name: 'Request My Free Audit' }).click({ force: true });
+
+          const leadRequest = await requestPromise;
+          if (!leadRequest) {
+            await page.waitForTimeout(500);
+            const validationErrors = await page.locator('[role="alert"]').allTextContents();
+            await page.screenshot({ path: 'uat-evidence/no-request.png', fullPage: true });
+            fs.writeFileSync('uat-evidence/no-request.json', JSON.stringify({ validationErrors }, null, 2) + '\n');
+            throw new Error(`No /api/leads POST was emitted. Validation errors: ${JSON.stringify(validationErrors)}`);
+          }
+
+          leadRequestBody = leadRequest.postDataJSON();
           const leadResponse = await responsePromise;
           leadResponseStatus = leadResponse.status();
-          leadRequestBody = leadResponse.request().postDataJSON();
           leadResponseBody = await leadResponse.json();
 
           assert.equal(leadResponseStatus, 200);
