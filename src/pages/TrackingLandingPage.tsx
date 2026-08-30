@@ -559,7 +559,7 @@ const TrackingLandingPage = () => {
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: 0.08 }}
-              className="w-full scroll-mt-24 rounded-2xl border border-white/[0.10] bg-[linear-gradient(180deg,rgba(14,20,29,0.98),rgba(10,15,22,0.96))] p-4 shadow-[0_28px_90px_rgba(0,0,0,0.28),0_0_70px_rgba(51,204,153,0.035)] backdrop-blur-xl sm:p-7 md:p-8 lg:sticky lg:top-24"
+              className="w-full scroll-mt-24 rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.02)_100%)] p-4 shadow-[0_24px_64px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:p-7 md:p-8 lg:sticky lg:top-24 lg:rounded-[28px]"
             >
               {isSubmitted ? (
                 <div className="py-7 text-center" aria-live="polite">
@@ -877,7 +877,7 @@ const TrackingLandingPage = () => {
         </div>
       </section>
 
-      <PageSection id="measurement-journey" surface="quiet" spacing="spacious" className="scroll-mt-20 py-16 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection id="measurement-journey" surface="quiet" spacing="spacious" className="scroll-mt-20 py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
           eyebrow="What happens after the click"
           title="Your marketing results pass through several steps."
@@ -954,7 +954,7 @@ const TrackingLandingPage = () => {
         </div>
       </PageSection>
 
-      <PageSection id="audit-coverage" spacing="spacious" className="scroll-mt-20 py-16 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection id="audit-coverage" spacing="spacious" className="scroll-mt-20 py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
           title="We check five parts of your tracking."
           description="For your reports to be useful, these five parts need to work together."
@@ -987,7 +987,7 @@ const TrackingLandingPage = () => {
         </div>
       </PageSection>
 
-      <PageSection surface="quiet" spacing="spacious" className="py-16 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection surface="quiet" spacing="spacious" className="py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.72fr_1.28fr] lg:items-center lg:gap-14">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/85">What you get</p>
@@ -1054,7 +1054,7 @@ const TrackingLandingPage = () => {
         </div>
       </PageSection>
 
-      <PageSection spacing="spacious" className="py-16 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection spacing="spacious" className="py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-center lg:gap-14">
           <div>
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/[0.07] text-primary">
@@ -1096,7 +1096,7 @@ const TrackingLandingPage = () => {
         </div>
       </PageSection>
 
-      <PageSection surface="quiet" spacing="spacious" className="py-16 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection surface="quiet" spacing="spacious" className="py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
           title="Here’s how the audit works."
           description="You apply, we check fit, review one journey and send your scorecard."
@@ -1131,12 +1131,12 @@ const TrackingLandingPage = () => {
           variant="minimal"
           density="compact"
           accordionClassName="!overflow-visible !rounded-none !border-0 !bg-transparent"
-          contentClassName="max-w-4xl"
+          contentClassName="max-w-[46rem]"
           sectionClassName="bg-transparent"
-          sectionSpacingClassName="py-14 md:py-24"
+          sectionSpacingClassName="py-14 md:py-20"
         />
 
-        <section className="relative overflow-hidden border-t border-white/[0.05] py-20 md:py-28">
+        <section className="relative overflow-hidden border-t border-white/[0.05] py-16 md:py-24">
           <div aria-hidden="true" className="pointer-events-none absolute inset-0">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_58%_55%_at_50%_100%,rgba(51,204,153,0.09),transparent_68%),radial-gradient(ellipse_45%_50%_at_20%_45%,rgba(0,175,239,0.055),transparent_72%)]" />
             <div className="absolute left-[18%] right-[18%] top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
@@ -1145,12 +1145,12 @@ const TrackingLandingPage = () => {
           <div className="container relative mx-auto px-5 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-3xl text-center">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-                Find out where your <span className="text-primary">tracking breaks.</span>
+                Find out where your <span className="text-gradient">tracking breaks.</span>
               </h2>
               <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
                 Apply for a free audit and get a clearer view of what your marketing is really producing.
               </p>
-              <Button asChild size="lg" className="mt-8 rounded-xl bg-primary px-8 text-primary-foreground hover:bg-primary/90">
+              <Button asChild size="lg" className="mt-8 rounded-xl bg-primary px-8 text-primary-foreground shadow-[0_0_24px_rgba(51,204,153,0.18)] transition-shadow hover:bg-primary/90 hover:shadow-[0_0_34px_rgba(0,175,239,0.14)]">
                 <Link to={finalCtaTo}>{TRACKING_AUDIT_ANCHOR_CTA.label}</Link>
               </Button>
             </div>
