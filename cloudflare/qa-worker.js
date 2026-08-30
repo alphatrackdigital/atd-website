@@ -31,7 +31,10 @@ const proxyQaLead = async (request, env) => {
   headers.set("origin", "https://atd-website-qa.alphatrackdigital.workers.dev");
   headers.set("x-atd-qa-proxy", "tracking-audit-e2e");
 
-  const upstreamRequest = new Request(env.QA_LEADS_ENDPOINT, {
+  const upstreamUrl = new URL(env.QA_LEADS_ENDPOINT);
+  upstreamUrl.search = new URL(request.url).search;
+
+  const upstreamRequest = new Request(upstreamUrl, {
     method: request.method,
     headers,
     body: request.method === "GET" || request.method === "HEAD" ? undefined : request.body,
