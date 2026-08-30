@@ -65,12 +65,20 @@ describe("TrackingLandingPage accessibility", () => {
       screen.getByRole("heading", { name: "Know what your marketing is actually producing." }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Your marketing results pass through several steps." }),
+      screen.getByRole("heading", { name: "Your results pass through a few key steps." }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "We check five parts of your tracking." }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Illustrative scorecard finding")).toBeInTheDocument();
+    expect(screen.queryByText("Illustrative scorecard finding")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "A clear answer to three questions." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "What we found" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Why it matters" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "What to do next" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Ad click" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Website" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Lead" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Sale" })).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "We start with the least access possible." }),
     ).toBeInTheDocument();
