@@ -75,10 +75,10 @@ describe("TrackingLandingPage accessibility", () => {
     expect(screen.getByRole("heading", { name: "What we found" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Why it matters" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "What to do next" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Ad click" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Website" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Lead" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Sale" })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { name: "Ad click" })).toHaveLength(2);
+    expect(screen.getAllByRole("heading", { name: "Website" })).toHaveLength(2);
+    expect(screen.getAllByRole("heading", { name: "Lead" })).toHaveLength(2);
+    expect(screen.getAllByRole("heading", { name: "Sale" })).toHaveLength(2);
     expect(
       screen.getByRole("heading", { name: "We start with the least access possible." }),
     ).toBeInTheDocument();
