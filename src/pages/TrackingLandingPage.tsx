@@ -882,26 +882,14 @@ const TrackingLandingPage = () => {
             </motion.div>
           </div>
 
-          <div className="mt-8 flex justify-center md:mt-10 lg:hidden">
+          <div className="mt-8 flex justify-center md:mt-10 lg:pointer-events-none lg:absolute lg:bottom-5 lg:left-1/2 lg:mt-0 lg:-translate-x-1/2">
             <a
               href="#measurement-journey"
-              className="group inline-flex flex-col items-center gap-2 text-center text-xs font-medium tracking-wide text-foreground/55 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              className="group inline-flex flex-col items-center gap-2 text-center text-xs font-medium tracking-wide text-foreground/55 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 lg:pointer-events-auto lg:gap-1.5"
             >
               <span>See what we review</span>
-              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.02] transition-colors group-hover:border-primary/25 group-hover:bg-primary/[0.05]">
-                <ArrowDown className="h-4 w-4 motion-safe:animate-bounce motion-reduce:animate-none" aria-hidden="true" />
-              </span>
-            </a>
-          </div>
-
-          <div className="pointer-events-none absolute bottom-5 left-1/2 hidden -translate-x-1/2 justify-center lg:flex">
-            <a
-              href="#measurement-journey"
-              className="group pointer-events-auto inline-flex flex-col items-center gap-1.5 text-center text-xs font-medium tracking-wide text-foreground/55 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-            >
-              <span>See what we review</span>
-              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.02] transition-colors group-hover:border-primary/25 group-hover:bg-primary/[0.05]">
-                <ArrowDown className="h-3.5 w-3.5 motion-safe:animate-bounce motion-reduce:animate-none" aria-hidden="true" />
+              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.02] transition-colors group-hover:border-primary/25 group-hover:bg-primary/[0.05] lg:h-7 lg:w-7">
+                <ArrowDown className="h-4 w-4 motion-safe:animate-bounce motion-reduce:animate-none lg:h-3.5 lg:w-3.5" aria-hidden="true" />
               </span>
             </a>
           </div>
