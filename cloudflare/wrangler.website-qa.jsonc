@@ -9,5 +9,8 @@
     "binding": "ASSETS",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page"
+  },
+  "vars": {
+    "QA_LEADS_ENDPOINT": "https://atd-backend-test-git-staging-alphatrackdigital.vercel.app/api/leads"
   }
 }
