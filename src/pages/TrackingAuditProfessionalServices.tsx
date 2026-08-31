@@ -923,7 +923,7 @@ const TrackingAuditProfessionalServices = () => {
             </motion.div>
           </div>
 
-          <div className="mt-8 flex justify-center md:mt-10 lg:mt-0 lg:shrink-0 lg:pb-1">
+          <div className="mt-8 hidden justify-center md:mt-10 md:flex lg:mt-0 lg:shrink-0 lg:pb-1">
             <a
               href="#measurement-journey"
               className="group inline-flex flex-col items-center gap-2 text-center text-xs font-medium tracking-wide text-foreground/55 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 lg:gap-1.5"
@@ -937,7 +937,7 @@ const TrackingAuditProfessionalServices = () => {
         </div>
       </section>
 
-      <PageSection id="measurement-journey" surface="quiet" spacing="spacious" className="scroll-mt-20 py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection id="measurement-journey" surface="quiet" spacing="spacious" className="scroll-mt-20 py-12 md:py-18" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
           eyebrow="Where tracking often breaks"
           title="An enquiry can lose its source before your team ever sees it."
@@ -1146,10 +1146,10 @@ const TrackingAuditProfessionalServices = () => {
           accordionClassName="!overflow-visible !rounded-none !border-0 !bg-transparent"
           contentClassName="max-w-[46rem]"
           sectionClassName="bg-transparent"
-          sectionSpacingClassName="py-10 md:py-14"
+          sectionSpacingClassName="py-8 md:py-14"
         />
 
-        <section className="tracking-audit-final-cta relative overflow-hidden border-t border-white/[0.05] py-12 md:py-18">
+        <section className="tracking-audit-final-cta relative overflow-hidden border-t border-white/[0.05] py-10 md:py-18">
           <div aria-hidden="true" className="pointer-events-none absolute inset-0">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_58%_55%_at_50%_100%,rgba(51,204,153,0.09),transparent_68%),radial-gradient(ellipse_45%_50%_at_20%_45%,rgba(0,175,239,0.055),transparent_72%)]" />
             <div className="absolute left-[18%] right-[18%] top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
