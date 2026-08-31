@@ -25,7 +25,7 @@ describe("TrackingAuditProfessionalServices", () => {
     expect(screen.getByText("Up to two paid platforms")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
-        name: "We answer three practical questions.",
+        name: "Three practical questions about one enquiry journey.",
       }),
     ).toBeInTheDocument();
 
@@ -71,7 +71,7 @@ describe("TrackingAuditProfessionalServices", () => {
     });
 
     expect(screen.queryByLabelText("Industry")).not.toBeInTheDocument();
-    expect(screen.getByLabelText("Your role in decisions like this")).toBeInTheDocument();
+    expect(screen.getByLabelText("Are you involved in choosing a provider?")).toBeInTheDocument();
     expect(screen.getByLabelText("Rough monthly ad spend")).toBeInTheDocument();
     expect(screen.getByLabelText("Main ad platform")).toBeInTheDocument();
     expect(screen.queryByLabelText("Second platform (optional)")).not.toBeInTheDocument();
