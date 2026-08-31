@@ -185,6 +185,33 @@ const JOURNEY_BREAKS = [
   { label: "Source not passed through", position: "75%" },
 ] as const;
 
+const REPORTING_SNAPSHOT = [
+  { label: "Ad platform", value: "14 leads", detail: "Campaign says it generated fourteen." },
+  { label: "Analytics", value: "9 conversions", detail: "Website reporting only sees nine." },
+  { label: "CRM / inbox", value: "11 enquiries", detail: "The team receives eleven enquiries." },
+] as const;
+
+const SCORECARD_PREVIEW = [
+  {
+    label: "Conversion Capture",
+    status: "Needs attention",
+    detail: "Booked-call event is not being recorded consistently.",
+    tone: "warning",
+  },
+  {
+    label: "Attribution",
+    status: "Partial",
+    detail: "Campaign source reaches the website but is lost before the CRM handoff.",
+    tone: "partial",
+  },
+  {
+    label: "Lead Visibility",
+    status: "Needs attention",
+    detail: "Some enquiries reach the team without useful source information.",
+    tone: "warning",
+  },
+] as const;
+
 const AUDIT_DELIVERABLES = [
   {
     icon: CheckCircle2,
@@ -475,7 +502,7 @@ const TrackingAuditProfessionalServices = () => {
       />
 
       <div className={theme === "light" ? "tracking-audit-theme tracking-audit-light bg-background text-foreground" : "tracking-audit-theme bg-background text-foreground"}>
-      <section className="tracking-audit-hero relative overflow-hidden border-b border-white/[0.05] pb-12 pt-7 md:pb-16 md:pt-24 lg:flex lg:min-h-[calc(100svh-64px)] lg:flex-col lg:pb-5 lg:pt-10">
+      <section className="tracking-audit-hero relative overflow-hidden border-b border-white/[0.05] pb-14 pt-10 md:pb-20 md:pt-28 lg:flex lg:min-h-[calc(100svh-64px)] lg:flex-col lg:pb-10 lg:pt-16">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_62%_50%_at_31%_40%,rgba(0,175,239,0.12)_0%,rgba(0,51,153,0.08)_38%,transparent_72%),radial-gradient(ellipse_46%_48%_at_73%_30%,rgba(51,204,153,0.10)_0%,transparent_72%)]" />
           <div
@@ -886,7 +913,7 @@ const TrackingAuditProfessionalServices = () => {
         </div>
       </section>
 
-      <PageSection id="measurement-journey" surface="quiet" spacing="spacious" className="scroll-mt-20 py-12 md:py-18" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection id="measurement-journey" surface="quiet" spacing="spacious" className="scroll-mt-20 py-16 md:py-24 lg:py-28" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
           eyebrow="Where tracking often breaks"
           title="An enquiry can lose its source before your team ever sees it."
@@ -906,6 +933,15 @@ const TrackingAuditProfessionalServices = () => {
               transition={{ duration: 0.65, ease: "easeOut" }}
               style={{ transformOrigin: "left" }}
               aria-hidden="true"
+            />
+
+            <motion.span
+              aria-hidden="true"
+              className="absolute top-[2.48rem] z-30 h-2 w-2 rounded-full bg-primary shadow-[0_0_18px_rgba(51,204,153,0.75)]"
+              initial={{ left: "12.5%", opacity: 0 }}
+              whileInView={{ left: "87.5%", opacity: [0, 1, 1, 0.25] }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 1.5, delay: 0.25, ease: "easeInOut" }}
             />
 
             {JOURNEY_BREAKS.map((item) => (
@@ -960,11 +996,66 @@ const TrackingAuditProfessionalServices = () => {
         </div>
       </PageSection>
 
-      <PageSection id="audit-coverage" spacing="spacious" className="scroll-mt-20 py-12 md:py-16" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection spacing="spacious" className="py-16 md:py-24 lg:py-28" containerClassName="px-5 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/80">The familiar problem</p>
+            <h2 className="mt-4 max-w-xl text-3xl font-bold tracking-tight sm:text-4xl lg:text-[2.8rem] lg:leading-[1.08]">
+              The enquiry arrives. <span className="text-gradient">The source doesn’t.</span>
+            </h2>
+            <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">
+              Your team knows people are contacting you. The hard part is confidently connecting those enquiries to the ads, campaigns or channels that produced them.
+            </p>
+            <p className="mt-5 max-w-lg text-sm leading-6 text-foreground/70">
+              When each system tells a different story, it becomes harder to decide what deserves more budget and what needs fixing first.
+            </p>
+          </div>
+
+          <div className="relative">
+            <div className="absolute -inset-8 -z-10 rounded-[40px] bg-[radial-gradient(circle_at_50%_50%,rgba(0,175,239,0.10),transparent_68%)] blur-2xl" aria-hidden="true" />
+            <div className="overflow-hidden rounded-[26px] border border-white/[0.08] bg-white/[0.025] shadow-[0_24px_70px_rgba(0,0,0,0.14)]">
+              <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4 sm:px-6">
+                <div>
+                  <p className="text-xs font-semibold text-foreground">Three systems. Three answers.</p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">Illustrative example — not client data.</p>
+                </div>
+                <span className="rounded-full border border-primary/20 bg-primary/[0.06] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">
+                  Same period
+                </span>
+              </div>
+
+              <div className="divide-y divide-white/[0.07]">
+                {REPORTING_SNAPSHOT.map((item, index) => (
+                  <motion.div
+                    key={item.label}
+                    className="grid gap-3 px-5 py-5 sm:grid-cols-[0.8fr_0.7fr_1.5fr] sm:items-center sm:px-6"
+                    initial={{ opacity: 0, y: 12 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.55 }}
+                    transition={{ duration: 0.35, delay: index * 0.1 }}
+                  >
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{item.label}</p>
+                    <p className="text-xl font-bold tracking-tight text-foreground">{item.value}</p>
+                    <p className="text-sm leading-6 text-muted-foreground">{item.detail}</p>
+                  </motion.div>
+                ))}
+              </div>
+
+              <div className="border-t border-white/[0.07] bg-primary/[0.035] px-5 py-4 sm:px-6">
+                <p className="text-sm font-medium text-foreground/88">
+                  The question is not “which dashboard is right?” It is “where did the measurement journey stop agreeing?”
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </PageSection>
+
+      <PageSection id="audit-coverage" spacing="spacious" className="scroll-mt-20 py-16 md:py-24 lg:py-28" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
           eyebrow="What we review"
-          title="Three practical questions about one enquiry journey."
-          description="We keep the free audit focused so the findings are useful, clear and tied to the way your firm actually generates enquiries."
+          title="We follow one enquiry from click to handoff."
+          description="The audit stays focused on one real journey so we can answer three practical questions without burying you in technical detail."
           align="center"
           maxWidth="2xl"
           className="mb-9 md:mb-11"
@@ -1017,15 +1108,85 @@ const TrackingAuditProfessionalServices = () => {
         </div>
       </PageSection>
 
-      <PageSection surface="quiet" spacing="spacious" className="py-12 md:py-16" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection surface="quiet" spacing="spacious" className="py-16 md:py-24 lg:py-28" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
           eyebrow="What you get"
-          title="Know what’s broken, why it matters and what to do next."
-          description="You get a short Tracking Health Scorecard with the main findings and the next actions in plain terms."
+          title="A scorecard that turns uncertainty into next steps."
+          description="You get a short Tracking Health Scorecard that shows what we found, why it matters and what should be checked or fixed first."
           align="center"
           maxWidth="2xl"
           className="mb-9 md:mb-11"
         />
+
+        <div className="mx-auto mb-14 grid max-w-6xl items-center gap-9 lg:grid-cols-[0.82fr_1.18fr] lg:gap-14">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/80">Example preview</p>
+            <h3 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">See the finding, the impact and the priority at a glance.</h3>
+            <p className="mt-4 max-w-lg text-sm leading-7 text-muted-foreground">
+              The scorecard is designed to be useful to a business owner or marketing lead — not just someone who works in analytics.
+            </p>
+            <p className="mt-4 text-xs leading-5 text-muted-foreground/85">
+              Example only. The findings shown here are fictional and do not represent a client.
+            </p>
+          </div>
+
+          <motion.div
+            className="overflow-hidden rounded-[26px] border border-white/[0.08] bg-white/[0.03] shadow-[0_24px_70px_rgba(0,0,0,0.14)]"
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.45 }}
+          >
+            <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4 sm:px-6">
+              <div>
+                <p className="text-sm font-semibold">Tracking Health Scorecard</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">Illustrative preview</p>
+              </div>
+              <span className="rounded-full border border-primary/20 bg-primary/[0.07] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">
+                Priority view
+              </span>
+            </div>
+
+            <div className="divide-y divide-white/[0.07]">
+              {SCORECARD_PREVIEW.map((item, index) => (
+                <motion.div
+                  key={item.label}
+                  className="px-5 py-5 sm:px-6"
+                  initial={{ opacity: 0, x: 10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, amount: 0.6 }}
+                  transition={{ duration: 0.3, delay: 0.12 + index * 0.08 }}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-sm font-semibold text-foreground">{item.label}</p>
+                    <span
+                      className={[
+                        "rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]",
+                        item.tone === "warning"
+                          ? "border-amber-400/25 bg-amber-400/[0.07] text-amber-200/85"
+                          : "border-atd-cyan/25 bg-atd-cyan/[0.07] text-atd-cyan",
+                      ].join(" ")}
+                    >
+                      {item.status}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.detail}</p>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-2 border-t border-white/[0.07] bg-primary/[0.035]">
+              <div className="p-4 sm:p-5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-primary/70">Recommended first step</p>
+                <p className="mt-1.5 text-sm font-medium">Fix the form / CRM source handoff</p>
+              </div>
+              <div className="border-l border-white/[0.07] p-4 sm:p-5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-primary/70">Priority</p>
+                <p className="mt-1.5 text-sm font-medium">High</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
 
         <div className="relative mx-auto max-w-5xl">
           <div className="absolute left-[16.5%] right-[16.5%] top-6 hidden h-px bg-gradient-to-r from-primary/20 via-primary/45 to-atd-cyan/20 md:block" aria-hidden="true" />
@@ -1045,7 +1206,7 @@ const TrackingAuditProfessionalServices = () => {
             ))}
           </div>
 
-          <div className="tracking-audit-trust-card mx-auto mt-9 grid max-w-4xl overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.02] md:grid-cols-[0.9fr_1.1fr]">
+          <div className="tracking-audit-trust-card mx-auto mt-14 grid max-w-5xl overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.02] md:grid-cols-[0.9fr_1.1fr]">
             <div className="relative min-h-[190px] md:min-h-[230px]">
               <img
                 src="/about-hero-team-optimized.jpg"
@@ -1079,7 +1240,7 @@ const TrackingAuditProfessionalServices = () => {
             </div>
           </div>
 
-          <div className="mx-auto mt-9 max-w-5xl border-t border-white/[0.07] pt-7">
+          <div className="mx-auto mt-14 max-w-5xl border-t border-white/[0.07] pt-10">
             <div className="mb-6 text-center">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">How it works</p>
               <h3 className="mt-2 text-xl font-bold tracking-tight">From application to scorecard in four steps.</h3>
@@ -1116,10 +1277,10 @@ const TrackingAuditProfessionalServices = () => {
           accordionClassName="!overflow-visible !rounded-none !border-0 !bg-transparent"
           contentClassName="max-w-[46rem]"
           sectionClassName="bg-transparent"
-          sectionSpacingClassName="py-8 md:py-14"
+          sectionSpacingClassName="py-14 md:py-20"
         />
 
-        <section className="tracking-audit-final-cta relative overflow-hidden border-t border-white/[0.05] py-10 md:py-18">
+        <section className="tracking-audit-final-cta relative overflow-hidden border-t border-white/[0.05] py-16 md:py-24">
           <div aria-hidden="true" className="pointer-events-none absolute inset-0">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_58%_55%_at_50%_100%,rgba(51,204,153,0.09),transparent_68%),radial-gradient(ellipse_45%_50%_at_20%_45%,rgba(0,175,239,0.055),transparent_72%)]" />
             <div className="absolute left-[18%] right-[18%] top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
@@ -1128,7 +1289,7 @@ const TrackingAuditProfessionalServices = () => {
           <div className="container relative mx-auto px-5 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-3xl text-center">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-                See where your <span className="text-gradient">enquiry tracking is breaking.</span>
+                Know which marketing is <span className="text-gradient">actually producing enquiries.</span>
               </h2>
               <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
                 If you’re spending on ads but can’t confidently connect them to enquiries or booked calls, request a free audit.
