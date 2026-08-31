@@ -21,7 +21,7 @@ describe("TrackingAuditProfessionalServices", () => {
     ).toBeInTheDocument();
 
     expect(screen.getByRole("heading", { name: "One firm. One website. One enquiry journey." })).toBeInTheDocument();
-    expect(screen.getAllByText("One core enquiry journey")).toHaveLength(2);
+    expect(screen.getByText("One core enquiry journey")).toBeInTheDocument();
     expect(screen.getByText("Up to two paid platforms")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
@@ -45,7 +45,7 @@ describe("TrackingAuditProfessionalServices", () => {
     fireEvent.change(screen.getByLabelText("First Name"), { target: { value: "Jane" } });
     fireEvent.change(screen.getByLabelText("Last Name"), { target: { value: "Smith" } });
     fireEvent.change(screen.getByLabelText("Work Email"), { target: { value: "jane@example.com" } });
-    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Example Advisory" } });
+    fireEvent.change(screen.getByLabelText("Firm / Company"), { target: { value: "Example Advisory" } });
     fireEvent.change(screen.getByLabelText("Website"), { target: { value: "example.com" } });
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
