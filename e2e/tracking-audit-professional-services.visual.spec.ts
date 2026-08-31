@@ -32,7 +32,7 @@ test.describe("Professional Services visual stability", () => {
     await page.getByLabel("First Name").fill("Jane");
     await page.getByLabel("Last Name").fill("Smith");
     await page.getByLabel("Work Email").fill("jane@example.com");
-    await page.getByLabel("Firm / Company").fill("Example Advisory");
+    await page.getByLabel("Business / Company").fill("Example Advisory");
     await page.getByLabel("Website").fill("example.com");
     await page.getByRole("button", { name: "Continue" }).click();
 
