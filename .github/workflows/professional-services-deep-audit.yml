@@ -34,6 +34,9 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
+      - name: Diagnose mobile select scroll locking
+        run: npx playwright test e2e/tracking-audit-professional-services.select-diagnostic.spec.ts
+
       - name: Run deep landing-page audit
         run: npx playwright test e2e/tracking-audit-professional-services.deep-audit.spec.ts
 
