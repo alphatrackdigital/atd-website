@@ -110,19 +110,6 @@ const auditSchema = z.object({
 type AuditFormData = z.infer<typeof auditSchema>;
 type AuditPlatform = AuditFormData["adPlatforms"][number];
 
-type ChoiceOption = {
-  value: string;
-  label: string;
-};
-
-const INDUSTRY_OPTIONS = [
-  { value: "professional_services", label: "Professional services" },
-  { value: "education_training", label: "Education / training" },
-  { value: "ecommerce_dtc", label: "Ecommerce / DTC" },
-  { value: "real_estate", label: "Real estate" },
-  { value: "other", label: "Other" },
-] as const;
-
 const ROLE_OPTIONS = [
   { value: "founder_ceo", label: "Founder / Managing Partner" },
   { value: "marketing_lead", label: "Marketing / Business Development" },
@@ -285,111 +272,6 @@ const Field = ({ label, htmlFor, error, children }: { label: string; htmlFor: st
       </p>
     )}
   </div>
-);
-
-const ChoiceGrid = ({
-  legend,
-  name,
-  value,
-  onChange,
-  options,
-  error,
-  helper,
-  columns = "two",
-}: {
-  legend: string;
-  name: string;
-  value?: string;
-  onChange: (value: string) => void;
-  options: readonly ChoiceOption[];
-  error?: string;
-  helper?: string;
-  columns?: "two" | "three";
-}) => (
-  <fieldset className="space-y-2.5" aria-invalid={!!error} aria-describedby={error ? name + "-err" : undefined}>
-    <legend className="text-sm font-medium text-foreground/90">{legend}</legend>
-    {helper && <p className="text-xs leading-5 text-muted-foreground">{helper}</p>}
-    <div className={columns === "three" ? "grid grid-cols-2 gap-2 sm:grid-cols-3" : "grid grid-cols-2 gap-2"}>
-      {options.map((option) => {
-        const checked = value === option.value;
-        const id = name + "-" + option.value;
-        return (
-          <label
-            key={option.value}
-            htmlFor={id}
-            className={[
-              "flex min-h-11 cursor-pointer items-center justify-center rounded-xl border px-3 py-2 text-center text-xs font-medium leading-4 transition-colors sm:text-[13px]",
-              checked
-                ? "border-primary/45 bg-primary/[0.12] text-primary shadow-[inset_0_0_0_1px_rgba(51,204,153,0.05)]"
-                : "border-white/[0.08] bg-white/[0.025] text-foreground/78 hover:border-white/[0.14] hover:bg-white/[0.045]",
-            ].join(" ")}
-          >
-            <input
-              id={id}
-              type="radio"
-              name={name}
-              value={option.value}
-              checked={checked}
-              onChange={() => onChange(option.value)}
-              className="sr-only"
-            />
-            {option.label}
-          </label>
-        );
-      })}
-    </div>
-    {error && <p id={name + "-err"} role="alert" className="text-xs text-red-400">{error}</p>}
-  </fieldset>
-);
-
-const SingleChoiceChips = ({
-  legend,
-  name,
-  value,
-  onChange,
-  options,
-  error,
-}: {
-  legend: string;
-  name: string;
-  value?: string;
-  onChange: (value: string) => void;
-  options: readonly ChoiceOption[];
-  error?: string;
-}) => (
-  <fieldset className="space-y-2.5" aria-invalid={!!error} aria-describedby={error ? name + "-err" : undefined}>
-    <legend className="text-sm font-medium text-foreground/90">{legend}</legend>
-    <div className="flex flex-wrap gap-2">
-      {options.map((option) => {
-        const checked = value === option.value;
-        const id = name + "-" + option.value;
-        return (
-          <label
-            key={option.value}
-            htmlFor={id}
-            className={[
-              "flex min-h-10 cursor-pointer items-center rounded-full border px-3.5 py-2 text-xs font-medium transition-colors focus-within:ring-1 focus-within:ring-primary/50",
-              checked
-                ? "border-primary/45 bg-primary/[0.12] text-primary"
-                : "border-white/[0.08] bg-white/[0.025] text-foreground/78 hover:border-white/[0.14] hover:bg-white/[0.045]",
-            ].join(" ")}
-          >
-            <input
-              id={id}
-              type="radio"
-              name={name}
-              value={option.value}
-              checked={checked}
-              onChange={() => onChange(option.value)}
-              className="sr-only"
-            />
-            {option.label}
-          </label>
-        );
-      })}
-    </div>
-    {error && <p id={name + "-err"} role="alert" className="text-xs text-red-400">{error}</p>}
-  </fieldset>
 );
 
 const TrackingAuditProfessionalServices = () => {
@@ -712,18 +594,21 @@ const TrackingAuditProfessionalServices = () => {
                           </div>
                         </section>
 
-                        <section className="mt-6 space-y-4 border-t border-white/[0.06] pt-5" aria-labelledby="step2-decision-spend">
-                          <p id="step2-decision-spend" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Decision & spend</p>
-                          <Controller control={control} name="decisionInfluence" render={({ field }) => (
-                            <ChoiceGrid
-                              legend="Your role in decisions like this"
-                              name="decisionInfluence"
-                              value={field.value}
-                              onChange={field.onChange}
-                              options={DECISION_OPTIONS}
-                              error={errors.decisionInfluence?.message}
-                            />
-                          )} />
+                        <section className="mt-5 space-y-4 border-t border-white/[0.06] pt-5" aria-labelledby="step2-marketing-setup">
+                          <p id="step2-marketing-setup" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Marketing setup</p>
+
+                          <Field label="Your role in decisions like this" htmlFor="f-decision" error={errors.decisionInfluence?.message}>
+                            <Controller control={control} name="decisionInfluence" render={({ field }) => (
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger id="f-decision" className={fieldClassName} aria-invalid={!!errors.decisionInfluence} aria-describedby={errors.decisionInfluence ? "f-decision-err" : undefined}>
+                                  <SelectValue placeholder="Select your role in the decision" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {DECISION_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+                                </SelectContent>
+                              </Select>
+                            )} />
+                          </Field>
 
                           <Field label="Rough monthly ad spend" htmlFor="f-spend" error={errors.monthlyAdSpendBand?.message}>
                             <Controller control={control} name="monthlyAdSpendBand" render={({ field }) => (
@@ -737,48 +622,72 @@ const TrackingAuditProfessionalServices = () => {
                               </Select>
                             )} />
                           </Field>
-                        </section>
 
-                        <section className="mt-6 space-y-3 border-t border-white/[0.06] pt-5" aria-labelledby="step2-advertising">
-                          <p id="step2-advertising" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Advertising</p>
-                          <Controller control={control} name="adPlatforms" render={({ field }) => (
-                            <fieldset aria-invalid={!!errors.adPlatforms} aria-describedby={errors.adPlatforms ? "f-platforms-err" : undefined} className="space-y-2.5">
-                              <legend className="text-sm font-medium text-foreground/90">Where are you running ads?</legend>
-                              <div className="flex flex-wrap gap-2">
-                                {PLATFORM_OPTIONS.map((platform) => {
-                                  const checked = field.value?.includes(platform.value) ?? false;
-                                  return (
-                                    <label
-                                      key={platform.value}
-                                      className={[
-                                        "flex min-h-10 cursor-pointer items-center rounded-full border px-3.5 py-2 text-xs font-medium transition-colors focus-within:ring-1 focus-within:ring-primary/50",
-                                        checked
-                                          ? "border-primary/45 bg-primary/[0.12] text-primary"
-                                          : "border-white/[0.08] bg-white/[0.025] text-foreground/78 hover:border-white/[0.14] hover:bg-white/[0.045]",
-                                      ].join(" ")}
+                          <Controller control={control} name="adPlatforms" render={({ field }) => {
+                            const selected = field.value ?? [];
+                            const primaryPlatform = selected[0];
+                            const secondPlatform = selected[1];
+                            const secondOptions = PLATFORM_OPTIONS.filter(
+                              (option) => option.value !== "none_currently" && option.value !== primaryPlatform,
+                            );
+
+                            return (
+                              <div className="space-y-4">
+                                <Field label="Main ad platform" htmlFor="f-primary-platform" error={errors.adPlatforms?.message}>
+                                  <Select
+                                    value={primaryPlatform}
+                                    onValueChange={(value) => {
+                                      const nextPrimary = value as AuditPlatform;
+                                      if (nextPrimary === "none_currently") {
+                                        field.onChange(["none_currently"]);
+                                        return;
+                                      }
+
+                                      const nextPlatforms: AuditPlatform[] = [nextPrimary];
+                                      if (secondPlatform && secondPlatform !== nextPrimary && secondPlatform !== "none_currently") {
+                                        nextPlatforms.push(secondPlatform);
+                                      }
+                                      field.onChange(nextPlatforms);
+                                    }}
+                                  >
+                                    <SelectTrigger id="f-primary-platform" className={fieldClassName} aria-invalid={!!errors.adPlatforms} aria-describedby={errors.adPlatforms ? "f-primary-platform-err" : undefined}>
+                                      <SelectValue placeholder="Select main platform" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {PLATFORM_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+                                    </SelectContent>
+                                  </Select>
+                                </Field>
+
+                                {primaryPlatform && primaryPlatform !== "none_currently" && (
+                                  <Field label="Second platform (optional)" htmlFor="f-second-platform">
+                                    <Select
+                                      value={secondPlatform ?? "no_second_platform"}
+                                      onValueChange={(value) => {
+                                        if (value === "no_second_platform") {
+                                          field.onChange([primaryPlatform]);
+                                          return;
+                                        }
+                                        field.onChange([primaryPlatform, value as AuditPlatform]);
+                                      }}
                                     >
-                                      <input
-                                        type="checkbox"
-                                        checked={checked}
-                                        className="sr-only"
-                                        onChange={() => {
-                                          const current = field.value ?? [];
-                                          if (platform.value === "none_currently") {
-                                            field.onChange(checked ? [] : ["none_currently"]);
-                                            return;
-                                          }
-                                          const withoutNone = current.filter((value) => value !== "none_currently");
-                                          field.onChange(checked ? withoutNone.filter((value) => value !== platform.value) : [...withoutNone, platform.value]);
-                                        }}
-                                      />
-                                      {platform.label}
-                                    </label>
-                                  );
-                                })}
+                                      <SelectTrigger id="f-second-platform" className={fieldClassName}>
+                                        <SelectValue placeholder="No second platform" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="no_second_platform">No second platform</SelectItem>
+                                        {secondOptions.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+                                      </SelectContent>
+                                    </Select>
+                                  </Field>
+                                )}
+
+                                <p className="-mt-1 text-[11px] leading-4 text-muted-foreground/75">
+                                  We’ll review up to two paid platforms where relevant.
+                                </p>
                               </div>
-                              {errors.adPlatforms && <p id="f-platforms-err" role="alert" className="text-xs text-red-400">{errors.adPlatforms.message}</p>}
-                            </fieldset>
-                          )} />
+                            );
+                          }} />
                         </section>
 
                         <Button type="button" size="lg" onClick={handleStepTwoContinue} className="mt-6 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
@@ -793,36 +702,33 @@ const TrackingAuditProfessionalServices = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.18 }}
                       >
-                        <section className="space-y-3" aria-labelledby="step3-tracking">
-                          <p id="step3-tracking" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Tracking</p>
-                          <Controller control={control} name="trackingMaturity" render={({ field }) => (
-                            <SingleChoiceChips
-                              legend="How clear are you on where enquiries come from?"
-                              name="trackingMaturity"
-                              value={field.value}
-                              onChange={field.onChange}
-                              options={MATURITY_OPTIONS}
-                              error={errors.trackingMaturity?.message}
-                            />
-                          )} />
-                        </section>
+                        <div className="space-y-4">
+                          <Field label="How clear are you on where enquiries come from?" htmlFor="f-maturity" error={errors.trackingMaturity?.message}>
+                            <Controller control={control} name="trackingMaturity" render={({ field }) => (
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger id="f-maturity" className={fieldClassName} aria-invalid={!!errors.trackingMaturity} aria-describedby={errors.trackingMaturity ? "f-maturity-err" : undefined}>
+                                  <SelectValue placeholder="Select the closest answer" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {MATURITY_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+                                </SelectContent>
+                              </Select>
+                            )} />
+                          </Field>
 
-                        <section className="mt-6 space-y-3 border-t border-white/[0.06] pt-5" aria-labelledby="step3-conversion">
-                          <p id="step3-conversion" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Conversion</p>
-                          <Controller control={control} name="primaryConversionType" render={({ field }) => (
-                            <SingleChoiceChips
-                              legend="What enquiry action matters most?"
-                              name="primaryConversionType"
-                              value={field.value}
-                              onChange={field.onChange}
-                              options={CONVERSION_OPTIONS}
-                              error={errors.primaryConversionType?.message}
-                            />
-                          )} />
-                        </section>
+                          <Field label="What enquiry action matters most?" htmlFor="f-conversion" error={errors.primaryConversionType?.message}>
+                            <Controller control={control} name="primaryConversionType" render={({ field }) => (
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger id="f-conversion" className={fieldClassName} aria-invalid={!!errors.primaryConversionType} aria-describedby={errors.primaryConversionType ? "f-conversion-err" : undefined}>
+                                  <SelectValue placeholder="Select main enquiry action" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {CONVERSION_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+                                </SelectContent>
+                              </Select>
+                            )} />
+                          </Field>
 
-                        <section className="mt-6 space-y-3 border-t border-white/[0.06] pt-5" aria-labelledby="step3-main-issue">
-                          <p id="step3-main-issue" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Main issue</p>
                           <Field label="What’s unclear?" htmlFor="f-problem" error={errors.measurementProblem?.message}>
                             <Controller control={control} name="measurementProblem" render={({ field }) => (
                               <Select onValueChange={field.onChange} value={field.value}>
@@ -835,23 +741,22 @@ const TrackingAuditProfessionalServices = () => {
                               </Select>
                             )} />
                           </Field>
-                        </section>
 
-                        <section className="mt-6 space-y-3 border-t border-white/[0.06] pt-5" aria-labelledby="step3-timing">
-                          <p id="step3-timing" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Timing</p>
-                          <Controller control={control} name="urgency" render={({ field }) => (
-                            <ChoiceGrid
-                              legend="When do you want clarity?"
-                              name="urgency"
-                              value={field.value}
-                              onChange={field.onChange}
-                              options={URGENCY_OPTIONS}
-                              error={errors.urgency?.message}
-                            />
-                          )} />
-                        </section>
+                          <Field label="When do you want clarity?" htmlFor="f-urgency" error={errors.urgency?.message}>
+                            <Controller control={control} name="urgency" render={({ field }) => (
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger id="f-urgency" className={fieldClassName} aria-invalid={!!errors.urgency} aria-describedby={errors.urgency ? "f-urgency-err" : undefined}>
+                                  <SelectValue placeholder="Select timing" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {URGENCY_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+                                </SelectContent>
+                              </Select>
+                            )} />
+                          </Field>
+                        </div>
 
-                        <div className="mt-6 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3.5">
+                        <div className="mt-5 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3.5">
                           <div className="flex items-start gap-3">
                             <input type="checkbox" id="f-marketing-opt-in" className="mt-0.5 h-4 w-4 shrink-0 rounded border border-white/20 bg-white/5 accent-primary" {...register("marketingOptIn")} />
                             <label htmlFor="f-marketing-opt-in" className="cursor-pointer text-[13px] leading-5 text-muted-foreground sm:text-sm">
