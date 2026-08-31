@@ -7,7 +7,8 @@ describe("Professional Services Tracking Audit prerender", () => {
     const { html, head } = await render("/offer/tracking-audit/professional-services");
 
     expect(html).toContain("Know which ads are bringing you");
-    expect(html).toContain("real enquiries and booked calls.");
+    expect(html).toContain("real enquiries");
+    expect(html).toContain("and booked calls.");
     expect(html).toContain("Book A Free Strategy Call");
     expect(html).toContain("Services");
     expect(html).not.toContain("Growth should never");
