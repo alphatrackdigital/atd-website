@@ -17,6 +17,18 @@ test.describe("Professional Services visual stability", () => {
     await expect(page.getByRole("button", { name: "Switch to dark theme" })).toBeVisible();
     await expect(page.locator(".tracking-audit-light")).toBeVisible();
 
+    const headerBackground = await page.locator("header > div").first().evaluate(
+      (element) => getComputedStyle(element).backgroundColor,
+    );
+    const footerBackground = await page.locator("footer").evaluate(
+      (element) => getComputedStyle(element).backgroundColor,
+    );
+
+    expect(headerBackground).toBe("rgb(7, 10, 16)");
+    expect(footerBackground).toBe("rgb(7, 10, 16)");
+    await expect(page.getByText("Services", { exact: true }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /Book A Free Strategy Call/i })).toBeVisible();
+
     await page.getByLabel("First Name").fill("Jane");
     await page.getByLabel("Last Name").fill("Smith");
     await page.getByLabel("Work Email").fill("jane@example.com");
