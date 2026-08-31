@@ -87,12 +87,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for path in             /offer/tracking-audit/professional-services/             /offer/tracking-audit/education/             /__atd/deployment.json
+          for path in /offer/tracking-audit/professional-services/ /offer/tracking-audit/education/
           do
-            code="$(curl -sS -o /tmp/review-body -w '%{http_code}' "$REVIEW_BASE_URL$path")"
+            code="$(curl -sS -o /tmp/review-body -w '%{http_code}' \
+              -H 'Accept: text/html' \
+              -H 'Sec-Fetch-Mode: navigate' \
+              "$REVIEW_BASE_URL$path")"
             echo "$path -> $code"
             test "$code" = "200"
           done
+
+          manifest_code="$(curl -sS -o /tmp/review-manifest -w '%{http_code}' "$REVIEW_BASE_URL/__atd/deployment.json")"
+          echo "/__atd/deployment.json -> $manifest_code"
+          test "$manifest_code" = "200"
 
           submit_code="$(curl -sS -o /tmp/submit-body -w '%{http_code}' "$REVIEW_BASE_URL/api/leads")"
           echo "/api/leads -> $submit_code"
