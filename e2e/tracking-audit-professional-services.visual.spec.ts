@@ -106,17 +106,62 @@ test.describe("Professional Services visual stability", () => {
     await expect(page.getByText(/budget decisions become guesswork/)).toHaveCount(0);
     await expect(page.getByText("Reviewed by people, not an automated report.")).toHaveCount(0);
     await expect(page.getByText("Example only. The findings shown here are fictional and do not represent a client.")).toHaveCount(0);
+    await expect(page.getByText("Illustrative example — not client data.")).toHaveCount(0);
+    await expect(page.getByText("Illustrative preview")).toHaveCount(0);
+    await expect(page.getByText("Reports 14 leads.", { exact: true })).toBeVisible();
+    await expect(page.getByText("Shows 9 conversions.", { exact: true })).toBeVisible();
+    await expect(page.getByText("Receives 11 enquiries.", { exact: true })).toBeVisible();
 
     const journeyBreaks = page.locator("[data-journey-break]");
+    const journeyNodes = page.locator("[data-journey-node]");
     await expect(journeyBreaks).toHaveCount(3);
+    await expect(journeyNodes).toHaveCount(4);
     for (let index = 0; index < 3; index += 1) {
       const breakBox = await journeyBreaks.nth(index).boundingBox();
+      const chipBox = await journeyBreaks.nth(index).locator("[data-journey-chip]").boundingBox();
       const diamondBox = await journeyBreaks.nth(index).locator("[data-journey-diamond]").boundingBox();
+      const leftNode = await journeyNodes.nth(index).boundingBox();
+      const rightNode = await journeyNodes.nth(index + 1).boundingBox();
       expect(breakBox).not.toBeNull();
+      expect(chipBox).not.toBeNull();
       expect(diamondBox).not.toBeNull();
+      expect(leftNode).not.toBeNull();
+      expect(rightNode).not.toBeNull();
+
+      const leftCenter = (leftNode?.x ?? 0) + (leftNode?.width ?? 0) / 2;
+      const rightCenter = (rightNode?.x ?? 0) + (rightNode?.width ?? 0) / 2;
+      const expectedMidpoint = (leftCenter + rightCenter) / 2;
       const breakCenter = (breakBox?.x ?? 0) + (breakBox?.width ?? 0) / 2;
+      const chipCenter = (chipBox?.x ?? 0) + (chipBox?.width ?? 0) / 2;
       const diamondCenter = (diamondBox?.x ?? 0) + (diamondBox?.width ?? 0) / 2;
-      expect(Math.abs(breakCenter - diamondCenter)).toBeLessThanOrEqual(1.5);
+
+      expect(Math.abs(breakCenter - expectedMidpoint)).toBeLessThanOrEqual(1.5);
+      expect(Math.abs(chipCenter - expectedMidpoint)).toBeLessThanOrEqual(1.5);
+      expect(Math.abs(diamondCenter - expectedMidpoint)).toBeLessThanOrEqual(1.5);
+    }
+
+    const heroHeading = page.getByRole("heading", { name: "Know which ads are bringing you real enquiries and booked calls." });
+    const heroGradientLines = heroHeading.locator(".text-gradient-atd-hero");
+    await expect(heroGradientLines).toHaveCount(2);
+    for (const width of [1440, 1024, 768, 390]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await heroHeading.scrollIntoViewIfNeeded();
+      for (let index = 0; index < 2; index += 1) {
+        const metrics = await heroGradientLines.nth(index).evaluate((element) => {
+          const style = getComputedStyle(element);
+          return {
+            height: element.getBoundingClientRect().height,
+            fontSize: Number.parseFloat(style.fontSize),
+            lineHeight: Number.parseFloat(style.lineHeight),
+            paddingBottom: Number.parseFloat(style.paddingBottom),
+            overflow: style.overflow,
+          };
+        });
+        expect(metrics.height).toBeGreaterThan(metrics.fontSize);
+        expect(metrics.lineHeight).toBeGreaterThanOrEqual(metrics.fontSize * 1.04);
+        expect(metrics.paddingBottom).toBeGreaterThan(0);
+        expect(metrics.overflow).toBe("visible");
+      }
     }
 
     await advanceToStepThree(page);
@@ -137,7 +182,16 @@ test.describe("Professional Services visual stability", () => {
     }
 
     await expect(page.getByText("9 conversions", { exact: true })).toBeVisible();
+
+    const scorecard = page.getByText("Tracking Health Scorecard", { exact: true }).locator("xpath=ancestor::div[contains(@class,'max-w-[36rem]')]");
+    const scorecardBox = await scorecard.boundingBox();
+    expect(scorecardBox).not.toBeNull();
+    expect(scorecardBox?.width ?? 999).toBeLessThanOrEqual(576);
+
     await expect(page.getByRole("heading", { name: "From application to scorecard in four steps." })).toBeVisible();
+    await expect(page.locator("[data-process-sequence]")).toHaveCount(1);
+    await expect(page.locator("[data-process-step]")).toHaveCount(4);
+    await expect(page.locator("[data-process-path]")).toHaveCount(1);
   });
 
   test("dark mode dropdown menu remains readable without browser-native white menu", async ({ page }) => {
