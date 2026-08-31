@@ -216,8 +216,9 @@
     border-color: hsl(var(--border)) !important;
   }
 
-  .tracking-audit-light [class*="text-amber-100/"] {
-    color: hsl(32 78% 35% / 0.78) !important;
+  .tracking-audit-light [class*="text-amber-100/"],
+  .tracking-audit-light [class*="text-amber-200/"] {
+    color: hsl(32 78% 34% / 0.88) !important;
   }
 }
 
