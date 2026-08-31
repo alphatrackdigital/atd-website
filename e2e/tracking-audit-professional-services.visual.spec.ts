@@ -29,9 +29,9 @@ test.describe("Professional Services visual stability", () => {
     await page.getByRole("button", { name: "Continue" }).click();
 
     await expect(page.getByText("Step 2 of 3")).toBeVisible();
-    await expect(page.getByLabel("Your role")).toBeVisible();
+    await expect(page.getByRole("combobox", { name: "Your role", exact: true })).toBeVisible();
 
-    const roleTrigger = page.getByLabel("Your role");
+    const roleTrigger = page.getByRole("combobox", { name: "Your role", exact: true });
     await roleTrigger.click();
     await page.getByRole("option", { name: "Founder / Managing Partner" }).click();
 
