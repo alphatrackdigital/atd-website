@@ -1501,7 +1501,7 @@ const TrackingAuditEducation = () => {
           <div className="container relative mx-auto px-5 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-5xl text-center">
               <h2 className="mx-auto max-w-5xl px-2 text-balance text-3xl font-bold leading-[1.12] tracking-tight sm:text-4xl md:text-[2.8rem] lg:text-5xl">
-                <span className="block">Know which marketing is</span>
+                <span className="block">Know which recruitment campaigns are</span>
                 <span className="mt-1 block pb-[0.12em] text-gradient lg:whitespace-nowrap">actually producing applications.</span>
               </h2>
               <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
