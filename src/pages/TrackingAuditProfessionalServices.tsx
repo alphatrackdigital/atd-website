@@ -988,13 +988,17 @@ const TrackingAuditProfessionalServices = () => {
           description="We check the simple path from ad to website to enquiry and into your CRM or inbox."
           align="center"
           maxWidth="2xl"
-          className="mb-10 md:mb-12"
+          className="mb-6 md:mb-7"
         />
 
-        <div className="mx-auto max-w-6xl">
-          <div className="relative hidden px-8 pt-6 md:block">
+        <p className="mx-auto mb-12 max-w-3xl text-center text-sm font-medium leading-6 text-foreground/72 md:mb-14 md:text-base">
+          You may still receive the lead — but lose the source information that tells you which ad or campaign produced it.
+        </p>
+
+        <div className="mx-auto max-w-[76rem]">
+          <div className="relative hidden px-3 pt-8 md:block lg:px-5">
             <motion.div
-              className="absolute left-[12.5%] right-[12.5%] top-[2.7rem] h-px bg-gradient-to-r from-atd-blue/25 via-primary/55 to-atd-cyan/25"
+              className="absolute left-[12.5%] right-[12.5%] top-[3.05rem] h-px bg-gradient-to-r from-atd-blue/25 via-primary/55 to-atd-cyan/25"
               initial={{ scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
               viewport={{ once: true, amount: 0.5 }}
@@ -1005,7 +1009,7 @@ const TrackingAuditProfessionalServices = () => {
 
             <motion.span
               aria-hidden="true"
-              className="absolute top-[2.48rem] z-30 h-2 w-2 rounded-full bg-primary shadow-[0_0_18px_rgba(51,204,153,0.75)]"
+              className="absolute top-[2.83rem] z-30 h-2 w-2 rounded-full bg-primary shadow-[0_0_18px_rgba(51,204,153,0.75)]"
               initial={{ left: "12.5%", opacity: 0 }}
               whileInView={{ left: "87.5%", opacity: [0, 1, 1, 0.25] }}
               viewport={{ once: true, amount: 0.5 }}
@@ -1013,24 +1017,24 @@ const TrackingAuditProfessionalServices = () => {
             />
 
             {JOURNEY_BREAKS.map((item) => (
-              <div key={item.label} className="absolute top-[2.38rem] z-20 -translate-x-1/2" style={{ left: item.position }}>
+              <div key={item.label} className="absolute top-[2.73rem] z-20 -translate-x-1/2" style={{ left: item.position }}>
                 <span className="block h-2.5 w-2.5 rotate-45 border border-amber-300/45 bg-[#0b1118]" aria-hidden="true" />
-                <span className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-amber-300/20 bg-background/90 px-2.5 py-1 text-[10px] font-medium text-amber-100/70 shadow-[0_8px_24px_rgba(0,0,0,0.10)] backdrop-blur">
+                <span className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-amber-300/25 bg-background/95 px-3 py-1.5 text-[11px] font-semibold text-amber-100/70 shadow-[0_8px_24px_rgba(0,0,0,0.10)] backdrop-blur">
                   {item.label}
                 </span>
               </div>
             ))}
 
-            <div className="relative grid grid-cols-4 gap-10">
+            <div className="relative grid grid-cols-4 gap-12 lg:gap-16">
               {MEASUREMENT_JOURNEY.map(({ icon: Icon, title }, index) => (
                 <div key={title} className="text-center">
-                  <div className="tracking-audit-node-ring relative z-10 mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-primary/25 bg-[#0a1017] text-primary shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
+                  <div className="tracking-audit-node-ring relative z-10 mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/25 bg-[#0a1017] text-primary shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
                     <Icon className="h-[1.35rem] w-[1.35rem]" aria-hidden="true" />
                   </div>
-                  <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.15em] text-primary/55">
+                  <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/60">
                     {String(index + 1).padStart(2, "0")}
                   </p>
-                  <h3 className="mt-1 text-base font-semibold text-foreground">{title}</h3>
+                  <h3 className="mt-1.5 text-lg font-semibold text-foreground">{title}</h3>
                 </div>
               ))}
             </div>
@@ -1058,34 +1062,31 @@ const TrackingAuditProfessionalServices = () => {
             ))}
           </div>
 
-          <p className="mx-auto mt-9 max-w-2xl text-center text-sm leading-6 text-muted-foreground">
-            You may still receive the lead, but lose the information that tells you which ad or campaign produced it.
-          </p>
         </div>
       </PageSection>
 
       <PageSection spacing="spacious" className="py-16 md:py-24 lg:py-28" containerClassName="px-5 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/80">The familiar problem</p>
-            <h2 className="mt-4 max-w-xl text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-[2.8rem] lg:leading-[1.08]">
-              <span className="block">The enquiry arrives.</span>{" "}
-              <span className="block text-gradient sm:whitespace-nowrap">The source doesn’t.</span>
-            </h2>
-            <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">
-              Your team knows people are contacting you. The hard part is confidently connecting those enquiries to the ads, campaigns or channels that produced them.
-            </p>
-            <p className="mt-5 max-w-lg text-sm leading-6 text-foreground/70">
-              When each system tells a different story, it becomes harder to decide what deserves more budget and what needs fixing first.
-            </p>
-          </div>
+        <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[32px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(0,175,239,0.035),rgba(51,204,153,0.025)_48%,rgba(255,255,255,0.015))] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.08)] sm:p-8 lg:p-12">
+          <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-atd-cyan/[0.06] blur-3xl" aria-hidden="true" />
+          <div className="relative grid items-center gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:gap-14">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/80">The familiar problem</p>
+              <h2 className="mt-4 max-w-xl text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-[2.8rem] lg:leading-[1.08]">
+                <span className="block">The enquiry arrives.</span>{" "}
+                <span className="block text-gradient sm:whitespace-nowrap">The source doesn’t.</span>
+              </h2>
+              <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">
+                Your team gets the enquiry. What can disappear is the context that explains which ad, campaign or channel brought it in.
+              </p>
+              <p className="mt-4 max-w-lg text-sm leading-6 text-foreground/72">
+                When ads, analytics and the CRM disagree, budget decisions become guesswork.
+              </p>
+            </div>
 
-          <div className="relative">
-            <div className="absolute -inset-8 -z-10 rounded-[40px] bg-[radial-gradient(circle_at_50%_50%,rgba(0,175,239,0.10),transparent_68%)] blur-2xl" aria-hidden="true" />
-            <div className="overflow-hidden rounded-[26px] border border-white/[0.08] bg-white/[0.025] shadow-[0_24px_70px_rgba(0,0,0,0.14)]">
+            <div className="overflow-hidden rounded-[24px] border border-white/[0.08] bg-background/55 shadow-[0_22px_60px_rgba(0,0,0,0.12)] backdrop-blur">
               <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4 sm:px-6">
                 <div>
-                  <p className="text-xs font-semibold text-foreground">Three systems. Three answers.</p>
+                  <p className="text-sm font-semibold text-foreground">Three systems. Three answers.</p>
                   <p className="mt-1 text-[11px] text-muted-foreground">Illustrative example — not client data.</p>
                 </div>
                 <span className="rounded-full border border-primary/20 bg-primary/[0.06] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">
@@ -1097,22 +1098,22 @@ const TrackingAuditProfessionalServices = () => {
                 {REPORTING_SNAPSHOT.map((item, index) => (
                   <motion.div
                     key={item.label}
-                    className="grid gap-3 px-5 py-5 sm:grid-cols-[0.8fr_0.7fr_1.5fr] sm:items-center sm:px-6"
-                    initial={{ opacity: 0, y: 12 }}
+                    className="grid gap-2.5 px-5 py-4 sm:grid-cols-[0.85fr_0.65fr_1.25fr] sm:items-center sm:px-6"
+                    initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.55 }}
-                    transition={{ duration: 0.35, delay: index * 0.1 }}
+                    transition={{ duration: 0.3, delay: index * 0.08 }}
                   >
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{item.label}</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-primary/75">{item.label}</p>
                     <p className="text-xl font-bold tracking-tight text-foreground">{item.value}</p>
-                    <p className="text-sm leading-6 text-muted-foreground">{item.detail}</p>
+                    <p className="text-[13px] leading-5 text-muted-foreground">{item.detail}</p>
                   </motion.div>
                 ))}
               </div>
 
-              <div className="border-t border-white/[0.07] bg-primary/[0.035] px-5 py-4 sm:px-6">
-                <p className="text-sm font-medium text-foreground/88">
-                  The question is not “which dashboard is right?” It is “where did the measurement journey stop agreeing?”
+              <div className="border-t border-white/[0.07] bg-primary/[0.045] px-5 py-4 sm:px-6">
+                <p className="text-[13px] font-semibold leading-5 text-foreground/88">
+                  The useful question: where did the measurement journey stop agreeing?
                 </p>
               </div>
             </div>
@@ -1171,9 +1172,6 @@ const TrackingAuditProfessionalServices = () => {
               </article>
             ))}
           </div>
-          <p className="mx-auto my-6 max-w-3xl px-4 text-center text-xs leading-5 text-muted-foreground/90">
-            Your scorecard still covers Conversion Capture, Signal Quality, Attribution, Lead Visibility and Data Reliability.
-          </p>
         </div>
       </PageSection>
 
@@ -1270,10 +1268,16 @@ const TrackingAuditProfessionalServices = () => {
           </motion.div>
         </div>
 
-        <div className="relative mx-auto max-w-5xl">
-          <div className="absolute left-[16.5%] right-[16.5%] top-7 hidden h-px bg-gradient-to-r from-primary/20 via-primary/55 to-atd-cyan/20 md:block" aria-hidden="true" />
+        <div className="mx-auto mt-20 max-w-6xl rounded-[30px] border border-white/[0.07] bg-background/30 p-6 shadow-[0_20px_60px_rgba(0,0,0,0.07)] sm:p-8 lg:p-10">
+          <div className="mx-auto mb-9 max-w-2xl text-center">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/80">From finding to action</p>
+            <h3 className="mt-2 text-2xl font-bold tracking-tight">The scorecard gives you three things.</h3>
+          </div>
 
-          <div className="grid gap-7 md:grid-cols-3 md:gap-8">
+          <div className="relative mx-auto max-w-5xl">
+            <div className="absolute left-[16.5%] right-[16.5%] top-7 hidden h-px bg-gradient-to-r from-primary/20 via-primary/55 to-atd-cyan/20 md:block" aria-hidden="true" />
+
+            <div className="grid gap-7 md:grid-cols-3 md:gap-8">
             {AUDIT_DELIVERABLES.map(({ icon: Icon, title, description }, index) => (
               <article key={title} className="relative text-center md:px-4">
                 <div className="tracking-audit-node-ring relative z-10 mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/20 bg-[#0a1017] text-primary shadow-[0_10px_30px_rgba(0,0,0,0.10)]">
@@ -1288,7 +1292,10 @@ const TrackingAuditProfessionalServices = () => {
             ))}
           </div>
 
-          <div className="tracking-audit-trust-card mx-auto mt-14 grid max-w-5xl overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.02] md:grid-cols-[0.9fr_1.1fr]">
+          </div>
+        </div>
+
+        <div className="tracking-audit-trust-card mx-auto mt-20 grid max-w-5xl overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.02] md:grid-cols-[0.9fr_1.1fr]">
             <div className="relative min-h-[190px] md:min-h-[230px]">
               <img
                 src="/about-hero-team-optimized.jpg"
@@ -1356,10 +1363,9 @@ const TrackingAuditProfessionalServices = () => {
             </div>
           </div>
 
-          <p className="mx-auto mt-7 max-w-2xl text-center text-xs leading-5 text-muted-foreground/90">
-            The free audit includes the review and recommendations. Fixing the issues is separate.
-          </p>
-        </div>
+        <p className="mx-auto mt-10 max-w-2xl text-center text-xs leading-5 text-muted-foreground/90">
+          The free audit includes the review and recommendations. Fixing the issues is separate.
+        </p>
       </PageSection>
 
       <div>
