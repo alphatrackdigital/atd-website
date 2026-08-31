@@ -1,4 +1,4 @@
-name: Tracking Audit Dedupe Record Verification
+name: Tracking Audit UAT Cleanup
 
 on:
   push:
@@ -9,90 +9,40 @@ permissions:
   contents: read
 
 jobs:
-  verify-dedupe-record:
+  cleanup:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
       QA_BASE_URL: https://atd-website-qa.alphatrackdigital.workers.dev
-      TEST_EMAIL: alphatrackdigital+tracking-audit-dedupe-uat-20260831@gmail.com
 
     steps:
       - name: Check out disposable UAT branch
         uses: actions/checkout@v4
 
-      - name: Fetch fixed dedupe record probe
+      - name: Remove fixed Brevo UAT records
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p uat-dedupe-record-evidence
-          STATUS="$(curl -sS -o uat-dedupe-record-evidence/brevo-records.json -w '%{http_code}'             "$QA_BASE_URL/api/leads?atd_qa_probe=uat_records")"
-          echo "probe_status=$STATUS"
-          cat uat-dedupe-record-evidence/brevo-records.json
+          mkdir -p uat-cleanup-evidence
+          STATUS="$(curl -sS -o uat-cleanup-evidence/cleanup.json -w '%{http_code}'             -X POST "$QA_BASE_URL/api/leads?atd_qa_cleanup=uat_records")"
+          echo "cleanup_status=$STATUS"
+          cat uat-cleanup-evidence/cleanup.json
           test "$STATUS" = "200"
 
-      - name: Verify single lifecycle after replay
-        shell: bash
-        run: |
-          set -euo pipefail
           node <<'NODE'
           const fs = require('fs');
-          const probe = JSON.parse(fs.readFileSync('uat-dedupe-record-evidence/brevo-records.json', 'utf8'));
-          const a = probe.contact?.attributes || {};
-          const tasks = Array.isArray(probe.tasks?.items) ? probe.tasks.items : [];
-          const listIds = Array.isArray(probe.contact?.listIds) ? probe.contact.listIds : [];
-          const applicantEvents = Array.isArray(probe.emailEvents?.applicant?.events) ? probe.emailEvents.applicant.events : [];
-          const auditEvents = Array.isArray(probe.emailEvents?.audit?.events) ? probe.emailEvents.audit.events : [];
-          const martechEvents = Array.isArray(probe.emailEvents?.martech?.events) ? probe.emailEvents.martech.events : [];
-          const tagged = (events, tag) => events.filter((event) => String(event.tag || '').includes(tag));
-
-          const applicantReceiptEvents = tagged(applicantEvents, 'tracking_audit_receipt');
-          const dedupeWindowStart = Date.parse('2026-08-31T00:02:40Z');
-          const inDedupeWindow = (events) => events.filter((event) => Date.parse(event.date || '') >= dedupeWindowStart);
-          const auditInternalEvents = inDedupeWindow(tagged(auditEvents, 'tracking_audit_offer'));
-          const martechInternalEvents = inDedupeWindow(tagged(martechEvents, 'tracking_audit_offer'));
-
-          const checks = {
-            probeOk: probe.ok === true,
-            email: probe.contact?.email === process.env.TEST_EMAIL,
-            auditList: listIds.includes(11),
-            company: a.COMPANY === 'ATD Tracking Audit Dedupe UAT',
-            lastName: a.LASTNAME === 'Dedupe UAT',
-            source: a.LEAD_SOURCE === 'tracking_audit_offer',
-            auditStatus: a.AUDIT_STATUS === 'Applied',
-            handoff: a.AUDIT_HANDOFF_STATUS === 'No Sales Handoff',
-            utmCampaign: a.UTM_CAMPAIGN === 'tracking_audit_dedupe_uat',
-            utmContent: a.UTM_CONTENT === 'github_actions_api_dedupe',
-            fbclid: a.FBCLID === 'uat-dedupe-fbclid-20260831',
-            taskApi: probe.tasks?.apiOk === true,
-            exactlyOneTask: tasks.length === 1,
-            taskOpen: tasks[0]?.done === false,
-            noDealLink: !Array.isArray(tasks[0]?.dealsIds) || tasks[0].dealsIds.length === 0,
-            oneApplicantRequest: applicantReceiptEvents.filter((e) => e.event === 'requests').length === 1,
-            oneApplicantDelivered: applicantReceiptEvents.filter((e) => e.event === 'delivered').length === 1,
-            oneAuditRequest: auditInternalEvents.filter((e) => e.event === 'requests').length === 1,
-            oneAuditDelivered: auditInternalEvents.filter((e) => e.event === 'delivered').length === 1,
-            oneMartechRequest: martechInternalEvents.filter((e) => e.event === 'requests').length === 1,
-            oneMartechDelivered: martechInternalEvents.filter((e) => e.event === 'delivered').length === 1,
-          };
-
-          console.log(JSON.stringify({
-            checks,
-            taskCount: tasks.length,
-            applicantReceiptEvents,
-            auditInternalEvents,
-            martechInternalEvents,
-            contact: probe.contact,
-            tasks: probe.tasks,
-          }, null, 2));
-
-          const failed = Object.entries(checks).filter(([, value]) => value !== true).map(([key]) => key);
-          if (failed.length) throw new Error(`Dedupe side-effect verification failed: ${failed.join(', ')}`);
+          const result = JSON.parse(fs.readFileSync('uat-cleanup-evidence/cleanup.json', 'utf8'));
+          if (result.ok !== true) throw new Error('Fixed UAT cleanup did not complete.');
+          const all = [...(result.taskResults || []), ...(result.contactResults || [])];
+          const failed = all.filter((item) => item.ok !== true);
+          if (failed.length) throw new Error('One or more fixed UAT records were not removed.');
+          console.log(JSON.stringify(result, null, 2));
           NODE
 
-      - name: Upload dedupe record evidence
+      - name: Upload cleanup evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: tracking-audit-dedupe-record-verification
+          name: tracking-audit-uat-cleanup
           if-no-files-found: error
-          path: uat-dedupe-record-evidence
+          path: uat-cleanup-evidence
