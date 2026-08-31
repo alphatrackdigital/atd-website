@@ -1063,21 +1063,25 @@ const TrackingAuditProfessionalServices = () => {
                 <span className="block rounded-full border border-amber-300/25 bg-background/95 px-3 py-1.5 text-[11px] font-semibold text-amber-100/70 shadow-[0_8px_24px_rgba(0,0,0,0.10)] backdrop-blur">
                   {item.label}
                 </span>
-                <motion.span
+                <span
                   data-journey-diamond
-                  className="absolute left-1/2 top-[2.73rem] block h-2.5 w-2.5 -translate-x-1/2 rotate-45 border border-amber-300/45 bg-[#0b1118]"
+                  className="absolute left-1/2 top-[2.73rem] block h-2.5 w-2.5 -translate-x-1/2"
                   aria-hidden="true"
-                  animate={
-                    prefersReducedMotion
-                      ? { scale: 1, opacity: 0.85 }
-                      : { scale: [1, 1, 1.35, 1], opacity: [0.75, 0.75, 1, 0.75] }
-                  }
-                  transition={
-                    prefersReducedMotion
-                      ? { duration: 0 }
-                      : { duration: 6.8, repeat: Infinity, delay: 1.25 + index * 1.55 }
-                  }
-                />
+                >
+                  <motion.span
+                    className="block h-full w-full rotate-45 border border-amber-300/45 bg-[#0b1118]"
+                    animate={
+                      prefersReducedMotion
+                        ? { scale: 1, opacity: 0.85 }
+                        : { scale: [1, 1, 1.35, 1], opacity: [0.75, 0.75, 1, 0.75] }
+                    }
+                    transition={
+                      prefersReducedMotion
+                        ? { duration: 0 }
+                        : { duration: 6.8, repeat: Infinity, delay: 1.25 + index * 1.55 }
+                    }
+                  />
+                </span>
               </motion.div>
             ))}
 
