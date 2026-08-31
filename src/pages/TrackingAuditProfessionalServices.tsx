@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +17,9 @@ import {
   Gauge,
   Globe2,
   Loader2,
+  Moon,
   Route,
+  Sun,
   Send,
   ShieldCheck,
 } from "lucide-react";
@@ -274,9 +276,14 @@ const Field = ({ label, htmlFor, error, children }: { label: string; htmlFor: st
   </div>
 );
 
+type TrackingAuditTheme = "dark" | "light";
+
+const TRACKING_AUDIT_THEME_STORAGE_KEY = "atd-tracking-audit-theme";
+
 const TrackingAuditProfessionalServices = () => {
   const location = useLocation();
   const finalCtaTo = withCampaignSearch(TRACKING_AUDIT_ANCHOR_CTA.to, location.search);
+  const [theme, setTheme] = useState<TrackingAuditTheme>("dark");
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -286,6 +293,29 @@ const TrackingAuditProfessionalServices = () => {
   const formStartTracked = useRef(false);
   const stepOneTracked = useRef(false);
   const lastSubmit = useRef(0);
+
+  useEffect(() => {
+    try {
+      const savedTheme = window.localStorage.getItem(TRACKING_AUDIT_THEME_STORAGE_KEY);
+      if (savedTheme === "light" || savedTheme === "dark") {
+        setTheme(savedTheme);
+      }
+    } catch {
+      // Local storage may be unavailable in privacy-restricted contexts.
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    setTheme((currentTheme) => {
+      const nextTheme: TrackingAuditTheme = currentTheme === "dark" ? "light" : "dark";
+      try {
+        window.localStorage.setItem(TRACKING_AUDIT_THEME_STORAGE_KEY, nextTheme);
+      } catch {
+        // Theme switching still works for the current session.
+      }
+      return nextTheme;
+    });
+  };
 
   const {
     register,
@@ -403,6 +433,7 @@ const TrackingAuditProfessionalServices = () => {
         canonicalUrl="/offer/tracking-audit/professional-services"
       />
 
+      <div className={theme === "light" ? "tracking-audit-theme tracking-audit-light bg-background text-foreground" : "tracking-audit-theme bg-background text-foreground"}>
       <section className="relative overflow-hidden border-b border-white/[0.05] pb-12 pt-7 md:pb-16 md:pt-24 lg:flex lg:min-h-[calc(100svh-64px)] lg:flex-col lg:pb-5 lg:pt-10">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_62%_50%_at_31%_40%,rgba(0,175,239,0.12)_0%,rgba(0,51,153,0.08)_38%,transparent_72%),radial-gradient(ellipse_46%_48%_at_73%_30%,rgba(51,204,153,0.10)_0%,transparent_72%)]" />
@@ -420,6 +451,18 @@ const TrackingAuditProfessionalServices = () => {
         </div>
 
         <div className="container relative mx-auto px-5 sm:px-6 lg:flex lg:flex-1 lg:flex-col lg:px-8">
+          <div className="mb-4 flex justify-end lg:absolute lg:right-8 lg:top-0 lg:mb-0">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="inline-flex min-h-9 items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm backdrop-blur transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+              aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+            >
+              {theme === "dark" ? <Sun className="h-3.5 w-3.5 text-primary" aria-hidden="true" /> : <Moon className="h-3.5 w-3.5 text-primary" aria-hidden="true" />}
+              <span>{theme === "dark" ? "Light" : "Dark"}</span>
+            </button>
+          </div>
+
           <div className="mx-auto grid max-w-6xl gap-9 lg:my-auto lg:w-full lg:-translate-y-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(420px,480px)] lg:items-center lg:gap-14">
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="pt-2 lg:pt-0">
               <HeroEyebrow>Free Tracking Audit for Professional Services</HeroEyebrow>
@@ -451,7 +494,7 @@ const TrackingAuditProfessionalServices = () => {
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: 0.08 }}
-              className="w-full scroll-mt-24 rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.02)_100%)] p-4 shadow-[0_24px_64px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:p-7 md:p-8 lg:sticky lg:top-24 lg:rounded-[28px]"
+              className="tracking-audit-form-card w-full scroll-mt-24 rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.02)_100%)] p-4 shadow-[0_24px_64px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:p-7 md:p-8 lg:sticky lg:top-24 lg:rounded-[28px]"
             >
               {isSubmitted ? (
                 <div className="py-7 text-center" aria-live="polite">
@@ -577,7 +620,7 @@ const TrackingAuditProfessionalServices = () => {
                       >
                         <section className="space-y-3" aria-labelledby="step2-business-context">
                           <p id="step2-business-context" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Business context</p>
-                          <div className="grid gap-4 sm:grid-cols-2">
+                          <div>
 
                             <Field label="Your role" htmlFor="f-role" error={errors.role?.message}>
                               <Controller control={control} name="role" render={({ field }) => (
@@ -585,7 +628,7 @@ const TrackingAuditProfessionalServices = () => {
                                   <SelectTrigger id="f-role" className={fieldClassName} aria-invalid={!!errors.role} aria-describedby={errors.role ? "f-role-err" : undefined}>
                                     <SelectValue placeholder="Select role" />
                                   </SelectTrigger>
-                                  <SelectContent>
+                                  <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
                                     {ROLE_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
                                   </SelectContent>
                                 </Select>
@@ -603,7 +646,7 @@ const TrackingAuditProfessionalServices = () => {
                                 <SelectTrigger id="f-decision" className={fieldClassName} aria-invalid={!!errors.decisionInfluence} aria-describedby={errors.decisionInfluence ? "f-decision-err" : undefined}>
                                   <SelectValue placeholder="Select your role in the decision" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
                                   {DECISION_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
                                 </SelectContent>
                               </Select>
@@ -616,7 +659,7 @@ const TrackingAuditProfessionalServices = () => {
                                 <SelectTrigger id="f-spend" className={fieldClassName} aria-invalid={!!errors.monthlyAdSpendBand} aria-describedby={errors.monthlyAdSpendBand ? "f-spend-err" : undefined}>
                                   <SelectValue placeholder="Select spend range" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
                                   {SPEND_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
                                 </SelectContent>
                               </Select>
@@ -653,7 +696,7 @@ const TrackingAuditProfessionalServices = () => {
                                     <SelectTrigger id="f-primary-platform" className={fieldClassName} aria-invalid={!!errors.adPlatforms} aria-describedby={errors.adPlatforms ? "f-primary-platform-err" : undefined}>
                                       <SelectValue placeholder="Select main platform" />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
                                       {PLATFORM_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
                                     </SelectContent>
                                   </Select>
@@ -674,7 +717,7 @@ const TrackingAuditProfessionalServices = () => {
                                       <SelectTrigger id="f-second-platform" className={fieldClassName}>
                                         <SelectValue placeholder="No second platform" />
                                       </SelectTrigger>
-                                      <SelectContent>
+                                      <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
                                         <SelectItem value="no_second_platform">No second platform</SelectItem>
                                         {secondOptions.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
                                       </SelectContent>
@@ -709,7 +752,7 @@ const TrackingAuditProfessionalServices = () => {
                                 <SelectTrigger id="f-maturity" className={fieldClassName} aria-invalid={!!errors.trackingMaturity} aria-describedby={errors.trackingMaturity ? "f-maturity-err" : undefined}>
                                   <SelectValue placeholder="Select the closest answer" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
                                   {MATURITY_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
                                 </SelectContent>
                               </Select>
@@ -722,7 +765,7 @@ const TrackingAuditProfessionalServices = () => {
                                 <SelectTrigger id="f-conversion" className={fieldClassName} aria-invalid={!!errors.primaryConversionType} aria-describedby={errors.primaryConversionType ? "f-conversion-err" : undefined}>
                                   <SelectValue placeholder="Select main enquiry action" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
                                   {CONVERSION_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
                                 </SelectContent>
                               </Select>
@@ -735,7 +778,7 @@ const TrackingAuditProfessionalServices = () => {
                                 <SelectTrigger id="f-problem" className={fieldClassName} aria-invalid={!!errors.measurementProblem} aria-describedby={errors.measurementProblem ? "f-problem-err" : undefined}>
                                   <SelectValue placeholder="Select the closest issue" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
                                   {PROBLEM_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
                                 </SelectContent>
                               </Select>
@@ -748,7 +791,7 @@ const TrackingAuditProfessionalServices = () => {
                                 <SelectTrigger id="f-urgency" className={fieldClassName} aria-invalid={!!errors.urgency} aria-describedby={errors.urgency ? "f-urgency-err" : undefined}>
                                   <SelectValue placeholder="Select timing" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
                                   {URGENCY_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
                                 </SelectContent>
                               </Select>
@@ -1037,6 +1080,7 @@ const TrackingAuditProfessionalServices = () => {
         </section>
       </div>
 
+      </div>
     </>
   );
 };
