@@ -237,7 +237,7 @@ const HEALTH_DIMENSIONS = [
 ] as const;
 
 const PROCESS_STEPS = [
-  { number: "01", title: "Apply", description: "Tell us how your firm generates enquiries and which journey matters most." },
+  { number: "01", title: "Apply", description: "Tell us how your business generates enquiries and which journey matters most." },
   { number: "02", title: "Fit review", description: "We confirm that the free audit can answer a useful measurement question within scope." },
   { number: "03", title: "Trace the journey", description: "We review one path from campaign click through the website to the lead destination." },
   { number: "04", title: "Get the scorecard", description: "You receive prioritized findings, business impact and recommended next actions." },
@@ -246,7 +246,7 @@ const PROCESS_STEPS = [
 const AUDIT_FAQS: FAQItem[] = [
   {
     question: "Who is this audit for?",
-    answer: "The page is designed for enquiry-led firms such as consultancies, agencies, legal and accounting practices, advisory businesses and other B2B service providers using digital acquisition to generate leads or booked calls.",
+    answer: "The page is designed for enquiry-led businesses such as consultancies, agencies, legal and accounting practices, advisory businesses and other B2B service providers using digital acquisition to generate leads or booked calls.",
   },
   {
     question: "Will you need access to our accounts?",
@@ -552,7 +552,7 @@ const TrackingAuditProfessionalServices = () => {
                 ))}
               </div>
               <p className="mt-6 max-w-[35rem] text-xs leading-5 text-foreground/65 sm:text-sm">
-                For consultancies, agencies, legal, accounting, advisory and other service firms that rely on enquiries, calls or consultations.
+                For consultancies, agencies, legal, accounting, advisory and other service businesses that rely on enquiries, calls or consultations.
               </p>
 
             </motion.div>
@@ -605,7 +605,7 @@ const TrackingAuditProfessionalServices = () => {
                     </div>
                     <h2 className="mt-5 text-xl font-semibold">
                       {step === 1
-                        ? "Tell us about your firm."
+                        ? "Tell us about your business."
                         : step === 2
                           ? "How do you generate enquiries?"
                           : "Where is the tracking unclear?"}
@@ -646,8 +646,8 @@ const TrackingAuditProfessionalServices = () => {
                           <Input id="f-email" type="email" placeholder="jane@company.com" autoComplete="email" className={fieldClassName} aria-invalid={!!errors.email} aria-describedby={errors.email ? "f-email-err" : undefined} {...register("email")} />
                         </Field>
 
-                        <Field label="Firm / Company" htmlFor="f-company" error={errors.company?.message}>
-                          <Input id="f-company" placeholder="Firm or company name" autoComplete="organization" className={fieldClassName} aria-invalid={!!errors.company} aria-describedby={errors.company ? "f-company-err" : undefined} {...register("company")} />
+                        <Field label="Business / Company" htmlFor="f-company" error={errors.company?.message}>
+                          <Input id="f-company" placeholder="Business or company name" autoComplete="organization" className={fieldClassName} aria-invalid={!!errors.company} aria-describedby={errors.company ? "f-company-err" : undefined} {...register("company")} />
                         </Field>
 
                         <Field label="Website" htmlFor="f-url" error={errors.websiteUrl?.message}>
@@ -1065,7 +1065,7 @@ const TrackingAuditProfessionalServices = () => {
           <div className="grid md:grid-cols-[1.05fr_1.95fr]">
             <div className="border-b border-white/[0.07] p-5 md:border-b-0 md:border-r md:p-7">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">Free audit scope</p>
-              <h2 className="mt-2.5 text-xl font-bold tracking-tight md:text-2xl">One firm. One website. One enquiry journey.</h2>
+              <h2 className="mt-2.5 text-xl font-bold tracking-tight md:text-2xl">One business. One website. One enquiry journey.</h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4">
               {[
