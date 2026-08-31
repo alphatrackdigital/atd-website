@@ -10,6 +10,7 @@ import {
   ArrowDown,
   ArrowLeft,
   ArrowRight,
+  ChevronDown,
   BarChart3,
   Check,
   CheckCircle2,
@@ -31,13 +32,6 @@ import PageSection from "@/components/shared/PageSection";
 import SectionIntro from "@/components/shared/SectionIntro";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { companyProfile } from "@/data/companyProfile";
 import { submitLead } from "@/lib/leads";
 import { withCampaignSearch } from "@/lib/campaignAttribution";
@@ -224,7 +218,7 @@ const PROCESS_STEPS = [
 
 const AUDIT_FAQS: FAQItem[] = [
   {
-    question: "Which professional-services businesses is this for?",
+    question: "Who is this audit for?",
     answer: "The page is designed for enquiry-led firms such as consultancies, agencies, legal and accounting practices, advisory businesses and other B2B service providers using digital acquisition to generate leads or booked calls.",
   },
   {
@@ -285,24 +279,7 @@ type FormSelectOption = {
 
 const TRACKING_AUDIT_THEME_STORAGE_KEY = "atd-tracking-audit-theme";
 
-const useMobileNativeSelects = () => {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-
-    const query = window.matchMedia("(max-width: 767px)");
-    const sync = () => setIsMobile(query.matches);
-    sync();
-
-    query.addEventListener?.("change", sync);
-    return () => query.removeEventListener?.("change", sync);
-  }, []);
-
-  return isMobile;
-};
-
-const ResponsiveFormSelect = ({
+const FormSelect = ({
   id,
   label,
   value,
@@ -311,7 +288,6 @@ const ResponsiveFormSelect = ({
   placeholder,
   error,
   theme,
-  isMobile,
 }: {
   id: string;
   label: string;
@@ -321,52 +297,34 @@ const ResponsiveFormSelect = ({
   placeholder: string;
   error?: string;
   theme: TrackingAuditTheme;
-  isMobile: boolean;
-}) => {
-  if (isMobile) {
-    return (
-      <select
-        id={id}
-        aria-label={label}
-        value={value ?? ""}
-        onChange={(event) => onValueChange(event.target.value)}
-        aria-invalid={Boolean(error)}
-        aria-describedby={error ? `${id}-err` : undefined}
-        className={`${fieldClassName} w-full appearance-auto px-3`}
-      >
-        <option value="" disabled>{placeholder}</option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>{option.label}</option>
-        ))}
-      </select>
-    );
-  }
-
-  return (
-    <Select onValueChange={onValueChange} value={value}>
-      <SelectTrigger
-        id={id}
-        aria-label={label}
-        className={fieldClassName}
-        aria-invalid={Boolean(error)}
-        aria-describedby={error ? `${id}-err` : undefined}
-      >
-        <SelectValue placeholder={placeholder} />
-      </SelectTrigger>
-      <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
-        {options.map((option) => (
-          <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
-};
+}) => (
+  <div className="relative">
+    <select
+      id={id}
+      aria-label={label}
+      value={value ?? ""}
+      onChange={(event) => onValueChange(event.target.value)}
+      aria-invalid={Boolean(error)}
+      aria-describedby={error ? `${id}-err` : undefined}
+      className={`${fieldClassName} w-full appearance-none px-3 pr-10`}
+      style={{ colorScheme: theme }}
+    >
+      <option value="" disabled>{placeholder}</option>
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>{option.label}</option>
+      ))}
+    </select>
+    <ChevronDown
+      className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+      aria-hidden="true"
+    />
+  </div>
+);
 
 const TrackingAuditProfessionalServices = () => {
   const location = useLocation();
   const finalCtaTo = withCampaignSearch(TRACKING_AUDIT_ANCHOR_CTA.to, location.search);
   const [theme, setTheme] = useState<TrackingAuditTheme>("dark");
-  const isMobileNativeSelect = useMobileNativeSelects();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -511,8 +469,8 @@ const TrackingAuditProfessionalServices = () => {
   return (
     <>
       <SEO
-        title="Free Conversion Tracking Audit for Professional Services | AlphaTrack Digital"
-        description="Request a free tracking audit for your professional-services enquiry journey and see where campaign attribution, conversion capture or lead-source visibility may be breaking."
+        title="Free Conversion Tracking Audit | AlphaTrack Digital"
+        description="Request a free tracking audit for your enquiry journey and see where campaign attribution, conversion capture or lead-source visibility may be breaking."
         canonicalUrl="/offer/tracking-audit/professional-services"
       />
 
@@ -548,7 +506,7 @@ const TrackingAuditProfessionalServices = () => {
 
           <div className="mx-auto grid max-w-6xl gap-9 lg:my-auto lg:w-full lg:-translate-y-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(420px,480px)] lg:items-center lg:gap-14">
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="pt-2 lg:pt-0">
-              <HeroEyebrow>Free Tracking Audit for Professional Services</HeroEyebrow>
+              <HeroEyebrow>Free Conversion Tracking Audit</HeroEyebrow>
 
               <h1 className="title-safe mt-5 max-w-[36rem] text-[2.55rem] font-extrabold leading-[1.02] tracking-tight sm:text-5xl md:text-[3.4rem] lg:text-[3.6rem]">
                 Know which ads are bringing you <span className="title-safe-inline text-gradient-atd-hero">real enquiries and booked calls.</span>
@@ -705,7 +663,7 @@ const TrackingAuditProfessionalServices = () => {
                           <p id="step2-business-context" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">Business context</p>
                           <Field label="Your role" htmlFor="f-role" error={errors.role?.message}>
                             <Controller control={control} name="role" render={({ field }) => (
-                              <ResponsiveFormSelect
+                              <FormSelect
                                 id="f-role"
                                 label="Your role"
                                 value={field.value}
@@ -714,7 +672,6 @@ const TrackingAuditProfessionalServices = () => {
                                 placeholder="Select role"
                                 error={errors.role?.message}
                                 theme={theme}
-                                isMobile={isMobileNativeSelect}
                               />
                             )} />
                           </Field>
@@ -725,7 +682,7 @@ const TrackingAuditProfessionalServices = () => {
 
                           <Field label="Are you involved in choosing a provider?" htmlFor="f-decision" error={errors.decisionInfluence?.message}>
                             <Controller control={control} name="decisionInfluence" render={({ field }) => (
-                              <ResponsiveFormSelect
+                              <FormSelect
                                 id="f-decision"
                                 label="Are you involved in choosing a provider?"
                                 value={field.value}
@@ -734,14 +691,13 @@ const TrackingAuditProfessionalServices = () => {
                                 placeholder="Select the closest answer"
                                 error={errors.decisionInfluence?.message}
                                 theme={theme}
-                                isMobile={isMobileNativeSelect}
                               />
                             )} />
                           </Field>
 
                           <Field label="Rough monthly ad spend" htmlFor="f-spend" error={errors.monthlyAdSpendBand?.message}>
                             <Controller control={control} name="monthlyAdSpendBand" render={({ field }) => (
-                              <ResponsiveFormSelect
+                              <FormSelect
                                 id="f-spend"
                                 label="Rough monthly ad spend"
                                 value={field.value}
@@ -750,7 +706,6 @@ const TrackingAuditProfessionalServices = () => {
                                 placeholder="Select spend range"
                                 error={errors.monthlyAdSpendBand?.message}
                                 theme={theme}
-                                isMobile={isMobileNativeSelect}
                               />
                             )} />
                           </Field>
@@ -766,7 +721,7 @@ const TrackingAuditProfessionalServices = () => {
                             return (
                               <div className="space-y-4">
                                 <Field label="Main ad platform" htmlFor="f-primary-platform" error={errors.adPlatforms?.message}>
-                                  <ResponsiveFormSelect
+                                  <FormSelect
                                     id="f-primary-platform"
                                     label="Main ad platform"
                                     value={primaryPlatform}
@@ -787,13 +742,12 @@ const TrackingAuditProfessionalServices = () => {
                                     placeholder="Select main platform"
                                     error={errors.adPlatforms?.message}
                                     theme={theme}
-                                    isMobile={isMobileNativeSelect}
                                   />
                                 </Field>
 
                                 {primaryPlatform && primaryPlatform !== "none_currently" && (
                                   <Field label="Second platform (optional)" htmlFor="f-second-platform">
-                                    <ResponsiveFormSelect
+                                    <FormSelect
                                       id="f-second-platform"
                                       label="Second platform (optional)"
                                       value={secondPlatform ?? "no_second_platform"}
@@ -810,7 +764,6 @@ const TrackingAuditProfessionalServices = () => {
                                       ]}
                                       placeholder="No second platform"
                                       theme={theme}
-                                      isMobile={isMobileNativeSelect}
                                     />
                                   </Field>
                                 )}
@@ -838,7 +791,7 @@ const TrackingAuditProfessionalServices = () => {
                         <div className="space-y-4">
                           <Field label="How clear are you on where enquiries come from?" htmlFor="f-maturity" error={errors.trackingMaturity?.message}>
                             <Controller control={control} name="trackingMaturity" render={({ field }) => (
-                              <ResponsiveFormSelect
+                              <FormSelect
                                 id="f-maturity"
                                 label="How clear are you on where enquiries come from?"
                                 value={field.value}
@@ -847,14 +800,13 @@ const TrackingAuditProfessionalServices = () => {
                                 placeholder="Select the closest answer"
                                 error={errors.trackingMaturity?.message}
                                 theme={theme}
-                                isMobile={isMobileNativeSelect}
                               />
                             )} />
                           </Field>
 
                           <Field label="What enquiry action matters most?" htmlFor="f-conversion" error={errors.primaryConversionType?.message}>
                             <Controller control={control} name="primaryConversionType" render={({ field }) => (
-                              <ResponsiveFormSelect
+                              <FormSelect
                                 id="f-conversion"
                                 label="What enquiry action matters most?"
                                 value={field.value}
@@ -863,14 +815,13 @@ const TrackingAuditProfessionalServices = () => {
                                 placeholder="Select main enquiry action"
                                 error={errors.primaryConversionType?.message}
                                 theme={theme}
-                                isMobile={isMobileNativeSelect}
                               />
                             )} />
                           </Field>
 
                           <Field label="What’s unclear?" htmlFor="f-problem" error={errors.measurementProblem?.message}>
                             <Controller control={control} name="measurementProblem" render={({ field }) => (
-                              <ResponsiveFormSelect
+                              <FormSelect
                                 id="f-problem"
                                 label="What’s unclear?"
                                 value={field.value}
@@ -879,14 +830,13 @@ const TrackingAuditProfessionalServices = () => {
                                 placeholder="Select the closest issue"
                                 error={errors.measurementProblem?.message}
                                 theme={theme}
-                                isMobile={isMobileNativeSelect}
                               />
                             )} />
                           </Field>
 
                           <Field label="When do you want clarity?" htmlFor="f-urgency" error={errors.urgency?.message}>
                             <Controller control={control} name="urgency" render={({ field }) => (
-                              <ResponsiveFormSelect
+                              <FormSelect
                                 id="f-urgency"
                                 label="When do you want clarity?"
                                 value={field.value}
@@ -895,7 +845,6 @@ const TrackingAuditProfessionalServices = () => {
                                 placeholder="Select timing"
                                 error={errors.urgency?.message}
                                 theme={theme}
-                                isMobile={isMobileNativeSelect}
                               />
                             )} />
                           </Field>
@@ -1096,17 +1045,38 @@ const TrackingAuditProfessionalServices = () => {
             ))}
           </div>
 
-          <div className="tracking-audit-trust-card mx-auto mt-9 flex max-w-4xl flex-col gap-3 rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-3">
-              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
-              <div>
-                <h3 className="text-sm font-semibold">We start without account access.</h3>
-                <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                  If we need to verify something, we’ll ask for the lowest practical read-only access. We never ask for passwords.
-                </p>
+          <div className="tracking-audit-trust-card mx-auto mt-9 grid max-w-4xl overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.02] md:grid-cols-[0.9fr_1.1fr]">
+            <div className="relative min-h-[190px] md:min-h-[230px]">
+              <img
+                src="/about-hero-team-optimized.jpg"
+                alt="AlphaTrack Digital team"
+                loading="lazy"
+                decoding="async"
+                className="absolute inset-0 h-full w-full object-cover object-center"
+              />
+              <div
+                className="absolute inset-0 bg-gradient-to-t from-background/45 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-background/15"
+                aria-hidden="true"
+              />
+            </div>
+
+            <div className="flex flex-col justify-center p-5 sm:p-6 md:p-7">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/80">Human-reviewed</p>
+              <h3 className="mt-2 text-lg font-semibold">Reviewed by people, not an automated report.</h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                Your application and audit are reviewed by the AlphaTrack Digital team. We trace one enquiry journey and explain what we find in plain language.
+              </p>
+
+              <div className="mt-4 flex items-start gap-3 border-t border-white/[0.07] pt-4">
+                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                <div>
+                  <h4 className="text-sm font-semibold">We start without account access.</h4>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    If verification is needed, we ask for the lowest practical read-only access. We never ask for passwords.
+                  </p>
+                </div>
               </div>
             </div>
-            <span className="shrink-0 text-xs font-medium text-primary/85">Public first → read-only if needed</span>
           </div>
 
           <div className="mx-auto mt-9 max-w-5xl border-t border-white/[0.07] pt-7">
