@@ -1,0 +1,49 @@
+name: Professional Services Deep LP Audit V2
+
+on:
+  push:
+    branches:
+      - qa/professional-services-deep-audit-v2
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Check out audit branch
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run canonical release preparation
+        env:
+          VITE_LEADS_ENDPOINT: /api/leads
+        run: npm run release:prepare
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run deep landing-page audit
+        run: npx playwright test e2e/tracking-audit-professional-services.deep-audit-v2.spec.ts
+
+      - name: Upload deep-audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: professional-services-deep-audit-v2-${{ github.sha }}
+          if-no-files-found: warn
+          path: |
+            qa-evidence/professional-services-deep-audit-v2
+            test-results
+            playwright-report
