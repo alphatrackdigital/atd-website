@@ -434,11 +434,11 @@ const TrackingAuditProfessionalServices = () => {
       />
 
       <div className={theme === "light" ? "tracking-audit-theme tracking-audit-light bg-background text-foreground" : "tracking-audit-theme bg-background text-foreground"}>
-      <section className="relative overflow-hidden border-b border-white/[0.05] pb-12 pt-7 md:pb-16 md:pt-24 lg:flex lg:min-h-[calc(100svh-64px)] lg:flex-col lg:pb-5 lg:pt-10">
+      <section className="tracking-audit-hero relative overflow-hidden border-b border-white/[0.05] pb-12 pt-7 md:pb-16 md:pt-24 lg:flex lg:min-h-[calc(100svh-64px)] lg:flex-col lg:pb-5 lg:pt-10">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_62%_50%_at_31%_40%,rgba(0,175,239,0.12)_0%,rgba(0,51,153,0.08)_38%,transparent_72%),radial-gradient(ellipse_46%_48%_at_73%_30%,rgba(51,204,153,0.10)_0%,transparent_72%)]" />
           <div
-            className="absolute inset-0 opacity-[0.16]"
+            className="tracking-audit-grid-overlay absolute inset-0 opacity-[0.16]"
             style={{
               backgroundImage:
                 "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
@@ -869,7 +869,7 @@ const TrackingAuditProfessionalServices = () => {
             <div className="relative grid grid-cols-4 gap-10">
               {MEASUREMENT_JOURNEY.map(({ icon: Icon, title }, index) => (
                 <div key={title} className="text-center">
-                  <div className="relative z-10 mx-auto flex h-11 w-11 items-center justify-center rounded-full border border-primary/25 bg-[#0a1017] text-primary shadow-[0_0_0_7px_rgba(8,14,20,0.94)]">
+                  <div className="tracking-audit-node-ring relative z-10 mx-auto flex h-11 w-11 items-center justify-center rounded-full border border-primary/25 bg-[#0a1017] text-primary">
                     <Icon className="h-5 w-5" aria-hidden="true" />
                   </div>
                   <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.15em] text-primary/55">
@@ -910,7 +910,7 @@ const TrackingAuditProfessionalServices = () => {
       </PageSection>
 
       <PageSection spacing="compact" className="py-10 md:py-12" containerClassName="px-5 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-6xl overflow-hidden rounded-[28px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(51,204,153,0.055),rgba(0,175,239,0.025)_52%,rgba(255,255,255,0.015))]">
+        <div className="tracking-audit-scope-card mx-auto max-w-6xl overflow-hidden rounded-[28px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(51,204,153,0.055),rgba(0,175,239,0.025)_52%,rgba(255,255,255,0.015))]">
           <div className="grid md:grid-cols-[1.15fr_1.85fr]">
             <div className="border-b border-white/[0.07] p-6 md:border-b-0 md:border-r md:p-8">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Free audit scope</p>
@@ -986,7 +986,7 @@ const TrackingAuditProfessionalServices = () => {
           <div className="grid gap-7 md:grid-cols-3 md:gap-8">
             {AUDIT_DELIVERABLES.map(({ icon: Icon, title, description }, index) => (
               <article key={title} className="relative text-center md:px-4">
-                <div className="relative z-10 mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-[#0a1017] text-primary shadow-[0_0_0_6px_rgba(8,14,20,0.94)]">
+                <div className="tracking-audit-node-ring relative z-10 mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-[#0a1017] text-primary">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/55">
@@ -1004,7 +1004,7 @@ const TrackingAuditProfessionalServices = () => {
         </div>
       </PageSection>
       <PageSection spacing="compact" className="py-10 md:py-12" containerClassName="px-5 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-5xl flex-col gap-4 rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div className="tracking-audit-trust-card mx-auto flex max-w-5xl flex-col gap-4 rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div className="flex items-start gap-3">
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
             <div>
@@ -1032,7 +1032,7 @@ const TrackingAuditProfessionalServices = () => {
           <ol className="grid gap-7 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
             {PROCESS_STEPS.map((item) => (
               <li key={item.number} className="relative flex gap-4 border-b border-white/[0.06] pb-6 last:border-b-0 sm:block sm:border-b-0 sm:pb-0 lg:text-center">
-                <span className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-[#091017] text-xs font-bold text-primary sm:mb-5 lg:mx-auto">
+                <span className="tracking-audit-node-ring relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-[#091017] text-xs font-bold text-primary sm:mb-5 lg:mx-auto">
                   {item.number}
                 </span>
                 <div>
@@ -1058,7 +1058,7 @@ const TrackingAuditProfessionalServices = () => {
           sectionSpacingClassName="py-14 md:py-20"
         />
 
-        <section className="relative overflow-hidden border-t border-white/[0.05] py-16 md:py-24">
+        <section className="tracking-audit-final-cta relative overflow-hidden border-t border-white/[0.05] py-16 md:py-24">
           <div aria-hidden="true" className="pointer-events-none absolute inset-0">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_58%_55%_at_50%_100%,rgba(51,204,153,0.09),transparent_68%),radial-gradient(ellipse_45%_50%_at_20%_45%,rgba(0,175,239,0.055),transparent_72%)]" />
             <div className="absolute left-[18%] right-[18%] top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
