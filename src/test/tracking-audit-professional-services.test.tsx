@@ -30,7 +30,10 @@ describe("TrackingAuditProfessionalServices", () => {
     ).toBeInTheDocument();
 
     expect(screen.getByText("Three systems. Three answers.")).toBeInTheDocument();
-    expect(screen.getByText("Illustrative example — not client data.")).toBeInTheDocument();
+    expect(screen.queryByText("Illustrative example — not client data.")).not.toBeInTheDocument();
+    expect(screen.getByText("Reports 14 leads.")).toBeInTheDocument();
+    expect(screen.getByText("Shows 9 conversions.")).toBeInTheDocument();
+    expect(screen.getByText("Receives 11 enquiries.")).toBeInTheDocument();
 
     expect(
       screen.getByRole("heading", {
@@ -44,7 +47,7 @@ describe("TrackingAuditProfessionalServices", () => {
       }),
     ).toBeInTheDocument();
 
-    expect(screen.getByText("Illustrative preview")).toBeInTheDocument();
+    expect(screen.queryByText("Illustrative preview")).not.toBeInTheDocument();
     expect(screen.getByText("Human-reviewed audit")).toBeInTheDocument();
     expect(screen.getByText("Not an automated report")).toBeInTheDocument();
     expect(screen.queryByText(/The free audit includes the review and recommendations/)).not.toBeInTheDocument();
