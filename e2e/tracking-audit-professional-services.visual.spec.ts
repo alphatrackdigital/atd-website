@@ -23,6 +23,16 @@ const choose = async (page: import("@playwright/test").Page, label: string, opti
   await page.getByRole("option", { name: option, exact: true }).click();
 };
 
+const advanceToStepThree = async (page: import("@playwright/test").Page) => {
+  await fillStepOne(page);
+  await choose(page, "Your role", "Founder / Managing Partner");
+  await choose(page, "Are you involved in choosing a provider?", "I help choose");
+  await choose(page, "Rough monthly ad spend", "GHS 3k–6k");
+  await choose(page, "Main ad platform", "Google");
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await expect(page.getByText("Step 3 of 3")).toBeVisible();
+};
+
 test.describe("Professional Services visual stability", () => {
   test.beforeEach(async ({ page }) => {
     await page.route("https://global.ketchcdn.com/**", (route) => route.abort());
@@ -82,7 +92,7 @@ test.describe("Professional Services visual stability", () => {
     await expect(page.getByRole("combobox", { name: "Second platform (optional)", exact: true })).toBeVisible();
   });
 
-  test("final CTA stays fully visible and removed trust/story copy does not return", async ({ page }) => {
+  test("story refinements stay aligned, scoped and unclipped", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.evaluate(() => window.localStorage.setItem("atd-tracking-audit-theme", "light"));
     await page.reload();
@@ -90,26 +100,44 @@ test.describe("Professional Services visual stability", () => {
 
     await expect(page.getByText("Human-reviewed audit")).toBeVisible();
     await expect(page.getByText("Not an automated report")).toBeVisible();
-    await expect(
-      page.getByText("The free audit includes the review and recommendations. Implementation is separate."),
-    ).toBeVisible();
+    await expect(page.getByText(/Review and recommendations are included\. Implementation is separate\./)).toHaveCount(0);
 
     await expect(page.getByText(/You may still receive the lead/)).toHaveCount(0);
     await expect(page.getByText(/budget decisions become guesswork/)).toHaveCount(0);
     await expect(page.getByText("Reviewed by people, not an automated report.")).toHaveCount(0);
+    await expect(page.getByText("Example only. The findings shown here are fictional and do not represent a client.")).toHaveCount(0);
+
+    const journeyBreaks = page.locator("[data-journey-break]");
+    await expect(journeyBreaks).toHaveCount(3);
+    for (let index = 0; index < 3; index += 1) {
+      const breakBox = await journeyBreaks.nth(index).boundingBox();
+      const diamondBox = await journeyBreaks.nth(index).locator("[data-journey-diamond]").boundingBox();
+      expect(breakBox).not.toBeNull();
+      expect(diamondBox).not.toBeNull();
+      const breakCenter = (breakBox?.x ?? 0) + (breakBox?.width ?? 0) / 2;
+      const diamondCenter = (diamondBox?.x ?? 0) + (diamondBox?.width ?? 0) / 2;
+      expect(Math.abs(breakCenter - diamondCenter)).toBeLessThanOrEqual(1.5);
+    }
+
+    await advanceToStepThree(page);
+    await expect(page.getByText(/Review and recommendations are included\. Implementation is separate\./)).toBeVisible();
 
     const ctaHeading = page.getByRole("heading", { name: "Know which marketing is actually producing enquiries." });
-    await ctaHeading.scrollIntoViewIfNeeded();
-    await expect(ctaHeading).toBeVisible();
+    for (const width of [1440, 1024, 768]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await ctaHeading.scrollIntoViewIfNeeded();
+      await expect(ctaHeading).toBeVisible();
 
-    const box = await ctaHeading.boundingBox();
-    const viewport = page.viewportSize();
-    expect(box).not.toBeNull();
-    expect(viewport).not.toBeNull();
-    expect((box?.x ?? 0)).toBeGreaterThanOrEqual(0);
-    expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(viewport?.width ?? 0);
+      const box = await ctaHeading.boundingBox();
+      const viewport = page.viewportSize();
+      expect(box).not.toBeNull();
+      expect(viewport).not.toBeNull();
+      expect((box?.x ?? 0)).toBeGreaterThanOrEqual(0);
+      expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(viewport?.width ?? 0);
+    }
 
     await expect(page.getByText("9 conversions", { exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "From application to scorecard in four steps." })).toBeVisible();
   });
 
   test("dark mode dropdown menu remains readable without browser-native white menu", async ({ page }) => {
