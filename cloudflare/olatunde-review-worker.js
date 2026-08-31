@@ -26,7 +26,18 @@ export default {
       );
     }
 
-    const response = await env.ASSETS.fetch(request);
+    let response = await env.ASSETS.fetch(request);
+
+    const acceptsHtml = (request.headers.get("accept") || "").includes("text/html");
+    if (
+      response.status === 404 &&
+      (request.method === "GET" || request.method === "HEAD") &&
+      acceptsHtml
+    ) {
+      const fallbackUrl = new URL("/404.html", request.url);
+      response = await env.ASSETS.fetch(new Request(fallbackUrl, request));
+    }
+
     const headers = new Headers(response.headers);
     headers.set("X-Robots-Tag", NOINDEX);
     headers.set("X-Content-Type-Options", "nosniff");
