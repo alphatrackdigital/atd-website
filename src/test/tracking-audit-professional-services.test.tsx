@@ -10,22 +10,22 @@ describe("TrackingAuditProfessionalServices", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "Know which campaigns are generating your valuable enquiries.",
+        name: "Know which ads are bringing you real enquiries and booked calls.",
       }),
     ).toBeInTheDocument();
 
     expect(
       screen.getByRole("heading", {
-        name: "The lead is only useful if its source survives.",
+        name: "An enquiry can lose its source before your team ever sees it.",
       }),
     ).toBeInTheDocument();
 
-    expect(screen.getByRole("heading", { name: "Focused enough to be useful." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "One firm. One website. One enquiry journey." })).toBeInTheDocument();
     expect(screen.getAllByText("One core enquiry journey")).toHaveLength(2);
     expect(screen.getByText("Up to two paid platforms")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
-        name: "Five checks determine whether you can trust lead attribution.",
+        name: "We answer three practical questions.",
       }),
     ).toBeInTheDocument();
 
@@ -53,8 +53,8 @@ describe("TrackingAuditProfessionalServices", () => {
       expect(screen.getByText("Step 2 of 3")).toBeInTheDocument();
     });
 
-    expect(screen.getByLabelText("Industry")).toHaveTextContent("Professional services");
-    expect(screen.getByRole("group", { name: "Your role in this decision" })).toBeInTheDocument();
-    expect(screen.getByRole("group", { name: "Where do you advertise?" })).toBeInTheDocument();
+    expect(screen.queryByLabelText("Industry")).not.toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Your role in decisions like this" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Where are you running ads?" })).toBeInTheDocument();
   });
 });
