@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { companyProfile } from "@/data/companyProfile";
 import { submitLead } from "@/lib/leads";
@@ -158,6 +158,51 @@ const FooterNewsletter = () => {
 };
 
 const Footer = () => {
+  const location = useLocation();
+  const isTrackingAuditLanding =
+    location.pathname === "/offer/tracking-audit" ||
+    location.pathname.startsWith("/offer/tracking-audit/");
+
+  if (isTrackingAuditLanding) {
+    return (
+      <footer className="relative bg-[#070a10]">
+        <FooterTopDivider />
+        <div className="container mx-auto px-5 py-7 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
+              <Link to="/" aria-label="AlphaTrack Digital Home" className="inline-flex shrink-0 items-center">
+                <img
+                  src="/logo-wordmark-240.webp"
+                  alt="AlphaTrack Digital"
+                  className="h-7 w-auto"
+                  width={240}
+                  height={56}
+                  loading="lazy"
+                />
+              </Link>
+              <div className="hidden h-8 w-px bg-white/10 sm:block" aria-hidden="true" />
+              <p className="max-w-md text-xs leading-5 text-muted-foreground/85">
+                Free Conversion Tracking Audit · One focused enquiry journey · No passwords.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+              <a href={`mailto:${companyProfile.contact.email}`} className="transition-colors hover:text-primary">
+                Questions? {companyProfile.contact.email}
+              </a>
+              <Link to="/privacy-policy" className="transition-colors hover:text-foreground">Privacy</Link>
+              <Link to="/terms-of-service" className="transition-colors hover:text-foreground">Terms</Link>
+            </div>
+          </div>
+
+          <div className="mt-5 border-t border-white/10 pt-4 text-[11px] text-muted-foreground/70">
+            Copyright AlphaTrack Digital {new Date().getFullYear()}. All rights reserved.
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
   return (
     <footer className="relative bg-[#070a10]">
       <FooterTopDivider />
