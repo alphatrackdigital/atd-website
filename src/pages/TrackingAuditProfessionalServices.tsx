@@ -451,7 +451,7 @@ const TrackingAuditProfessionalServices = () => {
         </div>
 
         <div className="container relative mx-auto px-5 sm:px-6 lg:flex lg:flex-1 lg:flex-col lg:px-8">
-          <div className="mb-4 flex justify-end lg:absolute lg:right-8 lg:top-0 lg:mb-0">
+          <div className="relative z-30 mb-4 flex justify-end lg:absolute lg:right-8 lg:top-0 lg:mb-0">
             <button
               type="button"
               onClick={toggleTheme}
