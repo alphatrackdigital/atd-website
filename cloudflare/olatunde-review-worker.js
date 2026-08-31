@@ -34,7 +34,7 @@ export default {
       (request.method === "GET" || request.method === "HEAD") &&
       acceptsHtml
     ) {
-      const fallbackUrl = new URL("/404.html", request.url);
+      const fallbackUrl = new URL("/index.html", request.url);
       response = await env.ASSETS.fetch(new Request(fallbackUrl, request));
     }
 
