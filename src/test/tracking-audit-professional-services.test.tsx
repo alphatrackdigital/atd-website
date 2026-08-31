@@ -25,9 +25,27 @@ describe("TrackingAuditProfessionalServices", () => {
     expect(screen.getByText("Up to two paid platforms")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
-        name: "Three practical questions about one enquiry journey.",
+        name: "The enquiry arrives. The source doesn’t.",
       }),
     ).toBeInTheDocument();
+
+    expect(screen.getByText("Three systems. Three answers.")).toBeInTheDocument();
+    expect(screen.getByText("Illustrative example — not client data.")).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("heading", {
+        name: "We follow one enquiry from click to handoff.",
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("heading", {
+        name: "A scorecard that turns uncertainty into next steps.",
+      }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByText("Illustrative preview")).toBeInTheDocument();
+    expect(screen.getByAltText("AlphaTrack Digital team")).toBeInTheDocument();
 
     expect(screen.getByRole("link", { name: "Request My Free Audit" })).toHaveAttribute(
       "href",
