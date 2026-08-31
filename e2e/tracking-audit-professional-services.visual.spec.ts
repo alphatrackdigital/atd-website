@@ -49,7 +49,7 @@ test.describe("Professional Services visual stability", () => {
     const headerBefore = await header.boundingBox();
     const heroBefore = await heroHeading.boundingBox();
 
-    await page.getByLabel("Your role in decisions like this").click();
+    await page.getByLabel("Are you involved in choosing a provider?").click();
     await expect(page.getByRole("option", { name: "I make the decision" })).toBeVisible();
 
     const during = await page.evaluate(() => ({
