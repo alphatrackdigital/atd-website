@@ -1090,7 +1090,7 @@ const TrackingAuditProfessionalServices = () => {
               ))}
             </div>
 
-            <div className="relative grid grid-cols-4 gap-12 lg:gap-16">
+            <div className="relative grid grid-cols-4">
               {MEASUREMENT_JOURNEY.map(({ icon: Icon, title }, index) => (
                 <div key={title} className="text-center">
                   <motion.div
