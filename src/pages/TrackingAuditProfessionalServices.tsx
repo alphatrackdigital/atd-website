@@ -124,18 +124,18 @@ const INDUSTRY_OPTIONS = [
 ] as const;
 
 const ROLE_OPTIONS = [
-  { value: "founder_ceo", label: "Founder / CEO" },
-  { value: "marketing_lead", label: "Marketing lead" },
-  { value: "growth_performance", label: "Growth / performance" },
-  { value: "operations_commercial", label: "Operations / commercial" },
+  { value: "founder_ceo", label: "Founder / Managing Partner" },
+  { value: "marketing_lead", label: "Marketing / Business Development" },
+  { value: "growth_performance", label: "Growth / Performance" },
+  { value: "operations_commercial", label: "Operations / Commercial" },
   { value: "other", label: "Other" },
 ] as const;
 
 const DECISION_OPTIONS = [
-  { value: "final_decision_maker", label: "Final decision maker" },
-  { value: "strong_influence", label: "Strong influence" },
-  { value: "contributor", label: "Contributor" },
-  { value: "researching", label: "Researching" },
+  { value: "final_decision_maker", label: "I make the decision" },
+  { value: "strong_influence", label: "I strongly influence it" },
+  { value: "contributor", label: "I contribute" },
+  { value: "researching", label: "I’m researching" },
 ] as const;
 
 const SPEND_OPTIONS = [
@@ -160,74 +160,70 @@ const PLATFORM_OPTIONS: Array<{ value: AuditPlatform; label: string }> = [
 
 const MATURITY_OPTIONS = [
   { value: "not_sure", label: "Not sure" },
-  { value: "basic", label: "Basic" },
-  { value: "partial", label: "Partly working" },
-  { value: "disconnected", label: "Disconnected" },
-  { value: "confident", label: "Confident — want validation" },
+  { value: "basic", label: "Some tracking, low confidence" },
+  { value: "partial", label: "Partly clear" },
+  { value: "disconnected", label: "Often unclear" },
+  { value: "confident", label: "Clear — want validation" },
 ] as const;
 
 const CONVERSION_OPTIONS = [
-  { value: "lead_form", label: "Lead form" },
-  { value: "booked_call_appointment", label: "Booked call" },
+  { value: "lead_form", label: "Website enquiry form" },
+  { value: "booked_call_appointment", label: "Booked call / consultation" },
   { value: "whatsapp_message", label: "WhatsApp / message" },
-  { value: "ecommerce_purchase", label: "Purchase" },
-  { value: "application_enrolment", label: "Application / enrolment" },
-  { value: "other", label: "Other" },
+  { value: "other", label: "Other enquiry action" },
 ] as const;
 
 const PROBLEM_OPTIONS = [
-  { value: "unclear_campaign_performance", label: "I can’t tell which campaigns work" },
-  { value: "conflicting_numbers", label: "My numbers don’t match" },
-  { value: "missing_conversion_tracking", label: "Conversions are missing" },
-  { value: "leads_without_attribution", label: "Lead sources are missing" },
-  { value: "browser_server_signal_gap", label: "Browser and server tracking don’t match" },
+  { value: "unclear_campaign_performance", label: "I can’t tell which ads bring enquiries" },
+  { value: "conflicting_numbers", label: "Ads and analytics don’t agree" },
+  { value: "missing_conversion_tracking", label: "Some enquiries aren’t tracked" },
+  { value: "leads_without_attribution", label: "We get leads but lose the source" },
+  { value: "browser_server_signal_gap", label: "One system shows conversions another misses" },
   { value: "other", label: "Other" },
 ] as const;
 
 const URGENCY_OPTIONS = [
-  { value: "before_scaling", label: "Before scaling" },
+  { value: "before_scaling", label: "Before increasing ad spend" },
   { value: "within_30_days", label: "Within 30 days" },
   { value: "one_to_three_months", label: "1–3 months" },
-  { value: "exploring", label: "Exploring" },
+  { value: "exploring", label: "Just exploring" },
 ] as const;
 
 const MEASUREMENT_JOURNEY = [
-  { icon: BarChart3, title: "Campaign click" },
-  { icon: Globe2, title: "Landing page" },
-  { icon: Send, title: "Enquiry / booking" },
-  { icon: Gauge, title: "Lead handoff" },
+  { icon: BarChart3, title: "Ad click" },
+  { icon: Globe2, title: "Website" },
+  { icon: Send, title: "Enquiry / call" },
+  { icon: Gauge, title: "CRM / inbox" },
 ] as const;
 
 const JOURNEY_BREAKS = [
-  { label: "Campaign context lost", position: "25%" },
-  { label: "Conversion missed", position: "50%" },
-  { label: "Lead source dropped", position: "75%" },
+  { label: "Campaign source lost", position: "25%" },
+  { label: "Form or call missed", position: "50%" },
+  { label: "Source not passed through", position: "75%" },
 ] as const;
 
 const AUDIT_DELIVERABLES = [
   {
     icon: CheckCircle2,
-    title: "Where attribution breaks",
-    description: "The exact points where campaign, source or conversion context becomes incomplete or unreliable.",
+    title: "Where the issue is",
+    description: "The point in the enquiry journey where tracking or source information stops being reliable.",
   },
   {
     icon: Gauge,
-    title: "What the gap affects",
-    description: "How each issue can distort lead reporting, channel comparisons or decisions about where to invest.",
+    title: "What it affects",
+    description: "How the issue changes what you see in ad reports, analytics or the leads your team receives.",
   },
   {
     icon: Route,
-    title: "What to fix first",
-    description: "A prioritized action list focused on the changes most likely to improve measurement confidence.",
+    title: "What to do next",
+    description: "A short, prioritized list of checks or fixes to tackle first.",
   },
 ] as const;
 
 const HEALTH_DIMENSIONS = [
-  { icon: Code2, number: "01", title: "Conversion capture", description: "Are forms, booked calls and other important enquiry actions being recorded reliably?" },
-  { icon: Gauge, number: "02", title: "Signal quality", description: "Are your ad platforms receiving useful conversion signals rather than just visits and pageviews?" },
-  { icon: Route, number: "03", title: "Attribution", description: "Can an enquiry still be connected to the campaign, source or click that generated it?" },
-  { icon: Send, number: "04", title: "Lead visibility", description: "Does useful source context survive when the enquiry reaches your inbox, scheduler or CRM?" },
-  { icon: BarChart3, number: "05", title: "Data reliability", description: "Do your reports agree enough to support budget and growth decisions with confidence?" },
+  { icon: Code2, number: "01", title: "Did we capture the enquiry?", description: "We check whether forms, booked calls and other key enquiry actions are actually being recorded." },
+  { icon: Route, number: "02", title: "Do we know where it came from?", description: "We check whether the enquiry can still be tied back to the ad, campaign or source that generated it." },
+  { icon: Send, number: "03", title: "Does the source reach your team?", description: "We check whether useful source information survives into your inbox, scheduler or CRM." },
 ] as const;
 
 const PROCESS_STEPS = [
@@ -547,34 +543,24 @@ const TrackingAuditProfessionalServices = () => {
               <HeroEyebrow>Free Tracking Audit for Professional Services</HeroEyebrow>
 
               <h1 className="title-safe mt-5 max-w-[36rem] text-[2.55rem] font-extrabold leading-[1.02] tracking-tight sm:text-5xl md:text-[3.4rem] lg:text-[3.6rem]">
-                Know which campaigns are generating your <span className="title-safe-inline text-gradient-atd-hero">valuable enquiries.</span>
+                Know which ads are bringing you <span className="title-safe-inline text-gradient-atd-hero">real enquiries and booked calls.</span>
               </h1>
 
               <p className="mt-5 max-w-[35rem] text-base leading-7 text-foreground/72 md:text-lg md:leading-8">
-                We trace one enquiry journey from campaign click to form, booked call or lead handoff to show where attribution breaks, source data disappears or reporting stops matching reality.
+                We check what happens from the ad click to the form, booked call or enquiry, so you can see where leads are being missed, misreported or losing their source.
               </p>
 
               <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-foreground/78">
-                {["No passwords", "Read-only access only if needed", "One core enquiry journey"].map((item) => (
+                {["No passwords", "One enquiry journey", "Clear next steps"].map((item) => (
                   <span key={item} className="flex items-center gap-2">
                     <Check className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
                     {item}
                   </span>
                 ))}
               </div>
-
-              <div className="mt-7 grid max-w-[34rem] grid-cols-3 overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.02]">
-                {[
-                  ["Campaign", "Can we identify the source?"],
-                  ["Enquiry", "Is the action captured?"],
-                  ["Handoff", "Does source context survive?"],
-                ].map(([label, detail], index) => (
-                  <div key={label} className={["px-3 py-3.5 sm:px-4", index > 0 ? "border-l border-white/[0.07]" : ""].join(" ")}>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-primary/65">{label}</p>
-                    <p className="mt-1.5 text-[11px] leading-4 text-foreground/58 sm:text-xs">{detail}</p>
-                  </div>
-                ))}
-              </div>
+              <p className="mt-6 max-w-[35rem] text-xs leading-5 text-foreground/50 sm:text-sm">
+                For consultancies, agencies, legal, accounting, advisory and other service firms that rely on enquiries, calls or consultations.
+              </p>
 
             </motion.div>
 
@@ -626,17 +612,17 @@ const TrackingAuditProfessionalServices = () => {
                     </div>
                     <h2 className="mt-5 text-xl font-semibold">
                       {step === 1
-                        ? "Tell us about your business."
+                        ? "Tell us about your firm."
                         : step === 2
-                          ? "A little about your marketing."
-                          : "What do you want to understand?"}
+                          ? "How do you generate enquiries?"
+                          : "Where is the tracking unclear?"}
                     </h2>
                     <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
                       {step === 1
                         ? "We review every application."
                         : step === 2
-                          ? "This helps us see if the free audit is a good fit."
-                          : "Tell us what isn’t clear in your tracking or reports."}
+                          ? "A few quick details help us understand your setup."
+                          : "Tell us what you want to understand before you spend more."}
                     </p>
                   </div>
 
@@ -667,8 +653,8 @@ const TrackingAuditProfessionalServices = () => {
                           <Input id="f-email" type="email" placeholder="jane@company.com" autoComplete="email" className={fieldClassName} aria-invalid={!!errors.email} aria-describedby={errors.email ? "f-email-err" : undefined} {...register("email")} />
                         </Field>
 
-                        <Field label="Company" htmlFor="f-company" error={errors.company?.message}>
-                          <Input id="f-company" placeholder="Company name" autoComplete="organization" className={fieldClassName} aria-invalid={!!errors.company} aria-describedby={errors.company ? "f-company-err" : undefined} {...register("company")} />
+                        <Field label="Firm / Company" htmlFor="f-company" error={errors.company?.message}>
+                          <Input id="f-company" placeholder="Firm or company name" autoComplete="organization" className={fieldClassName} aria-invalid={!!errors.company} aria-describedby={errors.company ? "f-company-err" : undefined} {...register("company")} />
                         </Field>
 
                         <Field label="Website" htmlFor="f-url" error={errors.websiteUrl?.message}>
@@ -710,18 +696,6 @@ const TrackingAuditProfessionalServices = () => {
                         <section className="space-y-3" aria-labelledby="step2-business-context">
                           <p id="step2-business-context" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Business context</p>
                           <div className="grid gap-4 sm:grid-cols-2">
-                            <Field label="Industry" htmlFor="f-industry" error={errors.industry?.message}>
-                              <Controller control={control} name="industry" render={({ field }) => (
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                  <SelectTrigger id="f-industry" className={fieldClassName} aria-invalid={!!errors.industry} aria-describedby={errors.industry ? "f-industry-err" : undefined}>
-                                    <SelectValue placeholder="Select industry" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {INDUSTRY_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
-                                  </SelectContent>
-                                </Select>
-                              )} />
-                            </Field>
 
                             <Field label="Your role" htmlFor="f-role" error={errors.role?.message}>
                               <Controller control={control} name="role" render={({ field }) => (
@@ -742,7 +716,7 @@ const TrackingAuditProfessionalServices = () => {
                           <p id="step2-decision-spend" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Decision & spend</p>
                           <Controller control={control} name="decisionInfluence" render={({ field }) => (
                             <ChoiceGrid
-                              legend="Your role in this decision"
+                              legend="Your role in decisions like this"
                               name="decisionInfluence"
                               value={field.value}
                               onChange={field.onChange}
@@ -751,7 +725,7 @@ const TrackingAuditProfessionalServices = () => {
                             />
                           )} />
 
-                          <Field label="Monthly ad spend" htmlFor="f-spend" error={errors.monthlyAdSpendBand?.message}>
+                          <Field label="Rough monthly ad spend" htmlFor="f-spend" error={errors.monthlyAdSpendBand?.message}>
                             <Controller control={control} name="monthlyAdSpendBand" render={({ field }) => (
                               <Select onValueChange={field.onChange} value={field.value}>
                                 <SelectTrigger id="f-spend" className={fieldClassName} aria-invalid={!!errors.monthlyAdSpendBand} aria-describedby={errors.monthlyAdSpendBand ? "f-spend-err" : undefined}>
@@ -769,7 +743,7 @@ const TrackingAuditProfessionalServices = () => {
                           <p id="step2-advertising" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Advertising</p>
                           <Controller control={control} name="adPlatforms" render={({ field }) => (
                             <fieldset aria-invalid={!!errors.adPlatforms} aria-describedby={errors.adPlatforms ? "f-platforms-err" : undefined} className="space-y-2.5">
-                              <legend className="text-sm font-medium text-foreground/90">Where do you advertise?</legend>
+                              <legend className="text-sm font-medium text-foreground/90">Where are you running ads?</legend>
                               <div className="flex flex-wrap gap-2">
                                 {PLATFORM_OPTIONS.map((platform) => {
                                   const checked = field.value?.includes(platform.value) ?? false;
@@ -823,7 +797,7 @@ const TrackingAuditProfessionalServices = () => {
                           <p id="step3-tracking" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Tracking</p>
                           <Controller control={control} name="trackingMaturity" render={({ field }) => (
                             <SingleChoiceChips
-                              legend="How confident are you in your tracking?"
+                              legend="How clear are you on where enquiries come from?"
                               name="trackingMaturity"
                               value={field.value}
                               onChange={field.onChange}
@@ -837,7 +811,7 @@ const TrackingAuditProfessionalServices = () => {
                           <p id="step3-conversion" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Conversion</p>
                           <Controller control={control} name="primaryConversionType" render={({ field }) => (
                             <SingleChoiceChips
-                              legend="What matters most?"
+                              legend="What enquiry action matters most?"
                               name="primaryConversionType"
                               value={field.value}
                               onChange={field.onChange}
@@ -849,7 +823,7 @@ const TrackingAuditProfessionalServices = () => {
 
                         <section className="mt-6 space-y-3 border-t border-white/[0.06] pt-5" aria-labelledby="step3-main-issue">
                           <p id="step3-main-issue" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Main issue</p>
-                          <Field label="What’s going wrong?" htmlFor="f-problem" error={errors.measurementProblem?.message}>
+                          <Field label="What’s unclear?" htmlFor="f-problem" error={errors.measurementProblem?.message}>
                             <Controller control={control} name="measurementProblem" render={({ field }) => (
                               <Select onValueChange={field.onChange} value={field.value}>
                                 <SelectTrigger id="f-problem" className={fieldClassName} aria-invalid={!!errors.measurementProblem} aria-describedby={errors.measurementProblem ? "f-problem-err" : undefined}>
@@ -867,7 +841,7 @@ const TrackingAuditProfessionalServices = () => {
                           <p id="step3-timing" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Timing</p>
                           <Controller control={control} name="urgency" render={({ field }) => (
                             <ChoiceGrid
-                              legend="How soon do you want this addressed?"
+                              legend="When do you want clarity?"
                               name="urgency"
                               value={field.value}
                               onChange={field.onChange}
@@ -915,9 +889,9 @@ const TrackingAuditProfessionalServices = () => {
 
       <PageSection id="measurement-journey" surface="quiet" spacing="spacious" className="scroll-mt-20 py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          eyebrow="The professional-services enquiry journey"
-          title="The lead is only useful if its source survives."
-          description="We trace the measurement path from campaign click to enquiry or booked call and into the place your team receives the lead."
+          eyebrow="Where tracking often breaks"
+          title="An enquiry can lose its source before your team ever sees it."
+          description="We check the simple path from ad to website to enquiry and into your CRM or inbox."
           align="center"
           maxWidth="2xl"
           className="mb-10 md:mb-12"
@@ -982,7 +956,7 @@ const TrackingAuditProfessionalServices = () => {
           </div>
 
           <p className="mx-auto mt-9 max-w-2xl text-center text-sm leading-6 text-muted-foreground">
-            If campaign context disappears before the enquiry reaches your team, lead volume can look healthy while attribution remains unreliable.
+            You may still receive the lead, but lose the information that tells you which ad or campaign produced it.
           </p>
         </div>
       </PageSection>
@@ -992,9 +966,9 @@ const TrackingAuditProfessionalServices = () => {
           <div className="grid md:grid-cols-[1.15fr_1.85fr]">
             <div className="border-b border-white/[0.07] p-6 md:border-b-0 md:border-r md:p-8">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Free audit scope</p>
-              <h2 className="mt-3 text-2xl font-bold tracking-tight">Focused enough to be useful.</h2>
+              <h2 className="mt-3 text-2xl font-bold tracking-tight">One firm. One website. One enquiry journey.</h2>
               <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                We diagnose one measurable enquiry journey instead of promising a vague review of your entire stack.
+                We keep the free audit focused so you get a useful answer, not a long technical report.
               </p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4">
@@ -1016,23 +990,21 @@ const TrackingAuditProfessionalServices = () => {
 
       <PageSection id="audit-coverage" spacing="spacious" className="scroll-mt-20 py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          title="Five checks determine whether you can trust lead attribution."
-          description="For enquiry-led growth, the conversion event and its source context need to survive the full journey."
+          title="We answer three practical questions."
+          description="These are the checks that matter most when your marketing is meant to generate enquiries, calls or consultations."
           align="center"
           maxWidth="2xl"
           className="mb-10 md:mb-14"
         />
 
         <div className="mx-auto max-w-6xl border-y border-white/[0.07]">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid md:grid-cols-3">
             {HEALTH_DIMENSIONS.map(({ icon: Icon, number, title, description }, index) => (
               <article
                 key={title}
                 className={[
-                  "py-6 sm:px-5 lg:min-h-[15rem] lg:py-7",
-                  index % 2 === 1 ? "sm:border-l sm:border-white/[0.07]" : "",
-                  index > 1 ? "sm:border-t sm:border-white/[0.07]" : "",
-                  index > 0 ? "lg:border-l lg:border-t-0 lg:border-white/[0.07]" : "",
+                  "py-6 md:px-6 lg:min-h-[13rem] lg:py-7",
+                  index > 0 ? "border-t border-white/[0.07] md:border-l md:border-t-0" : "",
                 ].join(" ")}
               >
                 <div className="flex items-center justify-between gap-4">
@@ -1044,14 +1016,17 @@ const TrackingAuditProfessionalServices = () => {
               </article>
             ))}
           </div>
+          <p className="mx-auto mt-7 max-w-3xl text-center text-xs leading-5 text-muted-foreground">
+            Your final Tracking Health Scorecard still covers Conversion Capture, Signal Quality, Attribution, Lead Visibility and Data Reliability.
+          </p>
         </div>
       </PageSection>
 
       <PageSection surface="quiet" spacing="spacious" className="py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          eyebrow="Your Tracking Health Scorecard"
-          title="Turn measurement uncertainty into a prioritized action list."
-          description="You’ll see where confidence breaks, why it matters to acquisition decisions and what should be investigated or fixed first."
+          eyebrow="What you get"
+          title="Know what’s broken, why it matters and what to do next."
+          description="You get a short Tracking Health Scorecard with the main findings and the next actions in plain terms."
           align="center"
           maxWidth="2xl"
           className="mb-10 md:mb-12"
@@ -1080,53 +1055,25 @@ const TrackingAuditProfessionalServices = () => {
           </p>
         </div>
       </PageSection>
-
-      <PageSection spacing="spacious" className="py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-center lg:gap-14">
-          <div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/[0.07] text-primary">
-              <ShieldCheck className="h-5 w-5" aria-hidden="true" />
-            </div>
-            <h2 className="mt-5 text-2xl font-bold tracking-tight md:text-4xl">We start with the least access possible.</h2>
-            <p className="mt-4 text-sm leading-7 text-muted-foreground md:text-base">
-              We start with public information. If we need to confirm something, we may ask for read-only access. We never ask for passwords.
-            </p>
-          </div>
-
-          <div className="rounded-[28px] bg-white/[0.018] p-5 ring-1 ring-white/[0.055] sm:p-6">
-            <div className="border-l-2 border-primary/55 pl-4 sm:pl-5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/70">Level 0</p>
-              <h3 className="mt-1.5 text-base font-semibold">Public information</h3>
-              <p className="mt-1.5 text-sm leading-6 text-muted-foreground">We start here. No account access needed.</p>
-            </div>
-
-            <div className="mt-5 ml-4 rounded-2xl bg-white/[0.025] p-4 sm:ml-8 sm:p-5">
-              <div className="border-l-2 border-atd-cyan/45 pl-4">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-atd-cyan/70">Level 1</p>
-                <h3 className="mt-1.5 text-base font-semibold">Read-only access</h3>
-                <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
-                  Only if we need to confirm something we cannot see publicly.
-                </p>
-              </div>
-
-              <div className="mt-5 ml-4 rounded-xl bg-black/15 p-4 sm:ml-8">
-                <div className="border-l-2 border-white/15 pl-4">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Level 2</p>
-                  <h3 className="mt-1.5 text-base font-semibold text-foreground/88">Paid implementation</h3>
-                  <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
-                    Access to make changes is only requested if you hire us to fix the issues.
-                  </p>
-                </div>
-              </div>
+      <PageSection spacing="compact" className="py-10 md:py-12" containerClassName="px-5 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-5xl flex-col gap-4 rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div className="flex items-start gap-3">
+            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+            <div>
+              <h2 className="text-base font-semibold">We start without account access.</h2>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                If we need to verify something, we’ll ask for the lowest practical read-only access. We never ask for passwords.
+              </p>
             </div>
           </div>
+          <span className="shrink-0 text-xs font-medium text-primary/75">Public first → read-only if needed</span>
         </div>
       </PageSection>
 
       <PageSection surface="quiet" spacing="spacious" className="py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          title="A focused review of one enquiry journey."
-          description="No sprawling systems audit. We keep the free diagnostic bounded so the findings are practical and decision-ready."
+          title="Here’s how the free audit works."
+          description="A simple review from application to scorecard."
           align="center"
           maxWidth="2xl"
           className="mb-12 md:mb-16"
@@ -1172,10 +1119,10 @@ const TrackingAuditProfessionalServices = () => {
           <div className="container relative mx-auto px-5 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-3xl text-center">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-                Find out whether your <span className="text-gradient">enquiry attribution can be trusted.</span>
+                See where your <span className="text-gradient">enquiry tracking is breaking.</span>
               </h2>
               <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
-                Apply for a free audit and see whether your measurement setup can reliably connect campaign activity to the enquiries your team receives.
+                If you’re spending on ads but can’t confidently connect them to enquiries or booked calls, request a free audit.
               </p>
               <Button asChild size="lg" className="mt-8 rounded-xl bg-primary px-8 text-primary-foreground shadow-[0_0_24px_rgba(51,204,153,0.18)] transition-shadow hover:bg-primary/90 hover:shadow-[0_0_34px_rgba(0,175,239,0.14)]">
                 <Link to={finalCtaTo}>{TRACKING_AUDIT_ANCHOR_CTA.label}</Link>
