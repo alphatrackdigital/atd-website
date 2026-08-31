@@ -608,8 +608,8 @@ const TrackingAuditProfessionalServices = () => {
 
               <h1 className="title-safe mt-5 max-w-[36rem] overflow-visible text-balance text-[2.55rem] font-extrabold leading-[1.08] tracking-tight sm:text-5xl md:text-[3.4rem] lg:text-[3.6rem]">
                 <span className="block">Know which ads are bringing you</span>{" "}
-                <span className="block overflow-visible pb-[0.12em] text-gradient-atd-hero sm:whitespace-nowrap">real enquiries</span>{" "}
-                <span className="-mt-[0.06em] block overflow-visible pb-[0.16em] text-gradient-atd-hero sm:whitespace-nowrap">and booked calls.</span>
+                <span className="block overflow-visible pb-[0.12em] leading-[1.08] text-gradient-atd-hero sm:whitespace-nowrap">real enquiries</span>{" "}
+                <span className="-mt-[0.04em] block overflow-visible pb-[0.16em] leading-[1.08] text-gradient-atd-hero sm:whitespace-nowrap">and booked calls.</span>
               </h1>
 
               <p className="mt-5 max-w-[35rem] text-base leading-7 text-foreground/72 md:text-lg md:leading-8">
