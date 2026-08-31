@@ -38,9 +38,7 @@ test.describe("Professional Services visual stability", () => {
     await expect(roleTrigger).toContainText("Founder / Managing Partner");
 
     const header = page.locator("header");
-    const heroHeading = page.getByRole("heading", {
-      name: "Know which ads are bringing you real enquiries and booked calls.",
-    });
+    const heroHeading = page.locator(".tracking-audit-hero h1");
 
     const before = await page.evaluate(() => ({
       innerWidth: window.innerWidth,
