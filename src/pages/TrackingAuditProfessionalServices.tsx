@@ -1011,15 +1011,21 @@ const TrackingAuditProfessionalServices = () => {
         </div>
       </PageSection>
 
-      <PageSection spacing="compact" className="py-10 md:py-12" containerClassName="px-5 sm:px-6 lg:px-8">
-        <div className="tracking-audit-scope-card mx-auto max-w-6xl overflow-hidden rounded-[28px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(51,204,153,0.055),rgba(0,175,239,0.025)_52%,rgba(255,255,255,0.015))]">
-          <div className="grid md:grid-cols-[1.15fr_1.85fr]">
-            <div className="border-b border-white/[0.07] p-6 md:border-b-0 md:border-r md:p-8">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Free audit scope</p>
-              <h2 className="mt-3 text-2xl font-bold tracking-tight">One firm. One website. One enquiry journey.</h2>
-              <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                We keep the free audit focused so you get a useful answer, not a long technical report.
-              </p>
+      <PageSection id="audit-coverage" spacing="spacious" className="scroll-mt-20 py-12 md:py-16" containerClassName="px-5 sm:px-6 lg:px-8">
+        <SectionIntro
+          eyebrow="What we review"
+          title="Three practical questions about one enquiry journey."
+          description="We keep the free audit focused so the findings are useful, clear and tied to the way your firm actually generates enquiries."
+          align="center"
+          maxWidth="2xl"
+          className="mb-9 md:mb-11"
+        />
+
+        <div className="tracking-audit-scope-card mx-auto mb-10 max-w-6xl overflow-hidden rounded-[24px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(51,204,153,0.055),rgba(0,175,239,0.025)_52%,rgba(255,255,255,0.015))] md:mb-12">
+          <div className="grid md:grid-cols-[1.05fr_1.95fr]">
+            <div className="border-b border-white/[0.07] p-5 md:border-b-0 md:border-r md:p-7">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">Free audit scope</p>
+              <h2 className="mt-2.5 text-xl font-bold tracking-tight md:text-2xl">One firm. One website. One enquiry journey.</h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4">
               {[
@@ -1028,24 +1034,14 @@ const TrackingAuditProfessionalServices = () => {
                 ["03", "One core enquiry journey"],
                 ["04", "Up to two paid platforms"],
               ].map(([number, label], index) => (
-                <div key={label} className={["p-5 sm:p-6", index % 2 === 1 ? "border-l border-white/[0.07]" : "", index > 1 ? "border-t border-white/[0.07] sm:border-t-0 sm:border-l" : ""].join(" ")}>
-                  <p className="text-xs font-semibold text-primary/65">{number}</p>
-                  <p className="mt-3 text-sm font-medium leading-5 text-foreground/86">{label}</p>
+                <div key={label} className={["p-4 sm:p-5", index % 2 === 1 ? "border-l border-white/[0.07]" : "", index > 1 ? "border-t border-white/[0.07] sm:border-t-0 sm:border-l" : ""].join(" ")}>
+                  <p className="text-xs font-semibold text-primary/70">{number}</p>
+                  <p className="mt-2 text-sm font-medium leading-5 text-foreground/88">{label}</p>
                 </div>
               ))}
             </div>
           </div>
         </div>
-      </PageSection>
-
-      <PageSection id="audit-coverage" spacing="spacious" className="scroll-mt-20 py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
-        <SectionIntro
-          title="We answer three practical questions."
-          description="These are the checks that matter most when your marketing is meant to generate enquiries, calls or consultations."
-          align="center"
-          maxWidth="2xl"
-          className="mb-10 md:mb-14"
-        />
 
         <div className="mx-auto max-w-6xl border-y border-white/[0.07]">
           <div className="grid md:grid-cols-3">
@@ -1053,33 +1049,33 @@ const TrackingAuditProfessionalServices = () => {
               <article
                 key={title}
                 className={[
-                  "py-6 md:px-6 lg:min-h-[13rem] lg:py-7",
+                  "py-6 md:px-6 lg:min-h-[12rem] lg:py-7",
                   index > 0 ? "border-t border-white/[0.07] md:border-l md:border-t-0" : "",
                 ].join(" ")}
               >
                 <div className="flex items-center justify-between gap-4">
-                  <span className="text-2xl font-light tracking-tight text-foreground/28">{number}</span>
-                  <Icon className="h-4 w-4 text-primary/65" aria-hidden="true" />
+                  <span className="text-2xl font-light tracking-tight text-foreground/38">{number}</span>
+                  <Icon className="h-4 w-4 text-primary/70" aria-hidden="true" />
                 </div>
-                <h3 className="mt-8 text-base font-semibold text-foreground">{title}</h3>
+                <h3 className="mt-6 text-base font-semibold text-foreground">{title}</h3>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
               </article>
             ))}
           </div>
-          <p className="mx-auto mt-7 max-w-3xl text-center text-xs leading-5 text-muted-foreground">
-            Your final Tracking Health Scorecard still covers Conversion Capture, Signal Quality, Attribution, Lead Visibility and Data Reliability.
+          <p className="mx-auto my-6 max-w-3xl px-4 text-center text-xs leading-5 text-muted-foreground/90">
+            Your scorecard still covers Conversion Capture, Signal Quality, Attribution, Lead Visibility and Data Reliability.
           </p>
         </div>
       </PageSection>
 
-      <PageSection surface="quiet" spacing="spacious" className="py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection surface="quiet" spacing="spacious" className="py-12 md:py-16" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
           eyebrow="What you get"
           title="Know what’s broken, why it matters and what to do next."
           description="You get a short Tracking Health Scorecard with the main findings and the next actions in plain terms."
           align="center"
           maxWidth="2xl"
-          className="mb-10 md:mb-12"
+          className="mb-9 md:mb-11"
         />
 
         <div className="relative mx-auto max-w-5xl">
@@ -1091,7 +1087,7 @@ const TrackingAuditProfessionalServices = () => {
                 <div className="tracking-audit-node-ring relative z-10 mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-[#0a1017] text-primary">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
-                <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/55">
+                <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/65">
                   {String(index + 1).padStart(2, "0")}
                 </p>
                 <h3 className="mt-1.5 text-base font-semibold">{title}</h3>
@@ -1100,27 +1096,26 @@ const TrackingAuditProfessionalServices = () => {
             ))}
           </div>
 
-          <p className="mx-auto mt-9 max-w-2xl text-center text-xs leading-5 text-muted-foreground">
+          <div className="tracking-audit-trust-card mx-auto mt-9 flex max-w-4xl flex-col gap-3 rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+              <div>
+                <h3 className="text-sm font-semibold">We start without account access.</h3>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  If we need to verify something, we’ll ask for the lowest practical read-only access. We never ask for passwords.
+                </p>
+              </div>
+            </div>
+            <span className="shrink-0 text-xs font-medium text-primary/85">Public first → read-only if needed</span>
+          </div>
+
+          <p className="mx-auto mt-6 max-w-2xl text-center text-xs leading-5 text-muted-foreground/90">
             The free audit includes the review and recommendations. Fixing the issues is separate.
           </p>
         </div>
       </PageSection>
-      <PageSection spacing="compact" className="py-10 md:py-12" containerClassName="px-5 sm:px-6 lg:px-8">
-        <div className="tracking-audit-trust-card mx-auto flex max-w-5xl flex-col gap-4 rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-          <div className="flex items-start gap-3">
-            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
-            <div>
-              <h2 className="text-base font-semibold">We start without account access.</h2>
-              <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                If we need to verify something, we’ll ask for the lowest practical read-only access. We never ask for passwords.
-              </p>
-            </div>
-          </div>
-          <span className="shrink-0 text-xs font-medium text-primary/75">Public first → read-only if needed</span>
-        </div>
-      </PageSection>
 
-      <PageSection surface="quiet" spacing="spacious" className="py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection surface="quiet" spacing="spacious" className="py-12 md:py-16" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
           title="Here’s how the free audit works."
           description="A simple review from application to scorecard."
@@ -1157,10 +1152,10 @@ const TrackingAuditProfessionalServices = () => {
           accordionClassName="!overflow-visible !rounded-none !border-0 !bg-transparent"
           contentClassName="max-w-[46rem]"
           sectionClassName="bg-transparent"
-          sectionSpacingClassName="py-14 md:py-20"
+          sectionSpacingClassName="py-12 md:py-16"
         />
 
-        <section className="tracking-audit-final-cta relative overflow-hidden border-t border-white/[0.05] py-16 md:py-24">
+        <section className="tracking-audit-final-cta relative overflow-hidden border-t border-white/[0.05] py-14 md:py-20">
           <div aria-hidden="true" className="pointer-events-none absolute inset-0">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_58%_55%_at_50%_100%,rgba(51,204,153,0.09),transparent_68%),radial-gradient(ellipse_45%_50%_at_20%_45%,rgba(0,175,239,0.055),transparent_72%)]" />
             <div className="absolute left-[18%] right-[18%] top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
