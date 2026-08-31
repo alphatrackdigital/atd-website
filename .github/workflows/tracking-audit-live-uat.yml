@@ -1,4 +1,4 @@
-name: Tracking Audit Controlled Dedupe UAT
+name: Tracking Audit Dedupe Record Verification
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  dedupe-uat:
+  verify-dedupe-record:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -20,114 +20,77 @@ jobs:
       - name: Check out disposable UAT branch
         uses: actions/checkout@v4
 
-      - name: Submit first application and immediate replay
+      - name: Fetch fixed dedupe record probe
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p uat-dedupe-evidence
+          mkdir -p uat-dedupe-record-evidence
+          STATUS="$(curl -sS -o uat-dedupe-record-evidence/brevo-records.json -w '%{http_code}'             "$QA_BASE_URL/api/leads?atd_qa_probe=uat_records")"
+          echo "probe_status=$STATUS"
+          cat uat-dedupe-record-evidence/brevo-records.json
+          test "$STATUS" = "200"
 
-          cat > /tmp/first.json <<'JSON'
-          {
-            "source": "tracking_audit_offer",
-            "firstName": "ATD",
-            "lastName": "Dedupe UAT",
-            "email": "alphatrackdigital+tracking-audit-dedupe-uat-20260831@gmail.com",
-            "company": "ATD Tracking Audit Dedupe UAT",
-            "websiteUrl": "https://alphatrack.digital",
-            "industry": "professional_services",
-            "role": "founder_ceo",
-            "decisionInfluence": "final_decision_maker",
-            "monthlyAdSpendBand": "6000_14999",
-            "adPlatforms": ["meta_ads", "google_ads"],
-            "trackingMaturity": "disconnected",
-            "primaryConversionType": "lead_form",
-            "measurementProblem": "conflicting_numbers",
-            "urgency": "before_scaling",
-            "optIn": false,
-            "attribution": {
-              "utmSource": "meta",
-              "utmMedium": "paid_social",
-              "utmCampaign": "tracking_audit_dedupe_uat",
-              "utmContent": "github_actions_api_dedupe",
-              "fbclid": "uat-dedupe-fbclid-20260831",
-              "landingPage": "/offer/tracking-audit/?utm_source=meta&utm_medium=paid_social&utm_campaign=tracking_audit_dedupe_uat&utm_content=github_actions_api_dedupe&fbclid=uat-dedupe-fbclid-20260831"
-            },
-            "metaEventId": "atd-qa-dedupe-first-20260831"
-          }
-          JSON
-
-          cat > /tmp/replay.json <<'JSON'
-          {
-            "source": "tracking_audit_offer",
-            "firstName": "ATD",
-            "lastName": "Dedupe UAT",
-            "email": "alphatrackdigital+tracking-audit-dedupe-uat-20260831@gmail.com",
-            "company": "ATD Tracking Audit Dedupe UAT",
-            "websiteUrl": "https://alphatrack.digital",
-            "industry": "professional_services",
-            "role": "founder_ceo",
-            "decisionInfluence": "final_decision_maker",
-            "monthlyAdSpendBand": "6000_14999",
-            "adPlatforms": ["meta_ads", "google_ads"],
-            "trackingMaturity": "disconnected",
-            "primaryConversionType": "lead_form",
-            "measurementProblem": "conflicting_numbers",
-            "urgency": "before_scaling",
-            "optIn": false,
-            "attribution": {
-              "utmSource": "meta",
-              "utmMedium": "paid_social",
-              "utmCampaign": "tracking_audit_dedupe_uat",
-              "utmContent": "github_actions_api_dedupe",
-              "fbclid": "uat-dedupe-fbclid-20260831",
-              "landingPage": "/offer/tracking-audit/?utm_source=meta&utm_medium=paid_social&utm_campaign=tracking_audit_dedupe_uat&utm_content=github_actions_api_dedupe&fbclid=uat-dedupe-fbclid-20260831"
-            },
-            "metaEventId": "atd-qa-dedupe-replay-20260831"
-          }
-          JSON
-
-          FIRST_STATUS="$(curl -sS -o uat-dedupe-evidence/first-response.json -w '%{http_code}'             -X POST -H 'Content-Type: application/json' --data-binary @/tmp/first.json             "$QA_BASE_URL/api/leads")"
-          echo "first_status=$FIRST_STATUS"
-          cat uat-dedupe-evidence/first-response.json
-          test "$FIRST_STATUS" = "200"
-
-          sleep 2
-
-          REPLAY_STATUS="$(curl -sS -o uat-dedupe-evidence/replay-response.json -w '%{http_code}'             -X POST -H 'Content-Type: application/json' --data-binary @/tmp/replay.json             "$QA_BASE_URL/api/leads")"
-          echo "replay_status=$REPLAY_STATUS"
-          cat uat-dedupe-evidence/replay-response.json
-          test "$REPLAY_STATUS" = "200"
-
-      - name: Verify duplicate semantics
+      - name: Verify single lifecycle after replay
         shell: bash
         run: |
           set -euo pipefail
           node <<'NODE'
           const fs = require('fs');
-          const first = JSON.parse(fs.readFileSync('uat-dedupe-evidence/first-response.json', 'utf8'));
-          const replay = JSON.parse(fs.readFileSync('uat-dedupe-evidence/replay-response.json', 'utf8'));
+          const probe = JSON.parse(fs.readFileSync('uat-dedupe-record-evidence/brevo-records.json', 'utf8'));
+          const a = probe.contact?.attributes || {};
+          const tasks = Array.isArray(probe.tasks?.items) ? probe.tasks.items : [];
+          const listIds = Array.isArray(probe.contact?.listIds) ? probe.contact.listIds : [];
+          const applicantEvents = Array.isArray(probe.emailEvents?.applicant?.events) ? probe.emailEvents.applicant.events : [];
+          const auditEvents = Array.isArray(probe.emailEvents?.audit?.events) ? probe.emailEvents.audit.events : [];
+          const martechEvents = Array.isArray(probe.emailEvents?.martech?.events) ? probe.emailEvents.martech.events : [];
+          const tagged = (events, tag) => events.filter((event) => String(event.tag || '').includes(tag));
+
+          const applicantReceiptEvents = tagged(applicantEvents, 'tracking_audit_receipt');
+          const auditInternalEvents = tagged(auditEvents, 'tracking_audit_offer');
+          const martechInternalEvents = tagged(martechEvents, 'tracking_audit_offer');
 
           const checks = {
-            firstOk: first.ok === true,
-            firstNotDuplicate: first.duplicate === false,
-            firstConfirmed: first.pendingConfirmation === false,
-            firstEventId: first.metaEventId === 'atd-qa-dedupe-first-20260831',
-            replayOk: replay.ok === true,
-            replayDuplicate: replay.duplicate === true,
-            replayConfirmed: replay.pendingConfirmation === false,
-            stableEventId: replay.metaEventId === first.metaEventId,
-            replayDidNotReplaceEventId: replay.metaEventId !== 'atd-qa-dedupe-replay-20260831',
+            probeOk: probe.ok === true,
+            email: probe.contact?.email === process.env.TEST_EMAIL,
+            auditList: listIds.includes(11),
+            company: a.COMPANY === 'ATD Tracking Audit Dedupe UAT',
+            lastName: a.LASTNAME === 'Dedupe UAT',
+            source: a.LEAD_SOURCE === 'tracking_audit_offer',
+            auditStatus: a.AUDIT_STATUS === 'Applied',
+            handoff: a.AUDIT_HANDOFF_STATUS === 'No Sales Handoff',
+            utmCampaign: a.UTM_CAMPAIGN === 'tracking_audit_dedupe_uat',
+            utmContent: a.UTM_CONTENT === 'github_actions_api_dedupe',
+            fbclid: a.FBCLID === 'uat-dedupe-fbclid-20260831',
+            taskApi: probe.tasks?.apiOk === true,
+            exactlyOneTask: tasks.length === 1,
+            taskOpen: tasks[0]?.done === false,
+            noDealLink: !Array.isArray(tasks[0]?.dealsIds) || tasks[0].dealsIds.length === 0,
+            oneApplicantRequest: applicantReceiptEvents.filter((e) => e.event === 'requests').length === 1,
+            oneApplicantDelivered: applicantReceiptEvents.filter((e) => e.event === 'delivered').length === 1,
+            oneAuditRequest: auditInternalEvents.filter((e) => e.event === 'requests').length === 1,
+            oneAuditDelivered: auditInternalEvents.filter((e) => e.event === 'delivered').length === 1,
+            oneMartechRequest: martechInternalEvents.filter((e) => e.event === 'requests').length === 1,
+            oneMartechDelivered: martechInternalEvents.filter((e) => e.event === 'delivered').length === 1,
           };
 
-          console.log(JSON.stringify({ checks, first, replay }, null, 2));
+          console.log(JSON.stringify({
+            checks,
+            taskCount: tasks.length,
+            applicantReceiptEvents,
+            auditInternalEvents,
+            martechInternalEvents,
+            contact: probe.contact,
+            tasks: probe.tasks,
+          }, null, 2));
+
           const failed = Object.entries(checks).filter(([, value]) => value !== true).map(([key]) => key);
-          if (failed.length) throw new Error(`Dedupe UAT failed: ${failed.join(', ')}`);
+          if (failed.length) throw new Error(`Dedupe side-effect verification failed: ${failed.join(', ')}`);
           NODE
 
-      - name: Upload dedupe evidence
+      - name: Upload dedupe record evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: tracking-audit-controlled-dedupe-uat
+          name: tracking-audit-dedupe-record-verification
           if-no-files-found: error
-          path: uat-dedupe-evidence
+          path: uat-dedupe-record-evidence
