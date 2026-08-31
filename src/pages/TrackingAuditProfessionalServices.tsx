@@ -959,7 +959,7 @@ const TrackingAuditProfessionalServices = () => {
               {MEASUREMENT_JOURNEY.map(({ icon: Icon, title }, index) => (
                 <div key={title} className="text-center">
                   <div className="tracking-audit-node-ring relative z-10 mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-primary/25 bg-[#0a1017] text-primary shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
-                    <Icon className="h-5.5 w-5.5" aria-hidden="true" />
+                    <Icon className="h-[1.35rem] w-[1.35rem]" aria-hidden="true" />
                   </div>
                   <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.15em] text-primary/55">
                     {String(index + 1).padStart(2, "0")}
@@ -1077,7 +1077,7 @@ const TrackingAuditProfessionalServices = () => {
                 ["03", "One core enquiry journey"],
                 ["04", "Up to two paid platforms"],
               ].map(([number, label]) => (
-                <div key={label} className="rounded-2xl border border-white/[0.07] bg-background/35 p-4 shadow-[0_10px_28px_rgba(0,0,0,0.05)]">
+                <div key={label} className="rounded-2xl border border-white/[0.07] bg-background/[0.35] p-4 shadow-[0_10px_28px_rgba(0,0,0,0.05)]">
                   <p className="text-xs font-semibold text-primary/75">{number}</p>
                   <p className="mt-2 text-sm font-medium leading-5 text-foreground/90">{label}</p>
                 </div>
