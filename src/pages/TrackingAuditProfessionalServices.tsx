@@ -122,8 +122,8 @@ const ROLE_OPTIONS = [
 
 const DECISION_OPTIONS = [
   { value: "final_decision_maker", label: "I make the decision" },
-  { value: "strong_influence", label: "I strongly influence it" },
-  { value: "contributor", label: "I contribute" },
+  { value: "strong_influence", label: "I help choose" },
+  { value: "contributor", label: "I’m contributing" },
   { value: "researching", label: "I’m researching" },
 ] as const;
 
@@ -278,12 +278,95 @@ const Field = ({ label, htmlFor, error, children }: { label: string; htmlFor: st
 
 type TrackingAuditTheme = "dark" | "light";
 
+type FormSelectOption = {
+  value: string;
+  label: string;
+};
+
 const TRACKING_AUDIT_THEME_STORAGE_KEY = "atd-tracking-audit-theme";
+
+const useMobileNativeSelects = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+
+    const query = window.matchMedia("(max-width: 767px)");
+    const sync = () => setIsMobile(query.matches);
+    sync();
+
+    query.addEventListener?.("change", sync);
+    return () => query.removeEventListener?.("change", sync);
+  }, []);
+
+  return isMobile;
+};
+
+const ResponsiveFormSelect = ({
+  id,
+  label,
+  value,
+  onValueChange,
+  options,
+  placeholder,
+  error,
+  theme,
+  isMobile,
+}: {
+  id: string;
+  label: string;
+  value?: string;
+  onValueChange: (value: string) => void;
+  options: readonly FormSelectOption[];
+  placeholder: string;
+  error?: string;
+  theme: TrackingAuditTheme;
+  isMobile: boolean;
+}) => {
+  if (isMobile) {
+    return (
+      <select
+        id={id}
+        aria-label={label}
+        value={value ?? ""}
+        onChange={(event) => onValueChange(event.target.value)}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-err` : undefined}
+        className={`${fieldClassName} w-full appearance-auto px-3`}
+      >
+        <option value="" disabled>{placeholder}</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>{option.label}</option>
+        ))}
+      </select>
+    );
+  }
+
+  return (
+    <Select onValueChange={onValueChange} value={value}>
+      <SelectTrigger
+        id={id}
+        aria-label={label}
+        className={fieldClassName}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-err` : undefined}
+      >
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
+        {options.map((option) => (
+          <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+};
 
 const TrackingAuditProfessionalServices = () => {
   const location = useLocation();
   const finalCtaTo = withCampaignSearch(TRACKING_AUDIT_ANCHOR_CTA.to, location.search);
   const [theme, setTheme] = useState<TrackingAuditTheme>("dark");
+  const isMobileNativeSelect = useMobileNativeSelects();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -483,7 +566,7 @@ const TrackingAuditProfessionalServices = () => {
                   </span>
                 ))}
               </div>
-              <p className="mt-6 max-w-[35rem] text-xs leading-5 text-foreground/50 sm:text-sm">
+              <p className="mt-6 max-w-[35rem] text-xs leading-5 text-foreground/65 sm:text-sm">
                 For consultancies, agencies, legal, accounting, advisory and other service firms that rely on enquiries, calls or consultations.
               </p>
 
@@ -619,50 +702,56 @@ const TrackingAuditProfessionalServices = () => {
                         transition={{ duration: 0.18 }}
                       >
                         <section className="space-y-3" aria-labelledby="step2-business-context">
-                          <p id="step2-business-context" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Business context</p>
-                          <div>
-
-                            <Field label="Your role" htmlFor="f-role" error={errors.role?.message}>
-                              <Controller control={control} name="role" render={({ field }) => (
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                  <SelectTrigger id="f-role" className={fieldClassName} aria-invalid={!!errors.role} aria-describedby={errors.role ? "f-role-err" : undefined}>
-                                    <SelectValue placeholder="Select role" />
-                                  </SelectTrigger>
-                                  <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
-                                    {ROLE_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
-                                  </SelectContent>
-                                </Select>
-                              )} />
-                            </Field>
-                          </div>
+                          <p id="step2-business-context" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">Business context</p>
+                          <Field label="Your role" htmlFor="f-role" error={errors.role?.message}>
+                            <Controller control={control} name="role" render={({ field }) => (
+                              <ResponsiveFormSelect
+                                id="f-role"
+                                label="Your role"
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                options={ROLE_OPTIONS}
+                                placeholder="Select role"
+                                error={errors.role?.message}
+                                theme={theme}
+                                isMobile={isMobileNativeSelect}
+                              />
+                            )} />
+                          </Field>
                         </section>
 
                         <section className="mt-5 space-y-4 border-t border-white/[0.06] pt-5" aria-labelledby="step2-marketing-setup">
-                          <p id="step2-marketing-setup" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Marketing setup</p>
+                          <p id="step2-marketing-setup" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">Marketing setup</p>
 
-                          <Field label="Your role in decisions like this" htmlFor="f-decision" error={errors.decisionInfluence?.message}>
+                          <Field label="Are you involved in choosing a provider?" htmlFor="f-decision" error={errors.decisionInfluence?.message}>
                             <Controller control={control} name="decisionInfluence" render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <SelectTrigger id="f-decision" className={fieldClassName} aria-invalid={!!errors.decisionInfluence} aria-describedby={errors.decisionInfluence ? "f-decision-err" : undefined}>
-                                  <SelectValue placeholder="Select your role in the decision" />
-                                </SelectTrigger>
-                                <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
-                                  {DECISION_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
-                                </SelectContent>
-                              </Select>
+                              <ResponsiveFormSelect
+                                id="f-decision"
+                                label="Are you involved in choosing a provider?"
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                options={DECISION_OPTIONS}
+                                placeholder="Select the closest answer"
+                                error={errors.decisionInfluence?.message}
+                                theme={theme}
+                                isMobile={isMobileNativeSelect}
+                              />
                             )} />
                           </Field>
 
                           <Field label="Rough monthly ad spend" htmlFor="f-spend" error={errors.monthlyAdSpendBand?.message}>
                             <Controller control={control} name="monthlyAdSpendBand" render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <SelectTrigger id="f-spend" className={fieldClassName} aria-invalid={!!errors.monthlyAdSpendBand} aria-describedby={errors.monthlyAdSpendBand ? "f-spend-err" : undefined}>
-                                  <SelectValue placeholder="Select spend range" />
-                                </SelectTrigger>
-                                <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
-                                  {SPEND_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
-                                </SelectContent>
-                              </Select>
+                              <ResponsiveFormSelect
+                                id="f-spend"
+                                label="Rough monthly ad spend"
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                options={SPEND_OPTIONS}
+                                placeholder="Select spend range"
+                                error={errors.monthlyAdSpendBand?.message}
+                                theme={theme}
+                                isMobile={isMobileNativeSelect}
+                              />
                             )} />
                           </Field>
 
@@ -677,7 +766,9 @@ const TrackingAuditProfessionalServices = () => {
                             return (
                               <div className="space-y-4">
                                 <Field label="Main ad platform" htmlFor="f-primary-platform" error={errors.adPlatforms?.message}>
-                                  <Select
+                                  <ResponsiveFormSelect
+                                    id="f-primary-platform"
+                                    label="Main ad platform"
                                     value={primaryPlatform}
                                     onValueChange={(value) => {
                                       const nextPrimary = value as AuditPlatform;
@@ -692,19 +783,19 @@ const TrackingAuditProfessionalServices = () => {
                                       }
                                       field.onChange(nextPlatforms);
                                     }}
-                                  >
-                                    <SelectTrigger id="f-primary-platform" className={fieldClassName} aria-invalid={!!errors.adPlatforms} aria-describedby={errors.adPlatforms ? "f-primary-platform-err" : undefined}>
-                                      <SelectValue placeholder="Select main platform" />
-                                    </SelectTrigger>
-                                    <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
-                                      {PLATFORM_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
-                                    </SelectContent>
-                                  </Select>
+                                    options={PLATFORM_OPTIONS}
+                                    placeholder="Select main platform"
+                                    error={errors.adPlatforms?.message}
+                                    theme={theme}
+                                    isMobile={isMobileNativeSelect}
+                                  />
                                 </Field>
 
                                 {primaryPlatform && primaryPlatform !== "none_currently" && (
                                   <Field label="Second platform (optional)" htmlFor="f-second-platform">
-                                    <Select
+                                    <ResponsiveFormSelect
+                                      id="f-second-platform"
+                                      label="Second platform (optional)"
                                       value={secondPlatform ?? "no_second_platform"}
                                       onValueChange={(value) => {
                                         if (value === "no_second_platform") {
@@ -713,19 +804,18 @@ const TrackingAuditProfessionalServices = () => {
                                         }
                                         field.onChange([primaryPlatform, value as AuditPlatform]);
                                       }}
-                                    >
-                                      <SelectTrigger id="f-second-platform" className={fieldClassName}>
-                                        <SelectValue placeholder="No second platform" />
-                                      </SelectTrigger>
-                                      <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
-                                        <SelectItem value="no_second_platform">No second platform</SelectItem>
-                                        {secondOptions.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
-                                      </SelectContent>
-                                    </Select>
+                                      options={[
+                                        { value: "no_second_platform", label: "No second platform" },
+                                        ...secondOptions,
+                                      ]}
+                                      placeholder="No second platform"
+                                      theme={theme}
+                                      isMobile={isMobileNativeSelect}
+                                    />
                                   </Field>
                                 )}
 
-                                <p className="-mt-1 text-[11px] leading-4 text-muted-foreground/75">
+                                <p className="-mt-1 text-[11px] leading-4 text-muted-foreground/90">
                                   We’ll review up to two paid platforms where relevant.
                                 </p>
                               </div>
@@ -748,53 +838,65 @@ const TrackingAuditProfessionalServices = () => {
                         <div className="space-y-4">
                           <Field label="How clear are you on where enquiries come from?" htmlFor="f-maturity" error={errors.trackingMaturity?.message}>
                             <Controller control={control} name="trackingMaturity" render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <SelectTrigger id="f-maturity" className={fieldClassName} aria-invalid={!!errors.trackingMaturity} aria-describedby={errors.trackingMaturity ? "f-maturity-err" : undefined}>
-                                  <SelectValue placeholder="Select the closest answer" />
-                                </SelectTrigger>
-                                <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
-                                  {MATURITY_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
-                                </SelectContent>
-                              </Select>
+                              <ResponsiveFormSelect
+                                id="f-maturity"
+                                label="How clear are you on where enquiries come from?"
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                options={MATURITY_OPTIONS}
+                                placeholder="Select the closest answer"
+                                error={errors.trackingMaturity?.message}
+                                theme={theme}
+                                isMobile={isMobileNativeSelect}
+                              />
                             )} />
                           </Field>
 
                           <Field label="What enquiry action matters most?" htmlFor="f-conversion" error={errors.primaryConversionType?.message}>
                             <Controller control={control} name="primaryConversionType" render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <SelectTrigger id="f-conversion" className={fieldClassName} aria-invalid={!!errors.primaryConversionType} aria-describedby={errors.primaryConversionType ? "f-conversion-err" : undefined}>
-                                  <SelectValue placeholder="Select main enquiry action" />
-                                </SelectTrigger>
-                                <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
-                                  {CONVERSION_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
-                                </SelectContent>
-                              </Select>
+                              <ResponsiveFormSelect
+                                id="f-conversion"
+                                label="What enquiry action matters most?"
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                options={CONVERSION_OPTIONS}
+                                placeholder="Select main enquiry action"
+                                error={errors.primaryConversionType?.message}
+                                theme={theme}
+                                isMobile={isMobileNativeSelect}
+                              />
                             )} />
                           </Field>
 
                           <Field label="What’s unclear?" htmlFor="f-problem" error={errors.measurementProblem?.message}>
                             <Controller control={control} name="measurementProblem" render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <SelectTrigger id="f-problem" className={fieldClassName} aria-invalid={!!errors.measurementProblem} aria-describedby={errors.measurementProblem ? "f-problem-err" : undefined}>
-                                  <SelectValue placeholder="Select the closest issue" />
-                                </SelectTrigger>
-                                <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
-                                  {PROBLEM_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
-                                </SelectContent>
-                              </Select>
+                              <ResponsiveFormSelect
+                                id="f-problem"
+                                label="What’s unclear?"
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                options={PROBLEM_OPTIONS}
+                                placeholder="Select the closest issue"
+                                error={errors.measurementProblem?.message}
+                                theme={theme}
+                                isMobile={isMobileNativeSelect}
+                              />
                             )} />
                           </Field>
 
                           <Field label="When do you want clarity?" htmlFor="f-urgency" error={errors.urgency?.message}>
                             <Controller control={control} name="urgency" render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <SelectTrigger id="f-urgency" className={fieldClassName} aria-invalid={!!errors.urgency} aria-describedby={errors.urgency ? "f-urgency-err" : undefined}>
-                                  <SelectValue placeholder="Select timing" />
-                                </SelectTrigger>
-                                <SelectContent className={theme === "light" ? "tracking-audit-light-popover" : undefined}>
-                                  {URGENCY_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
-                                </SelectContent>
-                              </Select>
+                              <ResponsiveFormSelect
+                                id="f-urgency"
+                                label="When do you want clarity?"
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                options={URGENCY_OPTIONS}
+                                placeholder="Select timing"
+                                error={errors.urgency?.message}
+                                theme={theme}
+                                isMobile={isMobileNativeSelect}
+                              />
                             )} />
                           </Field>
                         </div>
