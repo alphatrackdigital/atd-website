@@ -1,6 +1,7 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import TrackingAuditProfessionalServices from "@/pages/TrackingAuditProfessionalServices";
 import TrackingAuditEducation from "@/pages/TrackingAuditEducation";
+import TrackingAuditRealEstate from "@/pages/TrackingAuditRealEstate";
 import { renderWithPageProviders } from "@/test/renderWithPageProviders";
 
 const completeStepOne = () => {
@@ -54,6 +55,28 @@ describe("Tracking Audit vertical pages", () => {
     expect(screen.getByRole("link", { name: "Request a Free Tracking Audit" })).toHaveAttribute(
       "href",
       "/offer/tracking-audit/education#claim",
+    );
+  });
+
+  it("Real Estate page shows its approved hero copy and auto-sets Industry", async () => {
+    renderWithPageProviders(<TrackingAuditRealEstate />, {
+      route: "/offer/tracking-audit/real-estate",
+    });
+
+    expect(
+      screen.getByRole("heading", { name: "Can you trace an ad click through enquiry, viewing and closed deal?" }),
+    ).toBeInTheDocument();
+
+    completeStepOne();
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("Industry")).toBeInTheDocument();
+    });
+    expect(screen.getByRole("combobox", { name: "Industry" })).toHaveTextContent("Real Estate");
+
+    expect(screen.getByRole("link", { name: "Request a Free Tracking Audit" })).toHaveAttribute(
+      "href",
+      "/offer/tracking-audit/real-estate#claim",
     );
   });
 

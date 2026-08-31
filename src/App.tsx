@@ -29,6 +29,7 @@ const ThankYou = lazy(routeImporters.thankYou);
 const TrackingLandingPage = lazy(routeImporters.trackingLandingPage);
 const TrackingAuditProfessionalServices = lazy(routeImporters.trackingAuditProfessionalServices);
 const TrackingAuditEducation = lazy(routeImporters.trackingAuditEducation);
+const TrackingAuditRealEstate = lazy(routeImporters.trackingAuditRealEstate);
 const PrivacyPolicy = lazy(routeImporters.privacyPolicy);
 const CookiePolicy = lazy(routeImporters.cookiePolicy);
 const TermsOfService = lazy(routeImporters.termsOfService);
@@ -109,6 +110,7 @@ export const AppRouter = () => (
         <Route path="/offer/tracking-audit" element={withRouteSuspense(TrackingLandingPage)} />
         <Route path="/offer/tracking-audit/professional-services" element={withRouteSuspense(TrackingAuditProfessionalServices)} />
         <Route path="/offer/tracking-audit/education" element={withRouteSuspense(TrackingAuditEducation)} />
+        <Route path="/offer/tracking-audit/real-estate" element={withRouteSuspense(TrackingAuditRealEstate)} />
         <Route path="*" element={withRouteSuspense(NotFound)} />
       </Route>
 

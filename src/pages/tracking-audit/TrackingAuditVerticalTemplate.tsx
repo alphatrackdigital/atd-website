@@ -87,7 +87,7 @@ const auditSchema = z.object({
 
 type AuditFormData = z.infer<typeof auditSchema>;
 type AuditPlatform = AuditFormData["adPlatforms"][number];
-export type PresetIndustry = Extract<AuditFormData["industry"], "professional_services" | "education_training">;
+export type PresetIndustry = Extract<AuditFormData["industry"], "professional_services" | "education_training" | "real_estate">;
 
 const INDUSTRY_OPTIONS = [
   { value: "professional_services", label: "Professional Services" },

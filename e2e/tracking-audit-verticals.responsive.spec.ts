@@ -29,6 +29,11 @@ const verticals = [
     heading: /Can you trace an ad click through enquiry, application and enrolment\?/i,
     industryLabel: "Education / Training",
   },
+  {
+    path: "/offer/tracking-audit/real-estate",
+    heading: /Can you trace an ad click through enquiry, viewing and closed deal\?/i,
+    industryLabel: "Real Estate",
+  },
 ] as const;
 
 for (const vertical of verticals) {
