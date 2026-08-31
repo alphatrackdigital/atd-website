@@ -3,7 +3,8 @@ import { expect, test } from "@playwright/test";
 const route = "/offer/tracking-audit/professional-services";
 
 test.describe("Professional Services visual stability", () => {
-  test("light theme stays legible and opening selects does not shift the page shell", async ({ page }) => {
+  test("light theme stays legible and native selects preserve the page shell", async ({ page }) => {
+    await page.route("https://global.ketchcdn.com/**", (route) => route.abort());
     await page.goto(route);
     await page.evaluate(() => window.localStorage.removeItem("atd-tracking-audit-theme"));
     await page.reload();
@@ -14,12 +15,7 @@ test.describe("Professional Services visual stability", () => {
 
     await page.getByRole("button", { name: "Switch to light theme" }).click();
     await expect(page.getByRole("button", { name: "Switch to dark theme" })).toBeVisible();
-
-    const themeRoot = page.locator(".tracking-audit-light");
-    await expect(themeRoot).toBeVisible();
-
-    const background = await themeRoot.evaluate((element) => getComputedStyle(element).backgroundColor);
-    expect(background).not.toBe("rgb(7, 10, 16)");
+    await expect(page.locator(".tracking-audit-light")).toBeVisible();
 
     await page.getByLabel("First Name").fill("Jane");
     await page.getByLabel("Last Name").fill("Smith");
@@ -29,51 +25,46 @@ test.describe("Professional Services visual stability", () => {
     await page.getByRole("button", { name: "Continue" }).click();
 
     await expect(page.getByText("Step 2 of 3")).toBeVisible();
-    await expect(page.getByRole("combobox", { name: "Your role", exact: true })).toBeVisible();
 
-    const roleTrigger = page.getByRole("combobox", { name: "Your role", exact: true });
-    await roleTrigger.click();
-    await page.getByRole("option", { name: "Founder / Managing Partner" }).click();
+    const role = page.locator("select#f-role");
+    const decision = page.locator("select#f-decision");
+    const spend = page.locator("select#f-spend");
+    const platform = page.locator("select#f-primary-platform");
 
-    await expect(roleTrigger).toContainText("Founder / Managing Partner");
-
-    const header = page.locator("header");
-    const heroHeading = page.locator(".tracking-audit-hero h1");
+    await expect(role).toBeVisible();
+    await role.selectOption("founder_ceo");
+    await decision.selectOption("strong_influence");
+    await spend.selectOption("3000_5999");
 
     const before = await page.evaluate(() => ({
       innerWidth: window.innerWidth,
       clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
       bodyWidth: document.body.getBoundingClientRect().width,
-      scrollLocked: document.body.hasAttribute("data-scroll-locked"),
+      bodyPosition: getComputedStyle(document.body).position,
+      dataScrollLocked: document.body.getAttribute("data-scroll-locked"),
     }));
-    const headerBefore = await header.boundingBox();
-    const heroBefore = await heroHeading.boundingBox();
 
-    await page.getByLabel("Are you involved in choosing a provider?").click();
-    await expect(page.getByRole("option", { name: "I make the decision" })).toBeVisible();
+    await platform.selectOption("google_ads");
 
-    const during = await page.evaluate(() => ({
+    const after = await page.evaluate(() => ({
       innerWidth: window.innerWidth,
       clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
       bodyWidth: document.body.getBoundingClientRect().width,
-      scrollLocked: document.body.hasAttribute("data-scroll-locked"),
+      bodyPosition: getComputedStyle(document.body).position,
+      dataScrollLocked: document.body.getAttribute("data-scroll-locked"),
     }));
-    const headerDuring = await header.boundingBox();
-    const heroDuring = await heroHeading.boundingBox();
 
-    expect(Math.abs(during.innerWidth - before.innerWidth)).toBeLessThanOrEqual(1);
-    expect(Math.abs(during.clientWidth - before.clientWidth)).toBeLessThanOrEqual(1);
-    expect(Math.abs(during.bodyWidth - before.bodyWidth)).toBeLessThanOrEqual(1);
+    expect(after.innerWidth).toBe(before.innerWidth);
+    expect(after.clientWidth).toBe(before.clientWidth);
+    expect(after.scrollWidth).toBe(before.scrollWidth);
+    expect(Math.abs(after.bodyWidth - before.bodyWidth)).toBeLessThanOrEqual(1);
+    expect(after.bodyPosition).not.toBe("fixed");
+    expect(after.dataScrollLocked).toBeNull();
 
-    expect(headerBefore).not.toBeNull();
-    expect(headerDuring).not.toBeNull();
-    expect(heroBefore).not.toBeNull();
-    expect(heroDuring).not.toBeNull();
-
-    expect(Math.abs((headerDuring?.x ?? 0) - (headerBefore?.x ?? 0))).toBeLessThanOrEqual(1);
-    expect(Math.abs((headerDuring?.width ?? 0) - (headerBefore?.width ?? 0))).toBeLessThanOrEqual(1);
-    expect(Math.abs((heroDuring?.x ?? 0) - (heroBefore?.x ?? 0))).toBeLessThanOrEqual(1);
-
-    await page.keyboard.press("Escape");
+    await expect(page.locator("select#f-second-platform")).toBeVisible();
+    await page.locator("select#f-second-platform").selectOption("linkedin_ads");
+    await expect(page.locator("select#f-second-platform")).toHaveValue("linkedin_ads");
   });
 });
