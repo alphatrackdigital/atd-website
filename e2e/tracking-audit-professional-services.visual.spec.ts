@@ -166,4 +166,61 @@ test.describe("Professional Services visual stability", () => {
     expect(styles.menuBackground).not.toBe("rgb(255, 255, 255)");
     expect(await page.evaluate(() => document.body.getAttribute("data-scroll-locked"))).toBeNull();
   });
+
+  test("mobile 390x844 preserves the final refinements in light and dark themes", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.evaluate(() => window.localStorage.setItem("atd-tracking-audit-theme", "light"));
+    await page.reload();
+    await hideExternalOverlays(page);
+
+    await expect(page.locator(".tracking-audit-light")).toBeVisible();
+    await expect(page.getByText("Human-reviewed audit")).toBeVisible();
+    await expect(page.getByText("Not an automated report")).toBeVisible();
+
+    const lightOverflow = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+      bodyPosition: getComputedStyle(document.body).position,
+      dataScrollLocked: document.body.getAttribute("data-scroll-locked"),
+    }));
+    expect(lightOverflow.scrollWidth).toBeLessThanOrEqual(lightOverflow.clientWidth + 1);
+    expect(lightOverflow.bodyPosition).not.toBe("fixed");
+    expect(lightOverflow.dataScrollLocked).toBeNull();
+
+    await page.getByRole("heading", { name: "The enquiry arrives. The source doesn’t." }).scrollIntoViewIfNeeded();
+    await expect(page.getByRole("heading", { name: "The enquiry arrives. The source doesn’t." })).toBeVisible();
+    await expect(page.locator('div[style*="radial-gradient(circle at 1px 1px"]')).toHaveCount(1);
+
+    await page.getByRole("heading", { name: "We follow one enquiry from click to handoff." }).scrollIntoViewIfNeeded();
+    await expect(page.getByRole("heading", { name: "We follow one enquiry from click to handoff." })).toBeVisible();
+
+    await advanceToStepThree(page);
+    await expect(page.getByText(/Review and recommendations are included\. Implementation is separate\./)).toBeVisible();
+
+    await expect(page.getByRole("heading", { name: "From application to scorecard in four steps." })).toBeVisible();
+    await expect(page.locator('svg path[stroke-dasharray="7 8"]')).toHaveCount(1);
+
+    const ctaHeading = page.getByRole("heading", { name: "Know which marketing is actually producing enquiries." });
+    await ctaHeading.scrollIntoViewIfNeeded();
+    await expect(ctaHeading).toBeVisible();
+    const ctaBox = await ctaHeading.boundingBox();
+    expect(ctaBox).not.toBeNull();
+    expect(ctaBox?.x ?? -1).toBeGreaterThanOrEqual(0);
+    expect((ctaBox?.x ?? 0) + (ctaBox?.width ?? 0)).toBeLessThanOrEqual(390);
+
+    const darkToggle = page.getByRole("button", { name: "Switch to dark theme" });
+    await darkToggle.click();
+    await expect(page.locator(".tracking-audit-light")).toHaveCount(0);
+
+    const darkOverflow = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+      bodyPosition: getComputedStyle(document.body).position,
+      dataScrollLocked: document.body.getAttribute("data-scroll-locked"),
+    }));
+    expect(darkOverflow.scrollWidth).toBeLessThanOrEqual(darkOverflow.clientWidth + 1);
+    expect(darkOverflow.bodyPosition).not.toBe("fixed");
+    expect(darkOverflow.dataScrollLocked).toBeNull();
+  });
+
 });
