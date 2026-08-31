@@ -186,9 +186,9 @@ const JOURNEY_BREAKS = [
 ] as const;
 
 const REPORTING_SNAPSHOT = [
-  { label: "Ad platform", value: "14 leads", detail: "Campaign says it generated fourteen." },
-  { label: "Analytics", value: "9 conversions", detail: "Website reporting only sees nine." },
-  { label: "CRM / inbox", value: "11 enquiries", detail: "The team receives eleven enquiries." },
+  { label: "Ad platform", value: "14 leads", detail: "Reports 14 leads." },
+  { label: "Analytics", value: "9 conversions", detail: "Shows 9 conversions." },
+  { label: "CRM / inbox", value: "11 enquiries", detail: "Receives 11 enquiries." },
 ] as const;
 
 const SCORECARD_PREVIEW = [
@@ -606,10 +606,10 @@ const TrackingAuditProfessionalServices = () => {
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="pt-2 lg:pt-0">
               <HeroEyebrow>Free Conversion Tracking Audit</HeroEyebrow>
 
-              <h1 className="title-safe mt-5 max-w-[36rem] text-balance text-[2.55rem] font-extrabold leading-[1.02] tracking-tight sm:text-5xl md:text-[3.4rem] lg:text-[3.6rem]">
+              <h1 className="title-safe mt-5 max-w-[36rem] overflow-visible text-balance text-[2.55rem] font-extrabold leading-[1.08] tracking-tight sm:text-5xl md:text-[3.4rem] lg:text-[3.6rem]">
                 <span className="block">Know which ads are bringing you</span>{" "}
-                <span className="block text-gradient-atd-hero sm:whitespace-nowrap">real enquiries</span>{" "}
-                <span className="block text-gradient-atd-hero sm:whitespace-nowrap">and booked calls.</span>
+                <span className="block overflow-visible pb-[0.12em] text-gradient-atd-hero sm:whitespace-nowrap">real enquiries</span>{" "}
+                <span className="-mt-[0.06em] block overflow-visible pb-[0.16em] text-gradient-atd-hero sm:whitespace-nowrap">and booked calls.</span>
               </h1>
 
               <p className="mt-5 max-w-[35rem] text-base leading-7 text-foreground/72 md:text-lg md:leading-8">
@@ -1008,97 +1008,110 @@ const TrackingAuditProfessionalServices = () => {
         />
 
         <div className="mx-auto max-w-[76rem]">
-          <div className="relative hidden px-3 pt-8 md:block lg:px-5">
-            <div
-              className="absolute left-[12.5%] right-[12.5%] top-[3.05rem] h-px bg-gradient-to-r from-atd-blue/25 via-primary/55 to-atd-cyan/25"
-              aria-hidden="true"
-            />
-            <motion.div
-              aria-hidden="true"
-              className="absolute left-[12.5%] right-[12.5%] top-[3.02rem] h-[2px] origin-left bg-gradient-to-r from-transparent via-primary to-atd-cyan/70"
-              animate={
-                prefersReducedMotion
-                  ? { opacity: 0.35, scaleX: 1 }
-                  : { opacity: [0, 0.95, 0.8, 0], scaleX: [0, 0.72, 1, 1] }
-              }
-              transition={
-                prefersReducedMotion
-                  ? { duration: 0 }
-                  : { duration: 6.8, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.4 }
-              }
-              style={{ transformOrigin: "left" }}
-            />
-            <motion.span
-              aria-hidden="true"
-              className="absolute top-[2.77rem] z-30 h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_20px_rgba(51,204,153,0.82)]"
-              animate={
-                prefersReducedMotion
-                  ? { left: "12.5%", opacity: 0.75 }
-                  : { left: ["12.5%", "87.5%"], opacity: [0, 1, 1, 0] }
-              }
-              transition={
-                prefersReducedMotion
-                  ? { duration: 0 }
-                  : { duration: 6.8, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.4 }
-              }
-            />
-
-            {JOURNEY_BREAKS.map((item, index) => (
+          <div className="relative hidden px-3 pt-10 md:block lg:px-5" data-journey-sequence>
+            <div className="absolute inset-x-3 bottom-0 top-0 lg:inset-x-5">
+              <div
+                className="absolute left-[12.5%] right-[12.5%] top-[3.05rem] h-px bg-gradient-to-r from-atd-blue/25 via-primary/55 to-atd-cyan/25"
+                aria-hidden="true"
+              />
               <motion.div
-                key={item.label}
-                data-journey-break={index}
-                className="absolute top-0 z-20 w-max -translate-x-1/2 text-center"
-                style={{ left: item.position }}
+                aria-hidden="true"
+                className="absolute left-[12.5%] right-[12.5%] top-[3.02rem] h-[2px] origin-left bg-gradient-to-r from-transparent via-primary to-atd-cyan/70"
                 animate={
                   prefersReducedMotion
-                    ? { opacity: 0.9 }
-                    : { opacity: [0.76, 0.76, 1, 0.76], y: [0, 0, -2, 0] }
+                    ? { opacity: 0.35, scaleX: 1 }
+                    : { opacity: [0, 0.95, 0.82, 0], scaleX: [0, 0.28, 0.7, 1] }
                 }
                 transition={
                   prefersReducedMotion
                     ? { duration: 0 }
-                    : { duration: 6.8, repeat: Infinity, delay: 1.15 + index * 1.55 }
+                    : { duration: 8.4, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.25 }
                 }
-              >
-                <span className="block rounded-full border border-amber-300/25 bg-background/95 px-3 py-1.5 text-[11px] font-semibold text-amber-100/70 shadow-[0_8px_24px_rgba(0,0,0,0.10)] backdrop-blur">
-                  {item.label}
-                </span>
-                <span
-                  data-journey-diamond
-                  className="absolute left-1/2 top-[2.73rem] block h-2.5 w-2.5 -translate-x-1/2"
-                  aria-hidden="true"
+                style={{ transformOrigin: "left" }}
+              />
+              <motion.span
+                aria-hidden="true"
+                className="absolute top-[2.77rem] z-30 h-2.5 w-2.5 -translate-x-1/2 rounded-full bg-primary shadow-[0_0_20px_rgba(51,204,153,0.82)]"
+                animate={
+                  prefersReducedMotion
+                    ? { left: "12.5%", opacity: 0.75 }
+                    : { left: ["12.5%", "37.5%", "62.5%", "87.5%"], opacity: [0.2, 1, 1, 0.2] }
+                }
+                transition={
+                  prefersReducedMotion
+                    ? { duration: 0 }
+                    : { duration: 8.4, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.25 }
+                }
+              />
+
+              {JOURNEY_BREAKS.map((item, index) => (
+                <div
+                  key={item.label}
+                  data-journey-break={index}
+                  className="absolute top-0 z-20 w-max -translate-x-1/2 text-center"
+                  style={{ left: item.position }}
                 >
                   <motion.span
-                    className="block h-full w-full rotate-45 border border-amber-300/45 bg-[#0b1118]"
+                    data-journey-chip
+                    className="block rounded-full border border-amber-300/25 bg-background/95 px-3 py-1.5 text-[11px] font-semibold text-amber-100/70 shadow-[0_8px_24px_rgba(0,0,0,0.10)] backdrop-blur"
                     animate={
                       prefersReducedMotion
-                        ? { scale: 1, opacity: 0.85 }
-                        : { scale: [1, 1, 1.35, 1], opacity: [0.75, 0.75, 1, 0.75] }
+                        ? { opacity: 0.9, y: 0 }
+                        : { opacity: [0.72, 1, 0.72], y: [0, -2, 0] }
                     }
                     transition={
                       prefersReducedMotion
                         ? { duration: 0 }
-                        : { duration: 6.8, repeat: Infinity, delay: 1.25 + index * 1.55 }
+                        : { duration: 0.7, repeat: Infinity, repeatDelay: 7.7, delay: 1.05 + index * 2.1 }
                     }
-                  />
-                </span>
-              </motion.div>
-            ))}
+                  >
+                    {item.label}
+                  </motion.span>
+                  <span
+                    data-journey-diamond
+                    className="absolute left-1/2 top-[2.73rem] block h-2.5 w-2.5 -translate-x-1/2"
+                    aria-hidden="true"
+                  >
+                    <motion.span
+                      className="block h-full w-full rotate-45 border border-amber-300/45 bg-[#0b1118]"
+                      animate={
+                        prefersReducedMotion
+                          ? { scale: 1, opacity: 0.85 }
+                          : { scale: [1, 1.42, 1], opacity: [0.72, 1, 0.72] }
+                      }
+                      transition={
+                        prefersReducedMotion
+                          ? { duration: 0 }
+                          : { duration: 0.7, repeat: Infinity, repeatDelay: 7.7, delay: 1.05 + index * 2.1 }
+                      }
+                    />
+                  </span>
+                </div>
+              ))}
+            </div>
 
             <div className="relative grid grid-cols-4 gap-12 lg:gap-16">
               {MEASUREMENT_JOURNEY.map(({ icon: Icon, title }, index) => (
                 <div key={title} className="text-center">
                   <motion.div
+                    data-journey-node={index}
                     className="tracking-audit-node-ring relative z-10 mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/25 bg-[#0a1017] text-primary shadow-[0_8px_24px_rgba(0,0,0,0.10)]"
                     animate={
                       prefersReducedMotion
                         ? { scale: 1 }
-                        : { scale: [1, 1, 1.06, 1], boxShadow: ["0 8px 24px rgba(0,0,0,0.10)", "0 8px 24px rgba(0,0,0,0.10)", "0 0 30px rgba(51,204,153,0.20)", "0 8px 24px rgba(0,0,0,0.10)"] }
+                        : {
+                            scale: [1, 1.075, 1],
+                            boxShadow: [
+                              "0 8px 24px rgba(0,0,0,0.10)",
+                              "0 0 32px rgba(51,204,153,0.24)",
+                              "0 8px 24px rgba(0,0,0,0.10)",
+                            ],
+                          }
                     }
                     transition={
                       prefersReducedMotion
                         ? { duration: 0 }
-                        : { duration: 6.8, repeat: Infinity, delay: index * 1.75 }
+                        : { duration: 0.7, repeat: Infinity, repeatDelay: 7.7, delay: index * 2.1 }
                     }
                   >
                     <Icon className="h-[1.35rem] w-[1.35rem]" aria-hidden="true" />
@@ -1112,9 +1125,19 @@ const TrackingAuditProfessionalServices = () => {
             </div>
           </div>
 
-          <div className="mx-auto max-w-md md:hidden">
+          <motion.div
+            className="mx-auto max-w-md md:hidden"
+            initial={prefersReducedMotion ? false : "hidden"}
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={prefersReducedMotion ? undefined : { hidden: {}, visible: { transition: { staggerChildren: 0.16 } } }}
+          >
             {MEASUREMENT_JOURNEY.map(({ icon: Icon, title }, index) => (
-              <div key={title} className="relative flex items-center gap-4 pb-7 last:pb-0">
+              <motion.div
+                key={title}
+                className="relative flex items-center gap-4 pb-7 last:pb-0"
+                variants={prefersReducedMotion ? undefined : { hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0, transition: { duration: 0.34 } } }}
+              >
                 {index < MEASUREMENT_JOURNEY.length - 1 && (
                   <div className="absolute bottom-0 left-[21px] top-10 w-px bg-gradient-to-b from-primary/40 to-atd-blue/15" aria-hidden="true" />
                 )}
@@ -1130,9 +1153,9 @@ const TrackingAuditProfessionalServices = () => {
                     <p className="mt-1.5 text-[11px] text-amber-100/60">{JOURNEY_BREAKS[index].label}</p>
                   )}
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
         </div>
       </PageSection>
@@ -1154,10 +1177,10 @@ const TrackingAuditProfessionalServices = () => {
           <div className="absolute left-[12%] top-[28%] h-2 w-2 rounded-full bg-atd-cyan/20 shadow-[18rem_6rem_0_rgba(51,204,153,0.12),42rem_15rem_0_rgba(0,175,239,0.12),66rem_4rem_0_rgba(51,204,153,0.10)]" />
         </div>
 
-      <PageSection spacing="spacious" className="relative z-10 py-16 md:py-24 lg:py-28" containerClassName="px-5 sm:px-6 lg:px-8">
-        <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[32px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(0,175,239,0.035),rgba(51,204,153,0.025)_48%,rgba(255,255,255,0.015))] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.08)] sm:p-8 lg:p-12">
+      <PageSection spacing="spacious" className="relative z-10 py-12 md:py-16 lg:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[32px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(0,175,239,0.035),rgba(51,204,153,0.025)_48%,rgba(255,255,255,0.015))] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.08)] sm:p-7 lg:p-9">
           <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-atd-cyan/[0.06] blur-3xl" aria-hidden="true" />
-          <div className="relative grid items-center gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:gap-14">
+          <div className="relative grid items-center gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:gap-12">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/80">The familiar problem</p>
               <h2 className="mt-4 max-w-xl text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-[2.8rem] lg:leading-[1.08]">
@@ -1170,10 +1193,9 @@ const TrackingAuditProfessionalServices = () => {
             </div>
 
             <div className="overflow-hidden rounded-[24px] border border-white/[0.08] bg-background/55 shadow-[0_22px_60px_rgba(0,0,0,0.12)] backdrop-blur">
-              <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4 sm:px-6">
+              <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-3.5 sm:px-6">
                 <div>
                   <p className="text-sm font-semibold text-foreground">Three systems. Three answers.</p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">Illustrative example — not client data.</p>
                 </div>
                 <span className="rounded-full border border-primary/20 bg-primary/[0.06] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">
                   Same period
@@ -1184,7 +1206,7 @@ const TrackingAuditProfessionalServices = () => {
                 {REPORTING_SNAPSHOT.map((item, index) => (
                   <motion.div
                     key={item.label}
-                    className="grid gap-2.5 px-5 py-4 sm:grid-cols-[0.85fr_0.65fr_1.25fr] sm:items-center sm:px-6"
+                    className="grid gap-2.5 px-5 py-3.5 sm:grid-cols-[0.85fr_0.72fr_1.18fr] sm:items-center sm:px-6"
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.55 }}
@@ -1197,7 +1219,7 @@ const TrackingAuditProfessionalServices = () => {
                 ))}
               </div>
 
-              <div className="border-t border-white/[0.07] bg-primary/[0.045] px-5 py-4 text-center sm:px-6">
+              <div className="border-t border-white/[0.07] bg-primary/[0.045] px-5 py-3.5 text-center sm:px-6">
                 <p className="mx-auto max-w-2xl text-[13px] font-semibold leading-5 text-foreground/88">
                   The useful question: where did the measurement journey stop agreeing?
                 </p>
@@ -1272,7 +1294,7 @@ const TrackingAuditProfessionalServices = () => {
           className="mb-9 md:mb-11"
         />
 
-        <div className="mx-auto mb-16 grid max-w-6xl items-center gap-10 lg:grid-cols-[0.68fr_1.32fr] lg:gap-16">
+        <div className="mx-auto mb-16 grid max-w-5xl items-center gap-9 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/80">Example preview</p>
             <h3 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">See the finding, the impact and the priority at a glance.</h3>
@@ -1282,16 +1304,15 @@ const TrackingAuditProfessionalServices = () => {
           </div>
 
           <motion.div
-            className="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-white/[0.03] shadow-[0_30px_90px_rgba(0,0,0,0.16)]"
+            className="relative w-full max-w-[36rem] overflow-hidden rounded-[26px] border border-white/[0.08] bg-white/[0.03] shadow-[0_30px_90px_rgba(0,0,0,0.16)] lg:justify-self-end"
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.45 }}
           >
-            <div className="flex items-center justify-between gap-4 border-b border-white/[0.07] px-5 py-3.5 sm:px-6">
+            <div className="flex items-center justify-between gap-4 border-b border-white/[0.07] px-5 py-3 sm:px-5">
               <div>
                 <p className="text-sm font-semibold">Tracking Health Scorecard</p>
-                <p className="mt-0.5 text-[10px] text-muted-foreground">Illustrative preview</p>
               </div>
               <span className="rounded-full border border-primary/20 bg-primary/[0.07] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">
                 Sample
@@ -1302,7 +1323,7 @@ const TrackingAuditProfessionalServices = () => {
               {SCORECARD_PREVIEW.map((item, index) => (
                 <motion.div
                   key={item.label}
-                  className="px-5 py-3.5 sm:px-6"
+                  className="px-5 py-3 sm:px-5"
                   initial={{ opacity: 0, x: 10 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, amount: 0.6 }}
@@ -1327,11 +1348,11 @@ const TrackingAuditProfessionalServices = () => {
             </div>
 
             <div className="grid grid-cols-2 border-t border-white/[0.07] bg-primary/[0.035] text-center">
-              <div className="px-3 py-3">
+              <div className="px-3 py-2.5">
                 <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-primary/70">Recommended first step</p>
                 <p className="mt-1 text-[13px] font-semibold">Fix the form / CRM handoff</p>
               </div>
-              <div className="border-l border-white/[0.07] px-3 py-3">
+              <div className="border-l border-white/[0.07] px-3 py-2.5">
                 <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-primary/70">Priority</p>
                 <p className="mt-1 text-[13px] font-semibold">High</p>
               </div>
@@ -1372,53 +1393,83 @@ const TrackingAuditProfessionalServices = () => {
             <h3 className="mt-2 text-2xl font-bold tracking-tight">From application to scorecard in four steps.</h3>
           </div>
 
-          <div className="relative overflow-hidden rounded-[30px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(0,175,239,0.025),rgba(51,204,153,0.02),rgba(255,255,255,0.012))] px-5 py-9 shadow-[0_22px_64px_rgba(0,0,0,0.07)] sm:px-7 lg:px-9 lg:py-12">
+          <motion.div
+            data-process-sequence
+            className="relative overflow-hidden rounded-[30px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(0,175,239,0.025),rgba(51,204,153,0.02),rgba(255,255,255,0.012))] px-5 py-9 shadow-[0_22px_64px_rgba(0,0,0,0.07)] sm:px-7 lg:px-9 lg:py-12"
+            initial={prefersReducedMotion ? false : "hidden"}
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.32 }}
+          >
             <svg
               className="pointer-events-none absolute inset-x-[7%] top-[4.8rem] hidden h-36 w-[86%] text-primary/22 lg:block"
               viewBox="0 0 1000 180"
               preserveAspectRatio="none"
               aria-hidden="true"
             >
-              <path
+              <motion.path
+                data-process-path
                 d="M20 92 C135 24 215 24 325 92 S515 160 625 92 S815 24 980 92"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
                 strokeDasharray="7 8"
                 strokeLinecap="round"
+                variants={
+                  prefersReducedMotion
+                    ? undefined
+                    : {
+                        hidden: { pathLength: 0, opacity: 0.18 },
+                        visible: { pathLength: 1, opacity: 1, transition: { duration: 0.95, ease: "easeInOut" } },
+                      }
+                }
               />
             </svg>
 
-            <ol className="relative grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+            <motion.ol
+              className="relative grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6"
+              variants={
+                prefersReducedMotion
+                  ? undefined
+                  : { hidden: {}, visible: { transition: { delayChildren: 0.18, staggerChildren: 0.16 } } }
+              }
+            >
               {PROCESS_STEPS.map((item, index) => {
                 const Icon = [Send, ShieldCheck, Route, CheckCircle2][index];
                 return (
                   <motion.li
                     key={item.number}
-                    className={[
-                      "relative rounded-2xl border border-white/[0.08] bg-background/70 p-5 text-left shadow-[0_14px_38px_rgba(0,0,0,0.08)] backdrop-blur",
-                      index % 2 === 0 ? "lg:-translate-y-5" : "lg:translate-y-5",
-                    ].join(" ")}
-                    initial={{ opacity: 0, y: 14 }}
-                    whileInView={{ opacity: 1, y: index % 2 === 0 ? -20 : 20 }}
-                    viewport={{ once: true, amount: 0.45 }}
-                    transition={{ duration: 0.36, delay: index * 0.09 }}
+                    data-process-step={index}
+                    variants={
+                      prefersReducedMotion
+                        ? undefined
+                        : {
+                            hidden: { opacity: 0, y: 18, scale: 0.985 },
+                            visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.42, ease: "easeOut" } },
+                          }
+                    }
                   >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/[0.06] text-primary">
-                        <Icon className="h-[1.125rem] w-[1.125rem]" aria-hidden="true" />
-                      </span>
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/65">
-                        {item.number} / 04
-                      </span>
+                    <div
+                      className={[
+                        "relative h-full rounded-2xl border border-white/[0.08] bg-background/70 p-5 text-left shadow-[0_14px_38px_rgba(0,0,0,0.08)] backdrop-blur",
+                        index % 2 === 0 ? "lg:-translate-y-5" : "lg:translate-y-5",
+                      ].join(" ")}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/[0.06] text-primary">
+                          <Icon className="h-[1.125rem] w-[1.125rem]" aria-hidden="true" />
+                        </span>
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/65">
+                          {item.number} / 04
+                        </span>
+                      </div>
+                      <h4 className="mt-5 text-base font-semibold">{item.title}</h4>
+                      <p className="mt-2 text-xs leading-5 text-muted-foreground">{item.description}</p>
                     </div>
-                    <h4 className="mt-5 text-base font-semibold">{item.title}</h4>
-                    <p className="mt-2 text-xs leading-5 text-muted-foreground">{item.description}</p>
                   </motion.li>
                 );
               })}
-            </ol>
-          </div>
+            </motion.ol>
+          </motion.div>
         </div>
 
       </PageSection>
