@@ -8,7 +8,7 @@ const routerFuture = {
 } as const;
 
 describe("Header mobile nav", () => {
-  it.each(["/offer/tracking-audit", "/offer/tracking-audit/"])(
+  it.each(["/offer/tracking-audit", "/offer/tracking-audit/", "/offer/tracking-audit/professional-services", "/offer/tracking-audit/education"])(
     "uses a logo-only header on the Tracking Audit landing page at %s",
     (route) => {
       render(
