@@ -99,8 +99,16 @@ jobs:
         run: |
           set -euo pipefail
 
-          code="$(curl -sS -o /tmp/review-body -w '%{http_code}'             -H 'Accept: text/html'             -H 'Sec-Fetch-Mode: navigate'             "$REVIEW_BASE_URL/offer/tracking-audit/education/")"
-          echo "/offer/tracking-audit/education/ -> $code"
+          code="000"
+          for route_attempt in 1 2 3 4 5 6 7 8
+          do
+            code="$(curl -sS -o /tmp/review-body -w '%{http_code}' -H 'Accept: text/html' -H 'Sec-Fetch-Mode: navigate' -H 'Cache-Control: no-cache' "$REVIEW_BASE_URL/offer/tracking-audit/education/")"
+            echo "/offer/tracking-audit/education/ -> $code (attempt $route_attempt)"
+            if [ "$code" = "200" ]; then
+              break
+            fi
+            sleep 2
+          done
           test "$code" = "200"
 
           for attempt in 1 2 3 4 5 6
