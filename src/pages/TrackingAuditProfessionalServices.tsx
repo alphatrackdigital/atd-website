@@ -1109,36 +1109,30 @@ const TrackingAuditProfessionalServices = () => {
             <span className="shrink-0 text-xs font-medium text-primary/85">Public first → read-only if needed</span>
           </div>
 
-          <p className="mx-auto mt-6 max-w-2xl text-center text-xs leading-5 text-muted-foreground/90">
+          <div className="mx-auto mt-9 max-w-5xl border-t border-white/[0.07] pt-7">
+            <div className="mb-6 text-center">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">How it works</p>
+              <h3 className="mt-2 text-xl font-bold tracking-tight">From application to scorecard in four steps.</h3>
+            </div>
+
+            <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+              {PROCESS_STEPS.map((item) => (
+                <li key={item.number} className="flex gap-3 lg:block lg:text-center">
+                  <span className="tracking-audit-node-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-[#091017] text-[11px] font-bold text-primary lg:mx-auto">
+                    {item.number}
+                  </span>
+                  <div className="min-w-0 lg:mt-3">
+                    <h4 className="text-sm font-semibold">{item.title}</h4>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.description}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <p className="mx-auto mt-7 max-w-2xl text-center text-xs leading-5 text-muted-foreground/90">
             The free audit includes the review and recommendations. Fixing the issues is separate.
           </p>
-        </div>
-      </PageSection>
-
-      <PageSection surface="quiet" spacing="spacious" className="py-12 md:py-16" containerClassName="px-5 sm:px-6 lg:px-8">
-        <SectionIntro
-          title="Here’s how the free audit works."
-          description="A simple review from application to scorecard."
-          align="center"
-          maxWidth="2xl"
-          className="mb-12 md:mb-16"
-        />
-
-        <div className="relative mx-auto max-w-5xl">
-          <div className="absolute left-[12.5%] right-[12.5%] top-5 hidden h-px bg-white/[0.10] lg:block" aria-hidden="true" />
-          <ol className="grid gap-7 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-            {PROCESS_STEPS.map((item) => (
-              <li key={item.number} className="relative flex gap-4 border-b border-white/[0.06] pb-6 last:border-b-0 sm:block sm:border-b-0 sm:pb-0 lg:text-center">
-                <span className="tracking-audit-node-ring relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-[#091017] text-xs font-bold text-primary sm:mb-5 lg:mx-auto">
-                  {item.number}
-                </span>
-                <div>
-                  <h3 className="text-base font-semibold">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.description}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
         </div>
       </PageSection>
 
@@ -1152,10 +1146,10 @@ const TrackingAuditProfessionalServices = () => {
           accordionClassName="!overflow-visible !rounded-none !border-0 !bg-transparent"
           contentClassName="max-w-[46rem]"
           sectionClassName="bg-transparent"
-          sectionSpacingClassName="py-12 md:py-16"
+          sectionSpacingClassName="py-10 md:py-14"
         />
 
-        <section className="tracking-audit-final-cta relative overflow-hidden border-t border-white/[0.05] py-14 md:py-20">
+        <section className="tracking-audit-final-cta relative overflow-hidden border-t border-white/[0.05] py-12 md:py-18">
           <div aria-hidden="true" className="pointer-events-none absolute inset-0">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_58%_55%_at_50%_100%,rgba(51,204,153,0.09),transparent_68%),radial-gradient(ellipse_45%_50%_at_20%_45%,rgba(0,175,239,0.055),transparent_72%)]" />
             <div className="absolute left-[18%] right-[18%] top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
