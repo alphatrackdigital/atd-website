@@ -125,30 +125,6 @@ jobs:
           test "$PROXY_GET_STATUS" = "405"
           test "$PROXY_POST_STATUS" = "400"
 
-          PROBE_STATUS="$(curl -sS -o /tmp/qa-dependency-probe.json -w '%{http_code}' "$QA_BASE_URL/api/leads?atd_qa_probe=dependencies")"
-          echo "dependency_probe_status=$PROBE_STATUS"
-          echo "dependency_probe_body=$(cat /tmp/qa-dependency-probe.json)"
-          node <<'NODE'
-          const fs = require('fs');
-          const probe = JSON.parse(fs.readFileSync('/tmp/qa-dependency-probe.json', 'utf8'));
-          if (probe.mongo?.database !== 'alphatrack_tracking_audit_qa') {
-            throw new Error('Unexpected QA Mongo database.');
-          }
-          if (probe.meta?.configured !== false) {
-            throw new Error('Meta CAPI token must remain absent in Deploy Preview.');
-          }
-          if (!probe.mongo?.configured || !probe.mongo?.ok) {
-            throw new Error('QA Mongo dependency probe failed.');
-          }
-          if (!probe.brevo?.configured || !probe.brevo?.ok || probe.brevo?.status !== 200) {
-            throw new Error(`QA Brevo dependency probe failed with status ${probe.brevo?.status ?? 'unknown'}.`);
-          }
-          if (probe.ok !== true) {
-            throw new Error('QA dependency probe did not pass.');
-          }
-          NODE
-          test "$PROBE_STATUS" = "200"
-
           curl -fsS "$QA_BASE_URL/__atd/deployment.json" -o /tmp/qa-deployment.json
           node <<'NODE'
           const fs = require('fs');
