@@ -82,6 +82,36 @@ test.describe("Professional Services visual stability", () => {
     await expect(page.getByRole("combobox", { name: "Second platform (optional)", exact: true })).toBeVisible();
   });
 
+  test("final CTA stays fully visible and removed trust/story copy does not return", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.evaluate(() => window.localStorage.setItem("atd-tracking-audit-theme", "light"));
+    await page.reload();
+    await hideExternalOverlays(page);
+
+    await expect(page.getByText("Human-reviewed audit")).toBeVisible();
+    await expect(page.getByText("Not an automated report")).toBeVisible();
+    await expect(
+      page.getByText("The free audit includes the review and recommendations. Implementation is separate."),
+    ).toBeVisible();
+
+    await expect(page.getByText(/You may still receive the lead/)).toHaveCount(0);
+    await expect(page.getByText(/budget decisions become guesswork/)).toHaveCount(0);
+    await expect(page.getByText("Reviewed by people, not an automated report.")).toHaveCount(0);
+
+    const ctaHeading = page.getByRole("heading", { name: "Know which marketing is actually producing enquiries." });
+    await ctaHeading.scrollIntoViewIfNeeded();
+    await expect(ctaHeading).toBeVisible();
+
+    const box = await ctaHeading.boundingBox();
+    const viewport = page.viewportSize();
+    expect(box).not.toBeNull();
+    expect(viewport).not.toBeNull();
+    expect((box?.x ?? 0)).toBeGreaterThanOrEqual(0);
+    expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(viewport?.width ?? 0);
+
+    await expect(page.getByText("9 conversions", { exact: true })).toBeVisible();
+  });
+
   test("dark mode dropdown menu remains readable without browser-native white menu", async ({ page }) => {
     await page.evaluate(() => window.localStorage.setItem("atd-tracking-audit-theme", "dark"));
     await page.reload();
