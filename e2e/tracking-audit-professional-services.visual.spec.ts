@@ -8,6 +8,10 @@ test.describe("Professional Services visual stability", () => {
     await page.evaluate(() => window.localStorage.removeItem("atd-tracking-audit-theme"));
     await page.reload();
 
+    await page.addStyleTag({
+      content: "#lanyard_root, [data-ketch-backdrop='true'] { display: none !important; pointer-events: none !important; }",
+    });
+
     await page.getByRole("button", { name: "Switch to light theme" }).click();
     await expect(page.getByRole("button", { name: "Switch to dark theme" })).toBeVisible();
 
