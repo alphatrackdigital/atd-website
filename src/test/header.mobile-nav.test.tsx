@@ -8,7 +8,7 @@ const routerFuture = {
 } as const;
 
 describe("Header mobile nav", () => {
-  it.each(["/offer/tracking-audit", "/offer/tracking-audit/", "/offer/tracking-audit/professional-services", "/offer/tracking-audit/education"])(
+  it.each(["/offer/tracking-audit", "/offer/tracking-audit/"])(
     "uses a logo-only header on the Tracking Audit landing page at %s",
     (route) => {
       render(
@@ -24,6 +24,19 @@ describe("Header mobile nav", () => {
     },
   );
 
+
+  it("uses the full site navigation on Tracking Audit vertical landing pages", () => {
+    render(
+      <MemoryRouter initialEntries={["/offer/tracking-audit/professional-services"]} future={routerFuture}>
+        <Header />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("link", { name: "AlphaTrack Digital Home" })).toBeInTheDocument();
+    expect(screen.getByText("Services")).toBeInTheDocument();
+    expect(screen.getByText("Expertise")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /book a free strategy call/i })).toBeInTheDocument();
+  });
 
   it("locks body scroll when open and closes on Escape", async () => {
     render(
