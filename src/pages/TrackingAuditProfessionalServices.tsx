@@ -285,7 +285,7 @@ const fieldClassName =
 
 const Field = ({ label, htmlFor, error, children }: { label: string; htmlFor: string; error?: string; children: ReactNode }) => (
   <div>
-    <label htmlFor={htmlFor} className="mb-1.5 block text-sm font-medium text-foreground/90">
+    <label htmlFor={htmlFor} className="mb-1.5 block text-[12px] font-semibold leading-4 text-foreground/82">
       {label}
     </label>
     {children}
@@ -367,7 +367,7 @@ const FormSelect = ({
         }}
         className={[
           "flex h-10 w-full items-center justify-between gap-3 rounded-xl border px-3 text-left text-[13px] font-medium outline-none transition-all",
-          "border-white/[0.09] bg-white/[0.035] text-foreground hover:border-primary/25 hover:bg-white/[0.05]",
+          "border-border bg-card text-card-foreground shadow-[0_1px_0_rgba(255,255,255,0.025)] hover:border-primary/30 hover:bg-accent",
           "focus-visible:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/20",
           error ? "border-red-500/45" : "",
         ].join(" ")}
@@ -386,7 +386,7 @@ const FormSelect = ({
           id={`${id}-listbox`}
           role="listbox"
           aria-label={label}
-          className="absolute left-0 right-0 z-[80] mt-1.5 max-h-56 overflow-y-auto rounded-xl border border-border bg-card p-1.5 text-card-foreground shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
+          className="absolute left-0 right-0 z-[80] mt-1.5 max-h-56 overflow-y-auto rounded-xl border border-border bg-card p-1.5 text-card-foreground shadow-[0_20px_50px_rgba(0,0,0,0.32)]"
         >
           {options.map((option) => {
             const isSelected = option.value === value;
