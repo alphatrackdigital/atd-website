@@ -1,28 +1,28 @@
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { z } from "zod";
 import { toast } from "sonner";
 import {
+  ArrowDown,
+  ArrowLeft,
   ArrowRight,
   BarChart3,
   Check,
   CheckCircle2,
   Code2,
   Gauge,
-  Layers3,
+  Globe2,
   Loader2,
   Route,
   Send,
   ShieldCheck,
-  Target,
 } from "lucide-react";
 
 import SEO from "@/components/shared/SEO";
-import CTASection from "@/components/shared/CTASection";
 import FAQAccordion, { type FAQItem } from "@/components/shared/FAQAccordion";
 import HeroEyebrow from "@/components/shared/HeroEyebrow";
 import PageSection from "@/components/shared/PageSection";
@@ -38,14 +38,46 @@ import {
 } from "@/components/ui/select";
 import { companyProfile } from "@/data/companyProfile";
 import { submitLead } from "@/lib/leads";
+import { withCampaignSearch } from "@/lib/campaignAttribution";
 import { pushLeadSubmissionEvent } from "@/lib/tracking";
+
+const normalizeWebsiteUrl = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+};
+
+const isValidWebsiteUrl = (value: string) => {
+  try {
+    const url = new URL(normalizeWebsiteUrl(value));
+    const hostname = url.hostname.toLowerCase();
+
+    if (url.protocol !== "http:" && url.protocol !== "https:") return false;
+    if (!hostname.includes(".") || hostname.startsWith(".") || hostname.endsWith(".")) return false;
+    if (hostname === "localhost" || hostname.includes("..")) return false;
+
+    const labels = hostname.split(".");
+    const validLabel = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i;
+    if (labels.some((label) => !validLabel.test(label))) return false;
+
+    const topLevelDomain = labels.at(-1) ?? "";
+    return /^[a-z]{2,63}$/i.test(topLevelDomain) || /^xn--[a-z0-9-]{2,59}$/i.test(topLevelDomain);
+  } catch {
+    return false;
+  }
+};
 
 const auditSchema = z.object({
   firstName: z.string().trim().min(1, "Required").max(100),
   lastName: z.string().trim().min(1, "Required").max(100),
   email: z.string().trim().email("Enter a valid work email").max(255),
   company: z.string().trim().min(1, "Required").max(200),
-  websiteUrl: z.string().trim().url("Enter a full website URL, including https://").max(500),
+  websiteUrl: z
+    .string()
+    .trim()
+    .min(1, "Enter your website")
+    .max(500)
+    .refine(isValidWebsiteUrl, "Enter a valid website, e.g. company.com"),
   industry: z.enum(["professional_services", "education_training", "ecommerce_dtc", "real_estate", "other"], {
     required_error: "Select your industry",
   }),
@@ -61,13 +93,13 @@ const auditSchema = z.object({
   ),
   adPlatforms: z.array(z.enum(["meta_ads", "google_ads", "microsoft_ads", "linkedin_ads", "tiktok_ads", "other", "none_currently"])).min(1, "Select at least one option"),
   trackingMaturity: z.enum(["not_sure", "basic", "partial", "disconnected", "confident"], {
-    required_error: "Select the closest description",
+    required_error: "Select your tracking confidence",
   }),
   primaryConversionType: z.enum(["lead_form", "booked_call_appointment", "whatsapp_message", "ecommerce_purchase", "application_enrolment", "other"], {
-    required_error: "Select your primary conversion",
+    required_error: "Select your main conversion",
   }),
   measurementProblem: z.enum(["unclear_campaign_performance", "conflicting_numbers", "missing_conversion_tracking", "leads_without_attribution", "browser_server_signal_gap", "other"], {
-    required_error: "Select the biggest measurement problem",
+    required_error: "Select the closest issue",
   }),
   urgency: z.enum(["before_scaling", "within_30_days", "one_to_three_months", "exploring"], {
     required_error: "Select your timing",
@@ -78,154 +110,163 @@ const auditSchema = z.object({
 type AuditFormData = z.infer<typeof auditSchema>;
 type AuditPlatform = AuditFormData["adPlatforms"][number];
 
+type ChoiceOption = {
+  value: string;
+  label: string;
+};
+
 const INDUSTRY_OPTIONS = [
-  { value: "professional_services", label: "Professional Services" },
-  { value: "education_training", label: "Education / Training" },
+  { value: "professional_services", label: "Professional services" },
+  { value: "education_training", label: "Education / training" },
   { value: "ecommerce_dtc", label: "Ecommerce / DTC" },
-  { value: "real_estate", label: "Real Estate" },
+  { value: "real_estate", label: "Real estate" },
   { value: "other", label: "Other" },
 ] as const;
 
 const ROLE_OPTIONS = [
   { value: "founder_ceo", label: "Founder / CEO" },
-  { value: "marketing_lead", label: "Marketing Manager / Head" },
-  { value: "growth_performance", label: "Growth / Performance Marketer" },
-  { value: "operations_commercial", label: "Operations / Commercial Leader" },
+  { value: "marketing_lead", label: "Marketing lead" },
+  { value: "growth_performance", label: "Growth / performance" },
+  { value: "operations_commercial", label: "Operations / commercial" },
   { value: "other", label: "Other" },
 ] as const;
 
 const DECISION_OPTIONS = [
   { value: "final_decision_maker", label: "Final decision maker" },
-  { value: "strong_influence", label: "Strong influence / recommends vendors" },
-  { value: "contributor", label: "Contributor to the decision" },
-  { value: "researching", label: "Researching / exploring" },
+  { value: "strong_influence", label: "Strong influence" },
+  { value: "contributor", label: "Contributor" },
+  { value: "researching", label: "Researching" },
 ] as const;
 
 const SPEND_OPTIONS = [
-  { value: "paused_or_not_spending", label: "Paused / not currently spending" },
-  { value: "under_1500", label: "Under GHS 1,500" },
-  { value: "1500_2999", label: "GHS 1,500–2,999" },
-  { value: "3000_5999", label: "GHS 3,000–5,999" },
-  { value: "6000_14999", label: "GHS 6,000–14,999" },
-  { value: "15000_plus", label: "GHS 15,000+" },
-  { value: "not_sure", label: "Not sure / prefer not to say" },
+  { value: "paused_or_not_spending", label: "Not spending" },
+  { value: "under_1500", label: "Under GHS 1.5k" },
+  { value: "1500_2999", label: "GHS 1.5k–3k" },
+  { value: "3000_5999", label: "GHS 3k–6k" },
+  { value: "6000_14999", label: "GHS 6k–15k" },
+  { value: "15000_plus", label: "GHS 15k+" },
+  { value: "not_sure", label: "Not sure" },
 ] as const;
 
 const PLATFORM_OPTIONS: Array<{ value: AuditPlatform; label: string }> = [
-  { value: "meta_ads", label: "Meta Ads" },
-  { value: "google_ads", label: "Google Ads" },
-  { value: "microsoft_ads", label: "Microsoft Ads" },
-  { value: "linkedin_ads", label: "LinkedIn Ads" },
-  { value: "tiktok_ads", label: "TikTok Ads" },
+  { value: "meta_ads", label: "Meta" },
+  { value: "google_ads", label: "Google" },
+  { value: "microsoft_ads", label: "Microsoft" },
+  { value: "linkedin_ads", label: "LinkedIn" },
+  { value: "tiktok_ads", label: "TikTok" },
   { value: "other", label: "Other" },
   { value: "none_currently", label: "None currently" },
 ];
 
 const MATURITY_OPTIONS = [
-  { value: "not_sure", label: "Not sure what is currently tracked" },
-  { value: "basic", label: "Basic pixel/pageview setup; little conversion visibility" },
-  { value: "partial", label: "Some conversions tracked, but gaps or reliability concerns exist" },
-  { value: "disconnected", label: "Multiple systems exist, but attribution/CRM data is disconnected or conflicting" },
-  { value: "confident", label: "Tracking appears mature; I want an independent validation" },
+  { value: "not_sure", label: "Not sure" },
+  { value: "basic", label: "Basic" },
+  { value: "partial", label: "Partly working" },
+  { value: "disconnected", label: "Disconnected" },
+  { value: "confident", label: "Confident — want validation" },
 ] as const;
 
 const CONVERSION_OPTIONS = [
   { value: "lead_form", label: "Lead form" },
-  { value: "booked_call_appointment", label: "Booked call / appointment" },
+  { value: "booked_call_appointment", label: "Booked call" },
   { value: "whatsapp_message", label: "WhatsApp / message" },
-  { value: "ecommerce_purchase", label: "Ecommerce purchase" },
+  { value: "ecommerce_purchase", label: "Purchase" },
   { value: "application_enrolment", label: "Application / enrolment" },
   { value: "other", label: "Other" },
 ] as const;
 
 const PROBLEM_OPTIONS = [
-  { value: "unclear_campaign_performance", label: "I can’t tell which campaigns produce qualified leads/customers" },
-  { value: "conflicting_numbers", label: "My platforms, analytics and CRM report different numbers" },
-  { value: "missing_conversion_tracking", label: "Important conversion actions are not reliably captured" },
-  { value: "leads_without_attribution", label: "Leads reach our CRM/inbox without useful source attribution" },
-  { value: "browser_server_signal_gap", label: "We have Pixel/server-side/CAPI or signal-quality concerns" },
+  { value: "unclear_campaign_performance", label: "I can’t tell which campaigns work" },
+  { value: "conflicting_numbers", label: "My numbers don’t match" },
+  { value: "missing_conversion_tracking", label: "Conversions are missing" },
+  { value: "leads_without_attribution", label: "Lead sources are missing" },
+  { value: "browser_server_signal_gap", label: "Browser and server tracking don’t match" },
   { value: "other", label: "Other" },
 ] as const;
 
 const URGENCY_OPTIONS = [
-  { value: "before_scaling", label: "Before we increase spend / scale" },
+  { value: "before_scaling", label: "Before scaling" },
   { value: "within_30_days", label: "Within 30 days" },
-  { value: "one_to_three_months", label: "In 1–3 months" },
-  { value: "exploring", label: "Exploring / not urgent" },
+  { value: "one_to_three_months", label: "1–3 months" },
+  { value: "exploring", label: "Exploring" },
 ] as const;
 
-const PROBLEM_SIGNALS = [
+const MEASUREMENT_JOURNEY = [
+  { icon: BarChart3, title: "Ad click" },
+  { icon: Globe2, title: "Website" },
+  { icon: Send, title: "Lead" },
+  { icon: Gauge, title: "Sale" },
+] as const;
+
+const JOURNEY_BREAKS = [
+  { label: "Source lost", position: "25%" },
+  { label: "Form not tracked", position: "50%" },
+  { label: "Lead source missing", position: "75%" },
+] as const;
+
+const AUDIT_DELIVERABLES = [
   {
-    icon: Target,
-    title: "Wasted spend is hard to spot",
-    description: "You are investing in acquisition, but you cannot confidently separate productive campaigns from expensive noise.",
+    icon: CheckCircle2,
+    title: "What we found",
+    description: "The tracking gaps or weak points we found in the journey.",
   },
   {
-    icon: Layers3,
-    title: "Your systems disagree",
-    description: "Ad platforms, analytics and CRM reports tell different stories, so routine performance decisions become harder than they should be.",
+    icon: Gauge,
+    title: "Why it matters",
+    description: "How those gaps can affect your reports and decisions.",
   },
   {
     icon: Route,
-    title: "Leads lose their source",
-    description: "Enquiries reach your inbox or CRM, but the campaign and channel context needed to judge quality is missing or unreliable.",
+    title: "What to do next",
+    description: "The fixes or checks we recommend you prioritise first.",
   },
 ] as const;
 
 const HEALTH_DIMENSIONS = [
-  { icon: Code2, title: "Conversion Capture", description: "Are the important actions actually recorded?" },
-  { icon: Gauge, title: "Signal Quality", description: "Are the captured signals technically useful and reliable?" },
-  { icon: Route, title: "Attribution", description: "Can acquisition context follow the conversion journey?" },
-  { icon: Send, title: "Lead Visibility", description: "Can you see what happens to leads after they convert?" },
-  { icon: BarChart3, title: "Data Reliability", description: "Can your team reasonably use the combined data to make decisions?" },
-] as const;
-
-const DELIVERABLES = [
-  "A Tracking Health Scorecard across the five measurement dimensions",
-  "Prioritized findings showing where confidence breaks down",
-  "Practical recommendations for what to investigate or fix first",
+  { icon: Code2, number: "01", title: "Conversion capture", description: "Are the actions that matter being tracked?" },
+  { icon: Gauge, number: "02", title: "Signal quality", description: "Is the right data reaching your ad platforms?" },
+  { icon: Route, number: "03", title: "Attribution", description: "Can you tell which campaign or source produced a result?" },
+  { icon: Send, number: "04", title: "Lead visibility", description: "Can you see where each lead came from?" },
+  { icon: BarChart3, number: "05", title: "Data reliability", description: "Do your reports agree enough to make decisions?" },
 ] as const;
 
 const PROCESS_STEPS = [
-  { number: "01", title: "Apply", description: "Share the business and measurement context behind one core conversion journey." },
-  { number: "02", title: "Fit review", description: "We review your application for fit, scope and current audit capacity." },
-  { number: "03", title: "Diagnostic", description: "If accepted, we start with public evidence and request the lowest practical read-only evidence only when needed." },
-  { number: "04", title: "Scorecard", description: "You receive the diagnostic scorecard and prioritized findings. Implementation is scoped separately if you want help fixing issues." },
+  { number: "01", title: "Apply", description: "Tell us about your business and the result you want to track." },
+  { number: "02", title: "Fit review", description: "We check that the free audit is a good fit." },
+  { number: "03", title: "Review", description: "We check one customer journey and look for gaps." },
+  { number: "04", title: "Scorecard", description: "You get clear findings and next steps." },
 ] as const;
 
 const AUDIT_FAQS: FAQItem[] = [
   {
-    question: "Is the audit really free?",
-    answer: "Yes. The audit is a bounded diagnostic for eligible businesses. Implementation or repair work is separate.",
+    question: "Will you need access to our accounts?",
+    answer: "Usually not at first. We start with what we can see publicly. If we need to confirm something, we may ask for read-only access, a screenshare or an export.",
   },
   {
-    question: "Do you need access to my accounts?",
-    answer: "Not always. We start with public/no-credential evidence. If an important finding needs confirmation, we may request the lowest practical viewer/read-only access or ask you to share evidence by screenshare or export.",
+    question: "What does the free audit cover?",
+    answer: "One company, one website, one main conversion journey and up to two paid ad platforms where relevant. You receive a Tracking Health Scorecard with the main findings and recommended next steps.",
   },
   {
-    question: "Will you ask for my passwords?",
-    answer: "No. Do not send passwords, API keys or other credentials by email or form.",
+    question: "Is implementation included?",
+    answer: "No. The free audit tells you what we found and what should happen next. If you want us to fix the issues, that work is scoped separately.",
   },
   {
-    question: "What platforms do you review?",
-    answer: "The audit focuses on the measurement journey: website conversion behavior, GTM/GA4 where applicable, paid-platform conversion evidence, source attribution and lead/CRM visibility. Deep platform review is limited to the scoped journey and up to two paid platforms.",
+    question: "How long does the review take?",
+    answer: "We aim to review applications within one business day. If your application is accepted, we’ll confirm the audit timing before we begin.",
   },
   {
-    question: "Will you fix the issues during the audit?",
-    answer: "No. The free audit diagnoses and prioritizes issues. If you want AlphaTrack Digital to implement the recommendations, that is scoped separately.",
-  },
-  {
-    question: "How quickly will I hear back?",
-    answer: "We aim to review applications within one business day. Audit acceptance and delivery timing depend on fit, scope and current capacity.",
+    question: "What if our setup is more complex?",
+    answer: "If your setup needs a deeper review across several systems, we’ll tell you before proceeding and explain what would need to be scoped separately.",
   },
 ];
 
 const TRACKING_AUDIT_ANCHOR_CTA = {
-  label: "Request a Free Tracking Audit",
+  label: "Request My Free Audit",
   to: "/offer/tracking-audit#claim",
 } as const;
 
 const STEP_ONE_FIELDS: Array<keyof AuditFormData> = ["firstName", "lastName", "email", "company", "websiteUrl"];
+const STEP_TWO_FIELDS: Array<keyof AuditFormData> = ["industry", "role", "decisionInfluence", "monthlyAdSpendBand", "adPlatforms"];
 const MIN_FILL_MS = 1500;
 const THROTTLE_MS = 5000;
 
@@ -246,8 +287,115 @@ const Field = ({ label, htmlFor, error, children }: { label: string; htmlFor: st
   </div>
 );
 
+const ChoiceGrid = ({
+  legend,
+  name,
+  value,
+  onChange,
+  options,
+  error,
+  helper,
+  columns = "two",
+}: {
+  legend: string;
+  name: string;
+  value?: string;
+  onChange: (value: string) => void;
+  options: readonly ChoiceOption[];
+  error?: string;
+  helper?: string;
+  columns?: "two" | "three";
+}) => (
+  <fieldset className="space-y-2.5" aria-invalid={!!error} aria-describedby={error ? name + "-err" : undefined}>
+    <legend className="text-sm font-medium text-foreground/90">{legend}</legend>
+    {helper && <p className="text-xs leading-5 text-muted-foreground">{helper}</p>}
+    <div className={columns === "three" ? "grid grid-cols-2 gap-2 sm:grid-cols-3" : "grid grid-cols-2 gap-2"}>
+      {options.map((option) => {
+        const checked = value === option.value;
+        const id = name + "-" + option.value;
+        return (
+          <label
+            key={option.value}
+            htmlFor={id}
+            className={[
+              "flex min-h-11 cursor-pointer items-center justify-center rounded-xl border px-3 py-2 text-center text-xs font-medium leading-4 transition-colors sm:text-[13px]",
+              checked
+                ? "border-primary/45 bg-primary/[0.12] text-primary shadow-[inset_0_0_0_1px_rgba(51,204,153,0.05)]"
+                : "border-white/[0.08] bg-white/[0.025] text-foreground/78 hover:border-white/[0.14] hover:bg-white/[0.045]",
+            ].join(" ")}
+          >
+            <input
+              id={id}
+              type="radio"
+              name={name}
+              value={option.value}
+              checked={checked}
+              onChange={() => onChange(option.value)}
+              className="sr-only"
+            />
+            {option.label}
+          </label>
+        );
+      })}
+    </div>
+    {error && <p id={name + "-err"} role="alert" className="text-xs text-red-400">{error}</p>}
+  </fieldset>
+);
+
+const SingleChoiceChips = ({
+  legend,
+  name,
+  value,
+  onChange,
+  options,
+  error,
+}: {
+  legend: string;
+  name: string;
+  value?: string;
+  onChange: (value: string) => void;
+  options: readonly ChoiceOption[];
+  error?: string;
+}) => (
+  <fieldset className="space-y-2.5" aria-invalid={!!error} aria-describedby={error ? name + "-err" : undefined}>
+    <legend className="text-sm font-medium text-foreground/90">{legend}</legend>
+    <div className="flex flex-wrap gap-2">
+      {options.map((option) => {
+        const checked = value === option.value;
+        const id = name + "-" + option.value;
+        return (
+          <label
+            key={option.value}
+            htmlFor={id}
+            className={[
+              "flex min-h-10 cursor-pointer items-center rounded-full border px-3.5 py-2 text-xs font-medium transition-colors focus-within:ring-1 focus-within:ring-primary/50",
+              checked
+                ? "border-primary/45 bg-primary/[0.12] text-primary"
+                : "border-white/[0.08] bg-white/[0.025] text-foreground/78 hover:border-white/[0.14] hover:bg-white/[0.045]",
+            ].join(" ")}
+          >
+            <input
+              id={id}
+              type="radio"
+              name={name}
+              value={option.value}
+              checked={checked}
+              onChange={() => onChange(option.value)}
+              className="sr-only"
+            />
+            {option.label}
+          </label>
+        );
+      })}
+    </div>
+    {error && <p id={name + "-err"} role="alert" className="text-xs text-red-400">{error}</p>}
+  </fieldset>
+);
+
 const TrackingLandingPage = () => {
-  const [step, setStep] = useState<1 | 2>(1);
+  const location = useLocation();
+  const finalCtaTo = withCampaignSearch(TRACKING_AUDIT_ANCHOR_CTA.to, location.search);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
@@ -268,6 +416,8 @@ const TrackingLandingPage = () => {
     defaultValues: { adPlatforms: [], marketingOptIn: false },
   });
 
+  const websiteRegistration = register("websiteUrl");
+
   const handleMeaningfulInteraction = () => {
     if (!formStartAt.current) formStartAt.current = Date.now();
     if (formStartTracked.current) return;
@@ -279,7 +429,16 @@ const TrackingLandingPage = () => {
     });
   };
 
-  const handleContinue = async () => {
+  const moveToStep = (nextStep: 1 | 2 | 3) => {
+    setStep(nextStep);
+    window.requestAnimationFrame(() => {
+      if (window.matchMedia("(max-width: 1023px)").matches) {
+        document.getElementById("claim")?.scrollIntoView({ block: "start", behavior: "auto" });
+      }
+    });
+  };
+
+  const handleStepOneContinue = async () => {
     const valid = await trigger(STEP_ONE_FIELDS, { shouldFocus: true });
     if (!valid) return;
 
@@ -291,12 +450,13 @@ const TrackingLandingPage = () => {
         lead_source: "tracking_audit_offer",
       });
     }
-    setStep(2);
-    window.requestAnimationFrame(() => {
-      if (window.matchMedia("(max-width: 1023px)").matches) {
-        document.getElementById("claim")?.scrollIntoView({ block: "start", behavior: "auto" });
-      }
-    });
+    moveToStep(2);
+  };
+
+  const handleStepTwoContinue = async () => {
+    const valid = await trigger(STEP_TWO_FIELDS, { shouldFocus: true });
+    if (!valid) return;
+    moveToStep(3);
   };
 
   const onSubmit = async (data: AuditFormData) => {
@@ -321,7 +481,7 @@ const TrackingLandingPage = () => {
         lastName: data.lastName,
         email: data.email,
         company: data.company,
-        websiteUrl: data.websiteUrl,
+        websiteUrl: normalizeWebsiteUrl(data.websiteUrl),
         industry: data.industry,
         role: data.role,
         decisionInfluence: data.decisionInfluence,
@@ -357,32 +517,41 @@ const TrackingLandingPage = () => {
     <>
       <SEO
         title="Free Conversion Tracking Audit | AlphaTrack Digital"
-        description="Request a free conversion tracking audit to understand whether your marketing data can be trusted and where measurement confidence breaks down."
+        description="Request a free conversion tracking audit to find gaps in your tracking, see where lead-source information gets lost and understand whether your marketing reports can be trusted."
         canonicalUrl="/offer/tracking-audit"
       />
 
-      <section className="relative overflow-hidden border-b border-white/[0.05] pb-12 pt-7 md:pb-20 md:pt-32 lg:pb-24 lg:pt-36">
+      <section className="relative overflow-hidden border-b border-white/[0.05] pb-12 pt-7 md:pb-16 md:pt-24 lg:flex lg:min-h-[calc(100svh-64px)] lg:flex-col lg:pb-5 lg:pt-10">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_74%_46%_at_50%_-8%,rgba(0,51,153,0.16)_0%,rgba(0,175,239,0.055)_43%,transparent_74%)]" />
-          <div className="absolute right-[-7rem] top-16 h-80 w-80 rounded-full bg-primary/[0.055] blur-[120px]" />
-          <div className="absolute bottom-[-5rem] left-[-8rem] h-96 w-96 rounded-full bg-atd-blue/[0.12] blur-[150px]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_62%_50%_at_31%_40%,rgba(0,175,239,0.12)_0%,rgba(0,51,153,0.08)_38%,transparent_72%),radial-gradient(ellipse_46%_48%_at_73%_30%,rgba(51,204,153,0.10)_0%,transparent_72%)]" />
+          <div
+            className="absolute inset-0 opacity-[0.16]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
+              backgroundSize: "46px 46px",
+              maskImage: "linear-gradient(to bottom, black 5%, rgba(0,0,0,0.72) 58%, transparent 100%)",
+            }}
+          />
+          <div className="absolute right-[-7rem] top-16 h-80 w-80 rounded-full bg-primary/[0.065] blur-[120px]" />
+          <div className="absolute bottom-[-5rem] left-[-8rem] h-96 w-96 rounded-full bg-atd-blue/[0.14] blur-[150px]" />
         </div>
 
-        <div className="container relative mx-auto px-5 sm:px-6 lg:px-8">
-          <div className="mx-auto grid max-w-6xl gap-9 lg:grid-cols-[minmax(0,1fr)_minmax(430px,500px)] lg:items-start lg:gap-12">
-            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="pt-2 lg:pt-10">
+        <div className="container relative mx-auto px-5 sm:px-6 lg:flex lg:flex-1 lg:flex-col lg:px-8">
+          <div className="mx-auto grid max-w-6xl gap-9 lg:my-auto lg:w-full lg:-translate-y-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(420px,480px)] lg:items-center lg:gap-14">
+            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="pt-2 lg:pt-0">
               <HeroEyebrow>Free Conversion Tracking Audit</HeroEyebrow>
 
-              <h1 className="title-safe mt-5 max-w-3xl text-[2.45rem] font-extrabold leading-[1.03] tracking-tight sm:text-5xl md:text-[4rem] lg:text-[4.25rem]">
-                Know whether your marketing data can be <span className="title-safe-inline text-gradient-atd-hero">trusted.</span>
+              <h1 className="title-safe mt-5 max-w-[36rem] text-[2.55rem] font-extrabold leading-[1.02] tracking-tight sm:text-5xl md:text-[3.4rem] lg:text-[3.6rem]">
+                Know what your marketing is <span className="title-safe-inline text-gradient-atd-hero">actually producing.</span>
               </h1>
 
-              <p className="mt-5 max-w-[41rem] text-base leading-7 text-muted-foreground md:text-lg md:leading-8">
-                If you’re already investing in digital acquisition but can’t clearly see which campaigns produce qualified leads or customers, we’ll review the measurement path behind one core journey and show you where confidence breaks down.
+              <p className="mt-5 max-w-[35rem] text-base leading-7 text-foreground/72 md:text-lg md:leading-8">
+                We review one customer journey to show where your tracking breaks and why your marketing reports may not be telling the full story.
               </p>
 
-              <div className="mt-6 grid gap-2.5 text-sm text-foreground/78 sm:grid-cols-3 lg:flex lg:flex-wrap lg:gap-x-5">
-                {["Application-based", "No passwords", "Read-only if evidence is needed"].map((item) => (
+              <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-foreground/78">
+                {["No passwords", "Read-only access only if needed"].map((item) => (
                   <span key={item} className="flex items-center gap-2">
                     <Check className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
                     {item}
@@ -390,19 +559,6 @@ const TrackingLandingPage = () => {
                 ))}
               </div>
 
-              <div className="mt-7 rounded-2xl border border-primary/15 bg-primary/[0.055] p-4 sm:max-w-xl sm:p-5">
-                <p className="text-sm font-semibold text-foreground">What the free audit covers</p>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  One company, one website domain, one core conversion journey and up to two paid platforms where relevant. You receive a Tracking Health Scorecard with prioritized findings.
-                </p>
-              </div>
-
-              <Button asChild variant="outline" className="group mt-7 hidden h-11 rounded-xl border-primary/25 bg-primary/[0.045] px-5 hover:border-primary/45 hover:bg-primary/[0.09] md:inline-flex">
-                <Link to="/service/conversion-tracking">
-                  Explore our measurement approach
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-                </Link>
-              </Button>
             </motion.div>
 
             <motion.div
@@ -410,14 +566,14 @@ const TrackingLandingPage = () => {
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: 0.08 }}
-              className="w-full scroll-mt-24 rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.018)_100%)] p-4 shadow-[0_22px_70px_rgba(0,0,0,0.24)] sm:p-7 md:p-8 lg:sticky lg:top-28"
+              className="w-full scroll-mt-24 rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.02)_100%)] p-4 shadow-[0_24px_64px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:p-7 md:p-8 lg:sticky lg:top-24 lg:rounded-[28px]"
             >
               {isSubmitted ? (
                 <div className="py-7 text-center" aria-live="polite">
                   <CheckCircle2 className="mx-auto h-12 w-12 text-primary" aria-hidden="true" />
                   <h2 className="mt-4 text-2xl font-semibold">Application received.</h2>
                   <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
-                    Thanks for requesting a Free Conversion Tracking Audit. We’ll review your application for fit and scope. If we can proceed, we’ll confirm the audit scope and let you know whether any read-only evidence is needed. Please do not send passwords or account credentials.
+                    Thanks for requesting a Free Conversion Tracking Audit. We’ll review your application to see if the free audit is a good fit. If it is, we’ll confirm what we’ll review and tell you if we need any read-only access. Please do not send passwords or account credentials.
                   </p>
                   <p className="mx-auto mt-4 max-w-md text-xs leading-5 text-muted-foreground">
                     We aim to review applications within one business day, but submitting the form does not automatically mean the audit has been accepted.
@@ -429,17 +585,42 @@ const TrackingLandingPage = () => {
                 </div>
               ) : (
                 <>
-                  <div className="mb-5 flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/90">Request your free audit</p>
-                      <h2 className="mt-2 text-xl font-semibold">Tell us enough to review fit and scope.</h2>
+                  <div className="mb-6">
+                    <div className="flex min-h-8 items-center justify-between gap-4">
+                      {step === 1 ? (
+                        <span className="text-xs font-medium text-muted-foreground">Step 1 of 3</span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => moveToStep(step === 2 ? 1 : 2)}
+                          className="-ml-1 inline-flex min-h-8 items-center gap-1.5 rounded-lg px-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                        >
+                          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                          Back
+                        </button>
+                      )}
+                      {step > 1 && <span className="text-xs font-medium text-muted-foreground">Step {step} of 3</span>}
                     </div>
-                    <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.035] px-3 py-1 text-xs font-medium text-muted-foreground">{step} of 2</span>
-                  </div>
-
-                  <div className="mb-6 flex gap-2" aria-hidden="true">
-                    <span className="h-1.5 flex-1 rounded-full bg-primary" />
-                    <span className={`h-1.5 flex-1 rounded-full ${step === 2 ? "bg-primary" : "bg-white/10"}`} />
+                    <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.08]" aria-hidden="true">
+                      <div
+                        className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out"
+                        style={{ width: `${(step / 3) * 100}%` }}
+                      />
+                    </div>
+                    <h2 className="mt-5 text-xl font-semibold">
+                      {step === 1
+                        ? "Tell us about your business."
+                        : step === 2
+                          ? "A little about your marketing."
+                          : "What do you want to understand?"}
+                    </h2>
+                    <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
+                      {step === 1
+                        ? "We review every application."
+                        : step === 2
+                          ? "This helps us see if the free audit is a good fit."
+                          : "Tell us what isn’t clear in your tracking or reports."}
+                    </p>
                   </div>
 
                   <div className="hidden" aria-hidden="true">
@@ -448,7 +629,14 @@ const TrackingLandingPage = () => {
 
                   <form id="tracking-audit-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate aria-label="Request a Free Tracking Audit">
                     {step === 1 ? (
-                      <div className="space-y-4" onChangeCapture={handleMeaningfulInteraction}>
+                      <motion.div
+                        key="tracking-audit-step-1"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.18 }}
+                        className="space-y-5"
+                        onChangeCapture={handleMeaningfulInteraction}
+                      >
                         <div className="grid gap-4 sm:grid-cols-2">
                           <Field label="First Name" htmlFor="f-first" error={errors.firstName?.message}>
                             <Input id="f-first" placeholder="Jane" autoComplete="given-name" className={fieldClassName} aria-invalid={!!errors.firstName} aria-describedby={errors.firstName ? "f-first-err" : undefined} {...register("firstName")} />
@@ -467,274 +655,492 @@ const TrackingLandingPage = () => {
                         </Field>
 
                         <Field label="Website" htmlFor="f-url" error={errors.websiteUrl?.message}>
-                          <Input id="f-url" type="url" placeholder="https://yourcompany.com" autoComplete="url" className={fieldClassName} aria-invalid={!!errors.websiteUrl} aria-describedby={errors.websiteUrl ? "f-url-err" : undefined} {...register("websiteUrl")} />
+                          <Input
+                            id="f-url"
+                            type="text"
+                            inputMode="url"
+                            placeholder="yourcompany.com"
+                            autoComplete="url"
+                            autoCapitalize="none"
+                            autoCorrect="off"
+                            className={fieldClassName}
+                            aria-invalid={!!errors.websiteUrl}
+                            aria-describedby={errors.websiteUrl ? "f-url-err" : undefined}
+                            {...websiteRegistration}
+                            onBlur={(event) => {
+                              websiteRegistration.onBlur(event);
+                              void trigger("websiteUrl");
+                            }}
+                          />
                         </Field>
 
-                        <Button type="button" size="lg" onClick={handleContinue} className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
+                        <Button type="button" size="lg" onClick={handleStepOneContinue} className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
                           Continue
                           <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
                         </Button>
 
                         <p className="text-center text-xs leading-5 text-muted-foreground">
-                          Application-based. We review fit and scope before accepting an audit.
+                          About 2 minutes total.
                         </p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <Field label="Industry" htmlFor="f-industry" error={errors.industry?.message}>
-                          <Controller control={control} name="industry" render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger id="f-industry" className={fieldClassName} aria-invalid={!!errors.industry} aria-describedby={errors.industry ? "f-industry-err" : undefined}><SelectValue placeholder="Select industry" /></SelectTrigger>
-                              <SelectContent>{INDUSTRY_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent>
-                            </Select>
-                          )} />
-                        </Field>
+                      </motion.div>
+                    ) : step === 2 ? (
+                      <motion.div
+                        key="tracking-audit-step-2"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.18 }}
+                      >
+                        <section className="space-y-3" aria-labelledby="step2-business-context">
+                          <p id="step2-business-context" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Business context</p>
+                          <div className="grid gap-4 sm:grid-cols-2">
+                            <Field label="Industry" htmlFor="f-industry" error={errors.industry?.message}>
+                              <Controller control={control} name="industry" render={({ field }) => (
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <SelectTrigger id="f-industry" className={fieldClassName} aria-invalid={!!errors.industry} aria-describedby={errors.industry ? "f-industry-err" : undefined}>
+                                    <SelectValue placeholder="Select industry" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {INDUSTRY_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+                                  </SelectContent>
+                                </Select>
+                              )} />
+                            </Field>
 
-                        <Field label="Your Role" htmlFor="f-role" error={errors.role?.message}>
-                          <Controller control={control} name="role" render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger id="f-role" className={fieldClassName} aria-invalid={!!errors.role} aria-describedby={errors.role ? "f-role-err" : undefined}><SelectValue placeholder="Select role" /></SelectTrigger>
-                              <SelectContent>{ROLE_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent>
-                            </Select>
-                          )} />
-                        </Field>
+                            <Field label="Your role" htmlFor="f-role" error={errors.role?.message}>
+                              <Controller control={control} name="role" render={({ field }) => (
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <SelectTrigger id="f-role" className={fieldClassName} aria-invalid={!!errors.role} aria-describedby={errors.role ? "f-role-err" : undefined}>
+                                    <SelectValue placeholder="Select role" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {ROLE_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+                                  </SelectContent>
+                                </Select>
+                              )} />
+                            </Field>
+                          </div>
+                        </section>
 
-                        <Field label="Decision Influence" htmlFor="f-decision" error={errors.decisionInfluence?.message}>
+                        <section className="mt-6 space-y-4 border-t border-white/[0.06] pt-5" aria-labelledby="step2-decision-spend">
+                          <p id="step2-decision-spend" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Decision & spend</p>
                           <Controller control={control} name="decisionInfluence" render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger id="f-decision" className={fieldClassName} aria-invalid={!!errors.decisionInfluence} aria-describedby={errors.decisionInfluence ? "f-decision-err" : undefined}><SelectValue placeholder="Select decision role" /></SelectTrigger>
-                              <SelectContent>{DECISION_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent>
-                            </Select>
+                            <ChoiceGrid
+                              legend="Your role in this decision"
+                              name="decisionInfluence"
+                              value={field.value}
+                              onChange={field.onChange}
+                              options={DECISION_OPTIONS}
+                              error={errors.decisionInfluence?.message}
+                            />
                           )} />
-                        </Field>
 
-                        <Field label="Monthly Paid-Media Spend" htmlFor="f-spend" error={errors.monthlyAdSpendBand?.message}>
-                          <Controller control={control} name="monthlyAdSpendBand" render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger id="f-spend" className={fieldClassName} aria-invalid={!!errors.monthlyAdSpendBand} aria-describedby={errors.monthlyAdSpendBand ? "f-spend-err" : undefined}><SelectValue placeholder="Select spend range" /></SelectTrigger>
-                              <SelectContent>{SPEND_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent>
-                            </Select>
+                          <Field label="Monthly ad spend" htmlFor="f-spend" error={errors.monthlyAdSpendBand?.message}>
+                            <Controller control={control} name="monthlyAdSpendBand" render={({ field }) => (
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger id="f-spend" className={fieldClassName} aria-invalid={!!errors.monthlyAdSpendBand} aria-describedby={errors.monthlyAdSpendBand ? "f-spend-err" : undefined}>
+                                  <SelectValue placeholder="Select spend range" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {SPEND_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+                                </SelectContent>
+                              </Select>
+                            )} />
+                          </Field>
+                        </section>
+
+                        <section className="mt-6 space-y-3 border-t border-white/[0.06] pt-5" aria-labelledby="step2-advertising">
+                          <p id="step2-advertising" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Advertising</p>
+                          <Controller control={control} name="adPlatforms" render={({ field }) => (
+                            <fieldset aria-invalid={!!errors.adPlatforms} aria-describedby={errors.adPlatforms ? "f-platforms-err" : undefined} className="space-y-2.5">
+                              <legend className="text-sm font-medium text-foreground/90">Where do you advertise?</legend>
+                              <div className="flex flex-wrap gap-2">
+                                {PLATFORM_OPTIONS.map((platform) => {
+                                  const checked = field.value?.includes(platform.value) ?? false;
+                                  return (
+                                    <label
+                                      key={platform.value}
+                                      className={[
+                                        "flex min-h-10 cursor-pointer items-center rounded-full border px-3.5 py-2 text-xs font-medium transition-colors focus-within:ring-1 focus-within:ring-primary/50",
+                                        checked
+                                          ? "border-primary/45 bg-primary/[0.12] text-primary"
+                                          : "border-white/[0.08] bg-white/[0.025] text-foreground/78 hover:border-white/[0.14] hover:bg-white/[0.045]",
+                                      ].join(" ")}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={checked}
+                                        className="sr-only"
+                                        onChange={() => {
+                                          const current = field.value ?? [];
+                                          if (platform.value === "none_currently") {
+                                            field.onChange(checked ? [] : ["none_currently"]);
+                                            return;
+                                          }
+                                          const withoutNone = current.filter((value) => value !== "none_currently");
+                                          field.onChange(checked ? withoutNone.filter((value) => value !== platform.value) : [...withoutNone, platform.value]);
+                                        }}
+                                      />
+                                      {platform.label}
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {errors.adPlatforms && <p id="f-platforms-err" role="alert" className="text-xs text-red-400">{errors.adPlatforms.message}</p>}
+                            </fieldset>
                           )} />
-                        </Field>
+                        </section>
 
-                        <Controller control={control} name="adPlatforms" render={({ field }) => (
-                          <fieldset aria-invalid={!!errors.adPlatforms} aria-describedby={errors.adPlatforms ? "f-platforms-err" : undefined} className="space-y-3">
-                            <legend className="text-sm font-medium text-foreground/90">Paid Channels</legend>
-                            <div className="flex flex-wrap gap-2">
-                              {PLATFORM_OPTIONS.map((platform) => {
-                                const checked = field.value?.includes(platform.value) ?? false;
-                                return (
-                                  <label key={platform.value} className="flex cursor-pointer items-center rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-xs font-medium text-foreground/82 transition-colors focus-within:ring-1 focus-within:ring-primary/50 has-[:checked]:border-primary/35 has-[:checked]:bg-primary/[0.09] has-[:checked]:text-primary">
-                                    <input
-                                      type="checkbox"
-                                      checked={checked}
-                                      className="sr-only"
-                                      onChange={() => {
-                                        const current = field.value ?? [];
-                                        if (platform.value === "none_currently") {
-                                          field.onChange(checked ? [] : ["none_currently"]);
-                                          return;
-                                        }
-                                        const withoutNone = current.filter((value) => value !== "none_currently");
-                                        field.onChange(checked ? withoutNone.filter((value) => value !== platform.value) : [...withoutNone, platform.value]);
-                                      }}
-                                    />
-                                    {platform.label}
-                                  </label>
-                                );
-                              })}
-                            </div>
-                            {errors.adPlatforms && <p id="f-platforms-err" role="alert" className="text-xs text-red-400">{errors.adPlatforms.message}</p>}
-                          </fieldset>
-                        )} />
-
-                        <Field label="Tracking Maturity" htmlFor="f-maturity" error={errors.trackingMaturity?.message}>
+                        <Button type="button" size="lg" onClick={handleStepTwoContinue} className="mt-6 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
+                          Continue
+                          <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
+                        </Button>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="tracking-audit-step-3"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.18 }}
+                      >
+                        <section className="space-y-3" aria-labelledby="step3-tracking">
+                          <p id="step3-tracking" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Tracking</p>
                           <Controller control={control} name="trackingMaturity" render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger id="f-maturity" className={`${fieldClassName} h-auto min-h-11 py-2 text-left`} aria-invalid={!!errors.trackingMaturity} aria-describedby={errors.trackingMaturity ? "f-maturity-err" : undefined}><SelectValue placeholder="Select the closest description" /></SelectTrigger>
-                              <SelectContent>{MATURITY_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent>
-                            </Select>
+                            <SingleChoiceChips
+                              legend="How confident are you in your tracking?"
+                              name="trackingMaturity"
+                              value={field.value}
+                              onChange={field.onChange}
+                              options={MATURITY_OPTIONS}
+                              error={errors.trackingMaturity?.message}
+                            />
                           )} />
-                        </Field>
+                        </section>
 
-                        <Field label="Primary Conversion" htmlFor="f-conversion" error={errors.primaryConversionType?.message}>
+                        <section className="mt-6 space-y-3 border-t border-white/[0.06] pt-5" aria-labelledby="step3-conversion">
+                          <p id="step3-conversion" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Conversion</p>
                           <Controller control={control} name="primaryConversionType" render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger id="f-conversion" className={fieldClassName} aria-invalid={!!errors.primaryConversionType} aria-describedby={errors.primaryConversionType ? "f-conversion-err" : undefined}><SelectValue placeholder="Select primary conversion" /></SelectTrigger>
-                              <SelectContent>{CONVERSION_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent>
-                            </Select>
+                            <SingleChoiceChips
+                              legend="What matters most?"
+                              name="primaryConversionType"
+                              value={field.value}
+                              onChange={field.onChange}
+                              options={CONVERSION_OPTIONS}
+                              error={errors.primaryConversionType?.message}
+                            />
                           )} />
-                        </Field>
+                        </section>
 
-                        <Field label="Biggest Measurement Problem" htmlFor="f-problem" error={errors.measurementProblem?.message}>
-                          <Controller control={control} name="measurementProblem" render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger id="f-problem" className={`${fieldClassName} h-auto min-h-11 py-2 text-left`} aria-invalid={!!errors.measurementProblem} aria-describedby={errors.measurementProblem ? "f-problem-err" : undefined}><SelectValue placeholder="Select the biggest issue" /></SelectTrigger>
-                              <SelectContent>{PROBLEM_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent>
-                            </Select>
-                          )} />
-                        </Field>
+                        <section className="mt-6 space-y-3 border-t border-white/[0.06] pt-5" aria-labelledby="step3-main-issue">
+                          <p id="step3-main-issue" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Main issue</p>
+                          <Field label="What’s going wrong?" htmlFor="f-problem" error={errors.measurementProblem?.message}>
+                            <Controller control={control} name="measurementProblem" render={({ field }) => (
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger id="f-problem" className={fieldClassName} aria-invalid={!!errors.measurementProblem} aria-describedby={errors.measurementProblem ? "f-problem-err" : undefined}>
+                                  <SelectValue placeholder="Select the closest issue" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {PROBLEM_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+                                </SelectContent>
+                              </Select>
+                            )} />
+                          </Field>
+                        </section>
 
-                        <Field label="Timing / Urgency" htmlFor="f-urgency" error={errors.urgency?.message}>
+                        <section className="mt-6 space-y-3 border-t border-white/[0.06] pt-5" aria-labelledby="step3-timing">
+                          <p id="step3-timing" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Timing</p>
                           <Controller control={control} name="urgency" render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger id="f-urgency" className={fieldClassName} aria-invalid={!!errors.urgency} aria-describedby={errors.urgency ? "f-urgency-err" : undefined}><SelectValue placeholder="Select timing" /></SelectTrigger>
-                              <SelectContent>{URGENCY_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent>
-                            </Select>
+                            <ChoiceGrid
+                              legend="How soon do you want this addressed?"
+                              name="urgency"
+                              value={field.value}
+                              onChange={field.onChange}
+                              options={URGENCY_OPTIONS}
+                              error={errors.urgency?.message}
+                            />
                           )} />
-                        </Field>
+                        </section>
 
-                        <div className="rounded-xl border border-white/[0.07] bg-white/[0.025] p-3.5">
+                        <div className="mt-6 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3.5">
                           <div className="flex items-start gap-3">
                             <input type="checkbox" id="f-marketing-opt-in" className="mt-0.5 h-4 w-4 shrink-0 rounded border border-white/20 bg-white/5 accent-primary" {...register("marketingOptIn")} />
                             <label htmlFor="f-marketing-opt-in" className="cursor-pointer text-[13px] leading-5 text-muted-foreground sm:text-sm">
-                              Send me occasional ATD marketing insights and updates.
+                              Send me occasional ATD marketing insights.
                             </label>
                           </div>
-                          <p className="mt-2 pl-7 text-[11px] leading-4 text-muted-foreground/80">Optional. Your audit application and service receipt do not depend on marketing consent.</p>
+                          <p className="mt-1.5 pl-7 text-[11px] leading-4 text-muted-foreground/75">Optional. Not required for the audit.</p>
                         </div>
 
-                        <div className="grid grid-cols-[auto_1fr] gap-2.5 pt-1">
-                          <Button type="button" variant="outline" onClick={() => setStep(1)} className="rounded-xl border-white/10 px-4">Back</Button>
-                          <Button type="submit" size="lg" disabled={isSubmitting} className="rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
-                            {isSubmitting ? <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" aria-hidden="true" />Submitting…</> : "Request a Free Tracking Audit"}
-                          </Button>
-                        </div>
+                        <Button type="submit" size="lg" disabled={isSubmitting} className="mt-5 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
+                          {isSubmitting ? <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" aria-hidden="true" />Submitting…</> : "Request My Free Audit"}
+                        </Button>
+                      </motion.div>
 
-                        <p className="text-center text-[11px] leading-4 text-muted-foreground">
-                          Please do not send passwords, API keys or admin credentials through this form.
-                        </p>
-                      </div>
                     )}
                   </form>
                 </>
               )}
             </motion.div>
           </div>
+
+          <div className="mt-8 flex justify-center md:mt-10 lg:mt-0 lg:shrink-0 lg:pb-1">
+            <a
+              href="#measurement-journey"
+              className="group inline-flex flex-col items-center gap-2 text-center text-xs font-medium tracking-wide text-foreground/55 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 lg:gap-1.5"
+            >
+              <span>See what we review</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.02] transition-colors group-hover:border-primary/25 group-hover:bg-primary/[0.05] lg:h-7 lg:w-7">
+                <ArrowDown className="h-4 w-4 motion-safe:animate-bounce motion-reduce:animate-none lg:h-3.5 lg:w-3.5" aria-hidden="true" />
+              </span>
+            </a>
+          </div>
         </div>
       </section>
 
-      <PageSection surface="quiet" spacing="spacious" className="py-12 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection id="measurement-journey" surface="quiet" spacing="spacious" className="scroll-mt-20 py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          eyebrow="The problem"
-          title="You should know what your marketing is actually producing."
-          description="When the measurement path is incomplete, more spend can create more activity without creating more confidence."
+          eyebrow="What happens after the click"
+          title="Your results pass through a few key steps."
+          description="We check where important information gets lost between the ad click and the final lead or sale."
           align="center"
-          maxWidth="xl"
-          className="mb-9 md:mb-14"
+          maxWidth="2xl"
+          className="mb-10 md:mb-12"
         />
 
-        <div className="mx-auto grid max-w-6xl gap-4 md:grid-cols-3">
-          {PROBLEM_SIGNALS.map(({ icon: Icon, title, description }) => (
-            <article key={title} className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5 md:p-6">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/[0.08] text-primary">
-                <Icon className="h-5 w-5" aria-hidden="true" />
+        <div className="mx-auto max-w-5xl">
+          <div className="relative hidden px-8 pt-6 md:block">
+            <motion.div
+              className="absolute left-[12.5%] right-[12.5%] top-[2.7rem] h-px bg-gradient-to-r from-atd-blue/25 via-primary/55 to-atd-cyan/25"
+              initial={{ scaleX: 0 }}
+              whileInView={{ scaleX: 1 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.65, ease: "easeOut" }}
+              style={{ transformOrigin: "left" }}
+              aria-hidden="true"
+            />
+
+            {JOURNEY_BREAKS.map((item) => (
+              <div key={item.label} className="absolute top-[2.34rem] z-20 -translate-x-1/2" style={{ left: item.position }}>
+                <span className="block h-2.5 w-2.5 rotate-45 border border-amber-300/45 bg-[#0b1118]" aria-hidden="true" />
+                <span className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium text-amber-100/60">
+                  {item.label}
+                </span>
               </div>
-              <h3 className="mt-4 text-base font-semibold text-foreground">{title}</h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
-            </article>
-          ))}
-        </div>
-      </PageSection>
+            ))}
 
-      <PageSection id="audit-coverage" surface="glow" border="both" spacing="spacious" className="scroll-mt-20 py-12 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
-        <SectionIntro
-          eyebrow="Tracking Health Scorecard"
-          title="Five dimensions of measurement confidence"
-          description="The audit is structured around the parts of the measurement journey that need to work together for your data to be useful."
-          align="center"
-          maxWidth="xl"
-          className="mb-9 md:mb-14"
-        />
-
-        <div className="mx-auto grid max-w-6xl gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {HEALTH_DIMENSIONS.map(({ icon: Icon, title, description }) => (
-            <article key={title} className="rounded-2xl border border-white/[0.08] bg-background/45 p-5">
-              <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
-              <h3 className="mt-4 text-sm font-semibold text-foreground">{title}</h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
-            </article>
-          ))}
-        </div>
-      </PageSection>
-
-      <PageSection spacing="spacious" className="py-12 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-12">
-          <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-6 md:p-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/90">What you receive</p>
-            <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-3xl">A diagnostic you can act on.</h2>
-            <div className="mt-6 space-y-4">
-              {DELIVERABLES.map((item) => (
-                <div key={item} className="flex items-start gap-3">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
-                  <p className="text-sm leading-6 text-foreground/85">{item}</p>
+            <div className="relative grid grid-cols-4 gap-10">
+              {MEASUREMENT_JOURNEY.map(({ icon: Icon, title }, index) => (
+                <div key={title} className="text-center">
+                  <div className="relative z-10 mx-auto flex h-11 w-11 items-center justify-center rounded-full border border-primary/25 bg-[#0a1017] text-primary shadow-[0_0_0_7px_rgba(8,14,20,0.94)]">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.15em] text-primary/55">
+                    {String(index + 1).padStart(2, "0")}
+                  </p>
+                  <h3 className="mt-1 text-base font-semibold text-foreground">{title}</h3>
                 </div>
               ))}
             </div>
-
-            <div className="mt-7 border-t border-white/[0.07] pt-6">
-              <p className="text-sm font-semibold text-foreground">Free audit boundary</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                The free audit is diagnostic. Implementation, tag changes, CRM rebuilds, dashboard builds and ongoing monitoring are separate paid work if needed.
-              </p>
-            </div>
           </div>
 
-          <div className="rounded-2xl border border-primary/15 bg-[linear-gradient(145deg,rgba(51,204,153,0.07),rgba(0,51,153,0.06)_58%,rgba(255,255,255,0.018))] p-6 md:p-8">
-            <div className="flex items-start gap-3">
-              <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-primary" aria-hidden="true" />
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/90">Access safety</p>
-                <h2 className="mt-2 text-2xl font-bold tracking-tight md:text-3xl">Start with the least access possible.</h2>
+          <div className="mx-auto max-w-md md:hidden">
+            {MEASUREMENT_JOURNEY.map(({ icon: Icon, title }, index) => (
+              <div key={title} className="relative flex items-center gap-4 pb-7 last:pb-0">
+                {index < MEASUREMENT_JOURNEY.length - 1 && (
+                  <div className="absolute bottom-0 left-[21px] top-10 w-px bg-gradient-to-b from-primary/40 to-atd-blue/15" aria-hidden="true" />
+                )}
+                <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-[#0a1017] text-primary">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-primary/55">
+                    {String(index + 1).padStart(2, "0")}
+                  </p>
+                  <h3 className="mt-0.5 text-base font-semibold">{title}</h3>
+                  {JOURNEY_BREAKS[index] && (
+                    <p className="mt-1.5 text-[11px] text-amber-100/60">{JOURNEY_BREAKS[index].label}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="mx-auto mt-9 max-w-2xl text-center text-sm leading-6 text-muted-foreground">
+            If one step loses the source or the action, the final report can give you the wrong picture.
+          </p>
+        </div>
+      </PageSection>
+
+      <PageSection id="audit-coverage" spacing="spacious" className="scroll-mt-20 py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
+        <SectionIntro
+          title="We check five parts of your tracking."
+          description="For your reports to be useful, these five parts need to work together."
+          align="center"
+          maxWidth="2xl"
+          className="mb-10 md:mb-14"
+        />
+
+        <div className="mx-auto max-w-6xl border-y border-white/[0.07]">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5">
+            {HEALTH_DIMENSIONS.map(({ icon: Icon, number, title, description }, index) => (
+              <article
+                key={title}
+                className={[
+                  "py-6 sm:px-5 lg:min-h-[15rem] lg:py-7",
+                  index % 2 === 1 ? "sm:border-l sm:border-white/[0.07]" : "",
+                  index > 1 ? "sm:border-t sm:border-white/[0.07]" : "",
+                  index > 0 ? "lg:border-l lg:border-t-0 lg:border-white/[0.07]" : "",
+                ].join(" ")}
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-2xl font-light tracking-tight text-foreground/28">{number}</span>
+                  <Icon className="h-4 w-4 text-primary/65" aria-hidden="true" />
+                </div>
+                <h3 className="mt-8 text-base font-semibold text-foreground">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </PageSection>
+
+      <PageSection surface="quiet" spacing="spacious" className="py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
+        <SectionIntro
+          eyebrow="What you get"
+          title="A clear answer to three questions."
+          description="Your Tracking Health Scorecard shows what we found, why it matters and what to do next."
+          align="center"
+          maxWidth="2xl"
+          className="mb-10 md:mb-12"
+        />
+
+        <div className="relative mx-auto max-w-5xl">
+          <div className="absolute left-[16.5%] right-[16.5%] top-6 hidden h-px bg-gradient-to-r from-primary/20 via-primary/45 to-atd-cyan/20 md:block" aria-hidden="true" />
+
+          <div className="grid gap-7 md:grid-cols-3 md:gap-8">
+            {AUDIT_DELIVERABLES.map(({ icon: Icon, title, description }, index) => (
+              <article key={title} className="relative text-center md:px-4">
+                <div className="relative z-10 mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-[#0a1017] text-primary shadow-[0_0_0_6px_rgba(8,14,20,0.94)]">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/55">
+                  {String(index + 1).padStart(2, "0")}
+                </p>
+                <h3 className="mt-1.5 text-base font-semibold">{title}</h3>
+                <p className="mx-auto mt-2 max-w-[16rem] text-sm leading-6 text-muted-foreground">{description}</p>
+              </article>
+            ))}
+          </div>
+
+          <p className="mx-auto mt-9 max-w-2xl text-center text-xs leading-5 text-muted-foreground">
+            The free audit includes the review and recommendations. Fixing the issues is separate.
+          </p>
+        </div>
+      </PageSection>
+
+      <PageSection spacing="spacious" className="py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-center lg:gap-14">
+          <div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/[0.07] text-primary">
+              <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <h2 className="mt-5 text-2xl font-bold tracking-tight md:text-4xl">We start with the least access possible.</h2>
+            <p className="mt-4 text-sm leading-7 text-muted-foreground md:text-base">
+              We start with public information. If we need to confirm something, we may ask for read-only access. We never ask for passwords.
+            </p>
+          </div>
+
+          <div className="rounded-[28px] bg-white/[0.018] p-5 ring-1 ring-white/[0.055] sm:p-6">
+            <div className="border-l-2 border-primary/55 pl-4 sm:pl-5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/70">Level 0</p>
+              <h3 className="mt-1.5 text-base font-semibold">Public information</h3>
+              <p className="mt-1.5 text-sm leading-6 text-muted-foreground">We start here. No account access needed.</p>
+            </div>
+
+            <div className="mt-5 ml-4 rounded-2xl bg-white/[0.025] p-4 sm:ml-8 sm:p-5">
+              <div className="border-l-2 border-atd-cyan/45 pl-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-atd-cyan/70">Level 1</p>
+                <h3 className="mt-1.5 text-base font-semibold">Read-only access</h3>
+                <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
+                  Only if we need to confirm something we cannot see publicly.
+                </p>
+              </div>
+
+              <div className="mt-5 ml-4 rounded-xl bg-black/15 p-4 sm:ml-8">
+                <div className="border-l-2 border-white/15 pl-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Level 2</p>
+                  <h3 className="mt-1.5 text-base font-semibold text-foreground/88">Paid implementation</h3>
+                  <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
+                    Access to make changes is only requested if you hire us to fix the issues.
+                  </p>
+                </div>
               </div>
             </div>
-            <p className="mt-5 text-sm leading-6 text-muted-foreground">
-              We start with public, no-credential evidence. If account evidence is needed to confirm an important finding, we ask for the lowest practical viewer or read-only access, or use a screenshare/export where appropriate.
-            </p>
-            <div className="mt-6 rounded-xl border border-white/[0.08] bg-black/10 p-4">
-              <p className="text-sm font-semibold text-foreground">Never send us a password.</p>
-              <p className="mt-1.5 text-sm leading-6 text-muted-foreground">Passwords, API keys and admin credentials are not part of the free audit request process.</p>
-            </div>
           </div>
         </div>
       </PageSection>
 
-      <PageSection surface="quiet" border="both" spacing="spacious" className="py-12 md:py-24" containerClassName="px-5 sm:px-6 lg:px-8">
-        <SectionIntro eyebrow="How it works" title="Application first. Diagnosis second." description="Submitting the form starts a fit-and-scope review; it does not automatically create an audit slot or sales opportunity." align="center" maxWidth="xl" className="mb-10 md:mb-14" />
+      <PageSection surface="quiet" spacing="spacious" className="py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
+        <SectionIntro
+          title="Here’s how the audit works."
+          description="You apply, we check fit, review one journey and send your scorecard."
+          align="center"
+          maxWidth="2xl"
+          className="mb-12 md:mb-16"
+        />
 
-        <div className="mx-auto grid max-w-6xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {PROCESS_STEPS.map((item) => (
-            <article key={item.number} className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/25 bg-primary/[0.08] text-xs font-bold text-primary">{item.number}</span>
-              <h3 className="mt-4 text-base font-semibold">{item.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.description}</p>
-            </article>
-          ))}
+        <div className="relative mx-auto max-w-5xl">
+          <div className="absolute left-[12.5%] right-[12.5%] top-5 hidden h-px bg-white/[0.10] lg:block" aria-hidden="true" />
+          <ol className="grid gap-7 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+            {PROCESS_STEPS.map((item) => (
+              <li key={item.number} className="relative flex gap-4 border-b border-white/[0.06] pb-6 last:border-b-0 sm:block sm:border-b-0 sm:pb-0 lg:text-center">
+                <span className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-[#091017] text-xs font-bold text-primary sm:mb-5 lg:mx-auto">
+                  {item.number}
+                </span>
+                <div>
+                  <h3 className="text-base font-semibold">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.description}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
       </PageSection>
 
-      <div className="border-t border-white/[0.06]">
+      <div>
         <FAQAccordion
           items={AUDIT_FAQS}
           eyebrow="Before you apply"
           title="Common questions"
-          description="What to expect from the Free Conversion Tracking Audit."
           variant="minimal"
           density="compact"
-          defaultOpenItem={0}
-          mobileInitialItems={3}
-          sectionSpacingClassName="py-12 md:py-20"
+          accordionClassName="!overflow-visible !rounded-none !border-0 !bg-transparent"
+          contentClassName="max-w-[46rem]"
+          sectionClassName="bg-transparent"
+          sectionSpacingClassName="py-14 md:py-20"
         />
 
-        <CTASection
-          title={<><span className="md:block">Know what your marketing is</span> <span className="text-gradient">actually producing?</span></>}
-          description=""
-          primaryCta={TRACKING_AUDIT_ANCHOR_CTA}
-          secondaryCta={null}
-          variant="service-close"
-          titleClassName="max-w-[25ch]"
-        />
+        <section className="relative overflow-hidden border-t border-white/[0.05] py-16 md:py-24">
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_58%_55%_at_50%_100%,rgba(51,204,153,0.09),transparent_68%),radial-gradient(ellipse_45%_50%_at_20%_45%,rgba(0,175,239,0.055),transparent_72%)]" />
+            <div className="absolute left-[18%] right-[18%] top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+          </div>
+
+          <div className="container relative mx-auto px-5 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-3xl text-center">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+                Find out where your <span className="text-gradient">tracking breaks.</span>
+              </h2>
+              <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
+                Apply for a free audit and get a clearer view of what your marketing is really producing.
+              </p>
+              <Button asChild size="lg" className="mt-8 rounded-xl bg-primary px-8 text-primary-foreground shadow-[0_0_24px_rgba(51,204,153,0.18)] transition-shadow hover:bg-primary/90 hover:shadow-[0_0_34px_rgba(0,175,239,0.14)]">
+                <Link to={finalCtaTo}>{TRACKING_AUDIT_ANCHOR_CTA.label}</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
       </div>
+
     </>
   );
 };

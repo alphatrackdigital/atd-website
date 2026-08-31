@@ -32,6 +32,7 @@ const MOBILE_QUERY = "(pointer: coarse), (max-width: 767px)";
 const EXCLUDED_PATHS = [
   "/contact-us",
   "/book-a-call",
+  "/offer/tracking-audit",
   "/expertise",
   "/privacy-policy",
   "/cookie-policy",
