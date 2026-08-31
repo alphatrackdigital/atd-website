@@ -1260,34 +1260,21 @@ const TrackingAuditProfessionalServices = () => {
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.45 }}
           >
-            <span className="pointer-events-none absolute -right-5 top-16 -rotate-12 text-5xl font-black uppercase tracking-[0.18em] text-foreground/[0.025]" aria-hidden="true">
-              Sample
-            </span>
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.07] px-5 py-4 sm:px-6">
+            <div className="flex items-center justify-between gap-4 border-b border-white/[0.07] px-5 py-3.5 sm:px-6">
               <div>
                 <p className="text-sm font-semibold">Tracking Health Scorecard</p>
-                <p className="mt-1 text-[11px] text-muted-foreground">Illustrative preview</p>
+                <p className="mt-0.5 text-[10px] text-muted-foreground">Illustrative preview</p>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="hidden sm:block">
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Sample health</p>
-                  <div className="mt-1 flex gap-1" aria-hidden="true">
-                    {[0, 1, 2, 3, 4].map((segment) => (
-                      <span key={segment} className={["h-1.5 w-5 rounded-full", segment < 2 ? "bg-amber-400/70" : "bg-white/[0.10]"].join(" ")} />
-                    ))}
-                  </div>
-                </div>
-                <span className="rounded-full border border-primary/20 bg-primary/[0.07] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">
-                  Priority view
-                </span>
-              </div>
+              <span className="rounded-full border border-primary/20 bg-primary/[0.07] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">
+                Sample
+              </span>
             </div>
 
             <div className="divide-y divide-white/[0.07]">
               {SCORECARD_PREVIEW.map((item, index) => (
                 <motion.div
                   key={item.label}
-                  className="px-5 py-4 sm:px-6"
+                  className="px-5 py-3.5 sm:px-6"
                   initial={{ opacity: 0, x: 10 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, amount: 0.6 }}
@@ -1306,7 +1293,7 @@ const TrackingAuditProfessionalServices = () => {
                       {item.status}
                     </span>
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.detail}</p>
+                  <p className="mt-1.5 text-[13px] leading-5 text-muted-foreground">{item.detail}</p>
                 </motion.div>
               ))}
             </div>
