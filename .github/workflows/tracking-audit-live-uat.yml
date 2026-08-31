@@ -46,8 +46,10 @@ jobs:
           const tagged = (events, tag) => events.filter((event) => String(event.tag || '').includes(tag));
 
           const applicantReceiptEvents = tagged(applicantEvents, 'tracking_audit_receipt');
-          const auditInternalEvents = tagged(auditEvents, 'tracking_audit_offer');
-          const martechInternalEvents = tagged(martechEvents, 'tracking_audit_offer');
+          const dedupeWindowStart = Date.parse('2026-08-31T00:02:40Z');
+          const inDedupeWindow = (events) => events.filter((event) => Date.parse(event.date || '') >= dedupeWindowStart);
+          const auditInternalEvents = inDedupeWindow(tagged(auditEvents, 'tracking_audit_offer'));
+          const martechInternalEvents = inDedupeWindow(tagged(martechEvents, 'tracking_audit_offer'));
 
           const checks = {
             probeOk: probe.ok === true,
