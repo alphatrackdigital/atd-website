@@ -1,4 +1,4 @@
-name: Tracking Audit Controlled Live UAT
+name: Tracking Audit UAT Record Verification
 
 on:
   push:
@@ -9,227 +9,92 @@ permissions:
   contents: read
 
 jobs:
-  browser-uat:
+  verify-records:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     env:
-      QA_URL: https://atd-website-qa.alphatrackdigital.workers.dev/offer/tracking-audit/?utm_source=meta&utm_medium=paid_social&utm_campaign=tracking_audit_uat&utm_content=github_actions_browser_e2e&fbclid=uat-fbclid-20260831
+      QA_BASE_URL: https://atd-website-qa.alphatrackdigital.workers.dev
       TEST_EMAIL: alphatrackdigital+tracking-audit-uat-20260831-01@gmail.com
 
     steps:
-      - name: Check out exact UAT branch
+      - name: Check out disposable UAT branch
         uses: actions/checkout@v4
 
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-
-      - name: Run one controlled browser submission
+      - name: Fetch fixed QA record probe
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p uat-evidence
-          node --input-type=module <<'NODE'
-          import fs from 'node:fs';
-          import assert from 'node:assert/strict';
-          import { chromium } from '@playwright/test';
+          mkdir -p uat-record-evidence
+          STATUS="$(curl -sS -o uat-record-evidence/brevo-records.json -w '%{http_code}'             "$QA_BASE_URL/api/leads?atd_qa_probe=uat_records")"
+          echo "probe_status=$STATUS"
+          cat uat-record-evidence/brevo-records.json
+          test "$STATUS" = "200"
 
-          const qaUrl = process.env.QA_URL;
-          const testEmail = process.env.TEST_EMAIL;
-          const browser = await chromium.launch({ headless: true });
-          const context = await browser.newContext({
-            viewport: { width: 1440, height: 1000 },
-          });
+      - name: Verify Brevo contact task and email lifecycle
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs');
+          const probe = JSON.parse(fs.readFileSync('uat-record-evidence/brevo-records.json', 'utf8'));
+          const a = probe.contact?.attributes || {};
+          const listIds = Array.isArray(probe.contact?.listIds) ? probe.contact.listIds : [];
+          const tasks = Array.isArray(probe.tasks?.items) ? probe.tasks.items : [];
+          const applicantEvents = Array.isArray(probe.emailEvents?.applicant?.events) ? probe.emailEvents.applicant.events : [];
+          const auditEvents = Array.isArray(probe.emailEvents?.audit?.events) ? probe.emailEvents.audit.events : [];
+          const martechEvents = Array.isArray(probe.emailEvents?.martech?.events) ? probe.emailEvents.martech.events : [];
 
-          const blockedMetaRequests = [];
-          await context.route('**/*', async (route) => {
-            const url = new URL(route.request().url());
-            const host = url.hostname.toLowerCase();
-            const isMeta =
-              host === 'facebook.com' ||
-              host.endsWith('.facebook.com') ||
-              host === 'facebook.net' ||
-              host.endsWith('.facebook.net');
-            if (isMeta) {
-              blockedMetaRequests.push(route.request().url());
-              await route.abort('blockedbyclient');
-              return;
-            }
-            await route.continue();
-          });
+          const hasTag = (events, tag) => events.some((event) => String(event.tag || '').includes(tag));
 
-          const page = await context.newPage();
-          const consoleErrors = [];
-          const pageErrors = [];
-          page.on('console', (msg) => {
-            if (msg.type() === 'error') consoleErrors.push(msg.text());
-          });
-          page.on('pageerror', (error) => pageErrors.push(error.message));
-
-          let leadRequestBody = null;
-          let leadResponseBody = null;
-          let leadResponseStatus = null;
-
-          await page.goto(qaUrl, { waitUntil: 'networkidle' });
-
-          // The consent manager can appear after page load and block pointer events.
-          // This controlled UAT keeps consent unset and blocks Meta/Facebook network calls separately.
-          await page.addStyleTag({ content: '#lanyard_root { display: none !important; pointer-events: none !important; }' });
-
-          await page.getByLabel('First Name').fill('ATD');
-          await page.getByLabel('Last Name').fill('UAT');
-          await page.getByLabel('Work Email').fill(testEmail);
-          await page.getByLabel('Company').fill('ATD Tracking Audit UAT');
-          await page.getByLabel('Website').fill('alphatrack.digital');
-
-          await page.getByRole('button', { name: 'Continue' }).click();
-          await page.getByText('A little about your marketing.').waitFor({ state: 'visible' });
-
-          await page.locator('#f-industry').click();
-          await page.getByRole('option', { name: 'Professional services' }).click();
-
-          await page.locator('#f-role').click();
-          await page.getByRole('option', { name: 'Founder / CEO' }).click();
-
-          await page.locator('input[name="decisionInfluence"][value="final_decision_maker"]').check({ force: true });
-
-          await page.locator('#f-spend').click();
-          await page.getByRole('option', { name: 'GHS 6k–15k' }).click();
-
-          const advertising = page.getByRole('group', { name: 'Where do you advertise?' });
-          await advertising.locator('label').filter({ hasText: /^Meta$/ }).locator('input').check({ force: true });
-          await advertising.locator('label').filter({ hasText: /^Google$/ }).locator('input').check({ force: true });
-
-          assert.equal(await page.locator('input[name="decisionInfluence"][value="final_decision_maker"]').isChecked(), true);
-          assert.equal(await advertising.locator('label').filter({ hasText: /^Meta$/ }).locator('input').isChecked(), true);
-          assert.equal(await advertising.locator('label').filter({ hasText: /^Google$/ }).locator('input').isChecked(), true);
-
-          await page.getByRole('button', { name: 'Continue' }).click();
-          await page.getByText('What do you want to understand?').waitFor({ state: 'visible' });
-
-          await page.locator('input[name="trackingMaturity"][value="disconnected"]').check({ force: true });
-          await page.locator('input[name="primaryConversionType"][value="lead_form"]').check({ force: true });
-
-          await page.locator('#f-problem').click();
-          await page.getByRole('option', { name: 'My numbers don’t match' }).click();
-
-          await page.getByText('Before scaling', { exact: true }).click({ force: true });
-
-          assert.equal(await page.locator('input[name="trackingMaturity"][value="disconnected"]').isChecked(), true);
-          assert.equal(await page.locator('input[name="primaryConversionType"][value="lead_form"]').isChecked(), true);
-          assert.equal(await page.locator('input[name="urgency"][value="before_scaling"]').isChecked(), true);
-
-          await page.waitForTimeout(1800);
-
-          const requestPromise = page.waitForRequest(
-            (request) => request.url().includes('/api/leads') && request.method() === 'POST',
-            { timeout: 5000 },
-          ).catch(() => null);
-
-          const responsePromise = page.waitForResponse(
-            (response) => response.url().includes('/api/leads') && response.request().method() === 'POST',
-            { timeout: 90000 },
-          );
-
-          await page.locator('#tracking-audit-form').evaluate((form) => form.requestSubmit());
-
-          const leadRequest = await requestPromise;
-          if (!leadRequest) {
-            await page.waitForTimeout(500);
-            const validationErrors = await page.locator('[role="alert"]').allTextContents();
-            await page.screenshot({ path: 'uat-evidence/no-request.png', fullPage: true });
-            fs.writeFileSync('uat-evidence/no-request.json', JSON.stringify({ validationErrors }, null, 2) + '\n');
-            throw new Error(`No /api/leads POST was emitted. Validation errors: ${JSON.stringify(validationErrors)}`);
-          }
-
-          leadRequestBody = leadRequest.postDataJSON();
-          const leadResponse = await responsePromise;
-          leadResponseStatus = leadResponse.status();
-          leadResponseBody = await leadResponse.json();
-
-          fs.writeFileSync('uat-evidence/http-response.json', JSON.stringify({
-            leadResponseStatus,
-            leadRequestBody,
-            leadResponseBody,
-          }, null, 2) + '\n');
-
-          assert.equal(leadResponseStatus, 200);
-          assert.equal(leadResponseBody.ok, true);
-          assert.equal(leadResponseBody.duplicate, false);
-          assert.equal(leadRequestBody.source, 'tracking_audit_offer');
-          assert.equal(leadRequestBody.email, testEmail);
-          assert.equal(leadRequestBody.websiteUrl, 'https://alphatrack.digital');
-          assert.equal(leadRequestBody.company, 'ATD Tracking Audit UAT');
-          assert.equal(leadRequestBody.industry, 'professional_services');
-          assert.equal(leadRequestBody.role, 'founder_ceo');
-          assert.equal(leadRequestBody.decisionInfluence, 'final_decision_maker');
-          assert.equal(leadRequestBody.monthlyAdSpendBand, '6000_14999');
-          assert.deepEqual([...leadRequestBody.adPlatforms].sort(), ['google_ads', 'meta_ads']);
-          assert.equal(leadRequestBody.trackingMaturity, 'disconnected');
-          assert.equal(leadRequestBody.primaryConversionType, 'lead_form');
-          assert.equal(leadRequestBody.measurementProblem, 'conflicting_numbers');
-          assert.equal(leadRequestBody.urgency, 'before_scaling');
-          assert.equal(leadRequestBody.optIn, false);
-          assert.equal(leadRequestBody.attribution.utmSource, 'meta');
-          assert.equal(leadRequestBody.attribution.utmMedium, 'paid_social');
-          assert.equal(leadRequestBody.attribution.utmCampaign, 'tracking_audit_uat');
-          assert.equal(leadRequestBody.attribution.utmContent, 'github_actions_browser_e2e');
-          assert.equal(leadRequestBody.attribution.fbclid, 'uat-fbclid-20260831');
-          assert.equal(typeof leadRequestBody.metaEventId, 'string');
-          assert.ok(leadRequestBody.metaEventId.length > 10);
-          assert.equal(leadResponseBody.metaEventId, leadRequestBody.metaEventId);
-
-          await page.getByRole('heading', { name: 'Application received.' }).waitFor({ state: 'visible' });
-          await page.getByText(`Application contact: ${testEmail}`).waitFor({ state: 'visible' });
-
-          const trackingState = await page.evaluate(() => ({
-            dataLayer: (window.dataLayer || []).filter((entry) =>
-              ['tracking_audit_form_start', 'tracking_audit_step1_complete', 'tracking_audit_submit'].includes(String(entry.event))
-            ),
-            metaEventIds: window.__atdMetaEventIds || {},
-          }));
-
-          const submitEvent = trackingState.dataLayer.find((entry) => entry.event === 'tracking_audit_submit');
-          assert.ok(submitEvent);
-          assert.equal(submitEvent.event_id, leadResponseBody.metaEventId);
-          assert.equal(submitEvent.eventID, leadResponseBody.metaEventId);
-          assert.equal(submitEvent.lead_source, 'tracking_audit_offer');
-          assert.equal(submitEvent.opt_in, false);
-          assert.ok(trackingState.dataLayer.some((entry) => entry.event === 'tracking_audit_form_start'));
-          assert.ok(trackingState.dataLayer.some((entry) => entry.event === 'tracking_audit_step1_complete'));
-
-          await page.screenshot({ path: 'uat-evidence/success.png', fullPage: true });
-
-          const evidence = {
-            qaUrl,
-            testEmail,
-            leadResponseStatus,
-            leadRequestBody,
-            leadResponseBody,
-            trackingState,
-            blockedMetaRequestCount: blockedMetaRequests.length,
-            blockedMetaRequests,
-            consoleErrors,
-            pageErrors,
-            successHeading: 'Application received.',
+          const checks = {
+            probeOk: probe.ok === true,
+            email: probe.contact?.email === process.env.TEST_EMAIL,
+            auditList: listIds.includes(11),
+            firstName: a.FIRSTNAME === 'ATD',
+            lastName: a.LASTNAME === 'UAT',
+            company: a.COMPANY === 'ATD Tracking Audit UAT',
+            website: a.WEBSITE === 'https://alphatrack.digital' || a.WEBSITE === 'alphatrack.digital',
+            industry: a.AUDIT_INDUSTRY === 'professional_services',
+            role: a.AUDIT_ROLE === 'founder_ceo',
+            decisionInfluence: a.AUDIT_DECISION_INFLUENCE === 'final_decision_maker',
+            spendBand: a.AUDIT_AD_SPEND_BAND === '6000_14999',
+            maturity: a.AUDIT_TRACKING_MATURITY === 'disconnected',
+            conversion: a.AUDIT_PRIMARY_CONVERSION === 'lead_form',
+            problem: a.AUDIT_MEASUREMENT_PROBLEM === 'conflicting_numbers',
+            urgency: a.AUDIT_URGENCY === 'before_scaling',
+            status: a.AUDIT_STATUS === 'Applied',
+            handoff: a.AUDIT_HANDOFF_STATUS === 'No Sales Handoff',
+            leadSource: a.LEAD_SOURCE === 'tracking_audit_offer',
+            source: a.SOURCE === 'Tracking Audit Landing Page',
+            route: a.WEBSITE_ROUTE === '/offer/tracking-audit',
+            offer: a.OFFER === 'tracking-audit',
+            consent: a.CONSENT_STATUS === 'not_provided',
+            utmSource: a.UTM_SOURCE === 'meta',
+            utmMedium: a.UTM_MEDIUM === 'paid_social',
+            utmCampaign: a.UTM_CAMPAIGN === 'tracking_audit_uat',
+            utmContent: a.UTM_CONTENT === 'github_actions_browser_e2e',
+            fbclid: a.FBCLID === 'uat-fbclid-20260831',
+            taskApi: probe.tasks?.apiOk === true,
+            taskCount: tasks.length === 1,
+            taskOpen: tasks[0]?.done === false,
+            taskNoDeal: Array.isArray(tasks[0]?.dealsIds) && tasks[0].dealsIds.length === 0,
+            applicantReceiptEvent: hasTag(applicantEvents, 'tracking_audit_receipt'),
+            internalAuditEvent: hasTag(auditEvents, 'tracking_audit_offer'),
+            internalMartechEvent: hasTag(martechEvents, 'tracking_audit_offer'),
           };
-          fs.writeFileSync('uat-evidence/result.json', JSON.stringify(evidence, null, 2) + '\n');
 
-          await browser.close();
+          console.log(JSON.stringify({ checks, contact: probe.contact, tasks: probe.tasks, emailEvents: probe.emailEvents }, null, 2));
+
+          const failed = Object.entries(checks).filter(([, value]) => value !== true).map(([key]) => key);
+          if (failed.length) {
+            throw new Error(`UAT record verification failed: ${failed.join(', ')}`);
+          }
           NODE
 
-      - name: Upload browser UAT evidence
+      - name: Upload record evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: tracking-audit-live-uat-20260831
+          name: tracking-audit-uat-record-verification
           if-no-files-found: error
-          path: uat-evidence
+          path: uat-record-evidence
