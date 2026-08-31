@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { z } from "zod";
 import { toast } from "sonner";
 import {
@@ -422,6 +422,7 @@ const TrackingAuditProfessionalServices = () => {
   const location = useLocation();
   const finalCtaTo = withCampaignSearch(TRACKING_AUDIT_ANCHOR_CTA.to, location.search);
   const [theme, setTheme] = useState<TrackingAuditTheme>("dark");
+  const prefersReducedMotion = useReducedMotion();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -623,6 +624,16 @@ const TrackingAuditProfessionalServices = () => {
                   </span>
                 ))}
               </div>
+
+              <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/[0.06] px-3 py-1.5 text-xs font-semibold text-foreground/82">
+                <ShieldCheck className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                <span>Human-reviewed audit</span>
+                <span className="text-muted-foreground/70">·</span>
+                <span className="font-medium text-muted-foreground">Not an automated report</span>
+              </div>
+              <p className="mt-3 max-w-[34rem] text-xs leading-5 text-muted-foreground/85">
+                The free audit includes the review and recommendations. Implementation is separate.
+              </p>
             </motion.div>
 
             <motion.div
@@ -991,46 +1002,94 @@ const TrackingAuditProfessionalServices = () => {
           className="mb-6 md:mb-7"
         />
 
-        <p className="mx-auto mb-12 max-w-3xl text-center text-sm font-medium leading-6 text-foreground/72 md:mb-14 md:text-base">
-          You may still receive the lead — but lose the source information that tells you which ad or campaign produced it.
-        </p>
-
         <div className="mx-auto max-w-[76rem]">
           <div className="relative hidden px-3 pt-8 md:block lg:px-5">
-            <motion.div
+            <div
               className="absolute left-[12.5%] right-[12.5%] top-[3.05rem] h-px bg-gradient-to-r from-atd-blue/25 via-primary/55 to-atd-cyan/25"
-              initial={{ scaleX: 0 }}
-              whileInView={{ scaleX: 1 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 0.65, ease: "easeOut" }}
-              style={{ transformOrigin: "left" }}
               aria-hidden="true"
             />
-
+            <motion.div
+              aria-hidden="true"
+              className="absolute left-[12.5%] right-[12.5%] top-[3.02rem] h-[2px] origin-left bg-gradient-to-r from-transparent via-primary to-atd-cyan/70"
+              animate={
+                prefersReducedMotion
+                  ? { opacity: 0.35, scaleX: 1 }
+                  : { opacity: [0, 0.95, 0.8, 0], scaleX: [0, 0.72, 1, 1] }
+              }
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : { duration: 6.8, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.4 }
+              }
+              style={{ transformOrigin: "left" }}
+            />
             <motion.span
               aria-hidden="true"
-              className="absolute top-[2.83rem] z-30 h-2 w-2 rounded-full bg-primary shadow-[0_0_18px_rgba(51,204,153,0.75)]"
-              initial={{ left: "12.5%", opacity: 0 }}
-              whileInView={{ left: "87.5%", opacity: [0, 1, 1, 0.25] }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 1.5, delay: 0.25, ease: "easeInOut" }}
+              className="absolute top-[2.77rem] z-30 h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_20px_rgba(51,204,153,0.82)]"
+              animate={
+                prefersReducedMotion
+                  ? { left: "12.5%", opacity: 0.75 }
+                  : { left: ["12.5%", "87.5%"], opacity: [0, 1, 1, 0] }
+              }
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : { duration: 6.8, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.4 }
+              }
             />
 
-            {JOURNEY_BREAKS.map((item) => (
+            {JOURNEY_BREAKS.map((item, index) => (
               <div key={item.label} className="absolute top-[2.73rem] z-20 -translate-x-1/2" style={{ left: item.position }}>
-                <span className="block h-2.5 w-2.5 rotate-45 border border-amber-300/45 bg-[#0b1118]" aria-hidden="true" />
-                <span className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-amber-300/25 bg-background/95 px-3 py-1.5 text-[11px] font-semibold text-amber-100/70 shadow-[0_8px_24px_rgba(0,0,0,0.10)] backdrop-blur">
+                <motion.span
+                  className="block h-2.5 w-2.5 rotate-45 border border-amber-300/45 bg-[#0b1118]"
+                  aria-hidden="true"
+                  animate={
+                    prefersReducedMotion
+                      ? { scale: 1, opacity: 0.85 }
+                      : { scale: [1, 1, 1.35, 1], opacity: [0.75, 0.75, 1, 0.75] }
+                  }
+                  transition={
+                    prefersReducedMotion
+                      ? { duration: 0 }
+                      : { duration: 6.8, repeat: Infinity, delay: 1.25 + index * 1.55 }
+                  }
+                />
+                <motion.span
+                  className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-amber-300/25 bg-background/95 px-3 py-1.5 text-[11px] font-semibold text-amber-100/70 shadow-[0_8px_24px_rgba(0,0,0,0.10)] backdrop-blur"
+                  animate={
+                    prefersReducedMotion
+                      ? { opacity: 0.9 }
+                      : { opacity: [0.72, 0.72, 1, 0.72], y: [0, 0, -2, 0] }
+                  }
+                  transition={
+                    prefersReducedMotion
+                      ? { duration: 0 }
+                      : { duration: 6.8, repeat: Infinity, delay: 1.15 + index * 1.55 }
+                  }
+                >
                   {item.label}
-                </span>
+                </motion.span>
               </div>
             ))}
 
             <div className="relative grid grid-cols-4 gap-12 lg:gap-16">
               {MEASUREMENT_JOURNEY.map(({ icon: Icon, title }, index) => (
                 <div key={title} className="text-center">
-                  <div className="tracking-audit-node-ring relative z-10 mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/25 bg-[#0a1017] text-primary shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
+                  <motion.div
+                    className="tracking-audit-node-ring relative z-10 mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/25 bg-[#0a1017] text-primary shadow-[0_8px_24px_rgba(0,0,0,0.10)]"
+                    animate={
+                      prefersReducedMotion
+                        ? { scale: 1 }
+                        : { scale: [1, 1, 1.06, 1], boxShadow: ["0 8px 24px rgba(0,0,0,0.10)", "0 8px 24px rgba(0,0,0,0.10)", "0 0 30px rgba(51,204,153,0.20)", "0 8px 24px rgba(0,0,0,0.10)"] }
+                    }
+                    transition={
+                      prefersReducedMotion
+                        ? { duration: 0 }
+                        : { duration: 6.8, repeat: Infinity, delay: index * 1.75 }
+                    }
+                  >
                     <Icon className="h-[1.35rem] w-[1.35rem]" aria-hidden="true" />
-                  </div>
+                  </motion.div>
                   <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/60">
                     {String(index + 1).padStart(2, "0")}
                   </p>
@@ -1078,9 +1137,6 @@ const TrackingAuditProfessionalServices = () => {
               <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">
                 Your team gets the enquiry. What can disappear is the context that explains which ad, campaign or channel brought it in.
               </p>
-              <p className="mt-4 max-w-lg text-sm leading-6 text-foreground/72">
-                When ads, analytics and the CRM disagree, budget decisions become guesswork.
-              </p>
             </div>
 
             <div className="overflow-hidden rounded-[24px] border border-white/[0.08] bg-background/55 shadow-[0_22px_60px_rgba(0,0,0,0.12)] backdrop-blur">
@@ -1105,14 +1161,14 @@ const TrackingAuditProfessionalServices = () => {
                     transition={{ duration: 0.3, delay: index * 0.08 }}
                   >
                     <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-primary/75">{item.label}</p>
-                    <p className="text-xl font-bold tracking-tight text-foreground">{item.value}</p>
+                    <p className="whitespace-nowrap text-xl font-bold tracking-tight text-foreground">{item.value}</p>
                     <p className="text-[13px] leading-5 text-muted-foreground">{item.detail}</p>
                   </motion.div>
                 ))}
               </div>
 
-              <div className="border-t border-white/[0.07] bg-primary/[0.045] px-5 py-4 sm:px-6">
-                <p className="text-[13px] font-semibold leading-5 text-foreground/88">
+              <div className="border-t border-white/[0.07] bg-primary/[0.045] px-5 py-4 text-center sm:px-6">
+                <p className="mx-auto max-w-2xl text-[13px] font-semibold leading-5 text-foreground/88">
                   The useful question: where did the measurement journey stop agreeing?
                 </p>
               </div>
@@ -1231,7 +1287,7 @@ const TrackingAuditProfessionalServices = () => {
               {SCORECARD_PREVIEW.map((item, index) => (
                 <motion.div
                   key={item.label}
-                  className="px-5 py-5 sm:px-6"
+                  className="px-5 py-4 sm:px-6"
                   initial={{ opacity: 0, x: 10 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, amount: 0.6 }}
@@ -1255,14 +1311,14 @@ const TrackingAuditProfessionalServices = () => {
               ))}
             </div>
 
-            <div className="grid grid-cols-2 border-t border-white/[0.07] bg-primary/[0.035]">
-              <div className="p-4 sm:p-5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-primary/70">Recommended first step</p>
-                <p className="mt-1.5 text-sm font-medium">Fix the form / CRM source handoff</p>
+            <div className="grid grid-cols-2 border-t border-white/[0.07] bg-primary/[0.035] text-center">
+              <div className="px-3 py-3">
+                <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-primary/70">Recommended first step</p>
+                <p className="mt-1 text-[13px] font-semibold">Fix the form / CRM handoff</p>
               </div>
-              <div className="border-l border-white/[0.07] p-4 sm:p-5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-primary/70">Priority</p>
-                <p className="mt-1.5 text-sm font-medium">High</p>
+              <div className="border-l border-white/[0.07] px-3 py-3">
+                <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-primary/70">Priority</p>
+                <p className="mt-1 text-[13px] font-semibold">High</p>
               </div>
             </div>
           </motion.div>
@@ -1295,43 +1351,6 @@ const TrackingAuditProfessionalServices = () => {
           </div>
         </div>
 
-        <div className="tracking-audit-trust-card mx-auto mt-20 grid max-w-5xl overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.02] md:grid-cols-[0.9fr_1.1fr]">
-            <div className="relative min-h-[190px] md:min-h-[230px]">
-              <img
-                src="/about-hero-team-optimized.jpg"
-                alt="Marketing team reviewing campaign performance"
-                loading="lazy"
-                decoding="async"
-                className="absolute inset-0 h-full w-full object-cover object-center saturate-[0.92] contrast-[1.03]"
-              />
-              <div
-                className="absolute inset-0 bg-gradient-to-t from-background/55 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-background/20"
-                aria-hidden="true"
-              />
-              <span className="absolute bottom-3 left-3 rounded-full border border-white/15 bg-black/45 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.12em] text-white/75 backdrop-blur">
-                Illustrative review session
-              </span>
-            </div>
-
-            <div className="flex flex-col justify-center p-5 sm:p-6 md:p-7">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/80">Human-reviewed</p>
-              <h3 className="mt-2 text-lg font-semibold">Reviewed by people, not an automated report.</h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Your application and audit are reviewed by the AlphaTrack Digital team. We trace one enquiry journey and explain what we find in plain language.
-              </p>
-
-              <div className="mt-4 flex items-start gap-3 border-t border-white/[0.07] pt-4">
-                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
-                <div>
-                  <h4 className="text-sm font-semibold">We start without account access.</h4>
-                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    If verification is needed, we ask for the lowest practical read-only access. We never ask for passwords.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div className="mx-auto mt-14 max-w-5xl border-t border-white/[0.07] pt-10">
             <div className="mb-6 text-center">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">How it works</p>
@@ -1363,9 +1382,6 @@ const TrackingAuditProfessionalServices = () => {
             </div>
           </div>
 
-        <p className="mx-auto mt-10 max-w-2xl text-center text-xs leading-5 text-muted-foreground/90">
-          The free audit includes the review and recommendations. Fixing the issues is separate.
-        </p>
       </PageSection>
 
       <div>
@@ -1388,10 +1404,10 @@ const TrackingAuditProfessionalServices = () => {
           </div>
 
           <div className="container relative mx-auto px-5 sm:px-6 lg:px-8">
-            <div className="mx-auto max-w-3xl text-center">
-              <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-                <span className="block">Know which marketing is</span>{" "}
-                <span className="block text-gradient sm:whitespace-nowrap">actually producing enquiries.</span>
+            <div className="mx-auto max-w-5xl text-center">
+              <h2 className="mx-auto max-w-4xl text-balance text-3xl font-bold leading-[1.08] tracking-tight sm:text-4xl md:text-[2.8rem] lg:text-5xl">
+                <span className="block">Know which marketing is</span>
+                <span className="mt-1 block text-gradient lg:whitespace-nowrap">actually producing enquiries.</span>
               </h2>
               <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
                 If you’re spending on ads but can’t confidently connect them to enquiries or booked calls, request a free audit.
