@@ -314,7 +314,6 @@ const FormSelect = ({
   options,
   placeholder,
   error,
-  theme,
 }: {
   id: string;
   label: string;
@@ -324,29 +323,100 @@ const FormSelect = ({
   placeholder: string;
   error?: string;
   theme: TrackingAuditTheme;
-}) => (
-  <div className="relative">
-    <select
-      id={id}
-      aria-label={label}
-      value={value ?? ""}
-      onChange={(event) => onValueChange(event.target.value)}
-      aria-invalid={Boolean(error)}
-      aria-describedby={error ? `${id}-err` : undefined}
-      className={`${fieldClassName} w-full appearance-none px-3 pr-10`}
-      style={{ colorScheme: theme }}
-    >
-      <option value="" disabled>{placeholder}</option>
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>{option.label}</option>
-      ))}
-    </select>
-    <ChevronDown
-      className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-      aria-hidden="true"
-    />
-  </div>
-);
+}) => {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const selected = options.find((option) => option.value === value);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [open]);
+
+  return (
+    <div ref={rootRef} className="relative">
+      <button
+        id={id}
+        type="button"
+        role="combobox"
+        aria-label={label}
+        aria-expanded={open}
+        aria-controls={`${id}-listbox`}
+        aria-haspopup="listbox"
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-err` : undefined}
+        onClick={() => setOpen((current) => !current)}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setOpen(true);
+          }
+        }}
+        className={[
+          "flex h-10 w-full items-center justify-between gap-3 rounded-xl border px-3 text-left text-[13px] font-medium outline-none transition-all",
+          "border-white/[0.09] bg-white/[0.035] text-foreground hover:border-primary/25 hover:bg-white/[0.05]",
+          "focus-visible:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/20",
+          error ? "border-red-500/45" : "",
+        ].join(" ")}
+      >
+        <span className={selected ? "truncate text-foreground" : "truncate text-muted-foreground/75"}>
+          {selected?.label ?? placeholder}
+        </span>
+        <ChevronDown
+          className={["h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-150", open ? "rotate-180" : ""].join(" ")}
+          aria-hidden="true"
+        />
+      </button>
+
+      {open && (
+        <div
+          id={`${id}-listbox`}
+          role="listbox"
+          aria-label={label}
+          className="absolute left-0 right-0 z-[80] mt-1.5 max-h-56 overflow-y-auto rounded-xl border border-border bg-card p-1.5 text-card-foreground shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
+        >
+          {options.map((option) => {
+            const isSelected = option.value === value;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                role="option"
+                aria-selected={isSelected}
+                onClick={() => {
+                  onValueChange(option.value);
+                  setOpen(false);
+                }}
+                className={[
+                  "flex min-h-9 w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-[13px] leading-5 transition-colors",
+                  isSelected
+                    ? "bg-primary/[0.10] font-semibold text-primary"
+                    : "text-foreground/88 hover:bg-accent hover:text-accent-foreground",
+                ].join(" ")}
+              >
+                <span>{option.label}</span>
+                {isSelected && <Check className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const TrackingAuditProfessionalServices = () => {
   const location = useLocation();
@@ -553,10 +623,6 @@ const TrackingAuditProfessionalServices = () => {
                   </span>
                 ))}
               </div>
-              <p className="mt-6 max-w-[35rem] text-xs leading-5 text-foreground/65 sm:text-sm">
-                For consultancies, agencies, legal, accounting, advisory and other service businesses that rely on enquiries, calls or consultations.
-              </p>
-
             </motion.div>
 
             <motion.div
@@ -583,7 +649,7 @@ const TrackingAuditProfessionalServices = () => {
                 </div>
               ) : (
                 <>
-                  <div className="mb-6">
+                  <div className="mb-5">
                     <div className="flex min-h-8 items-center justify-between gap-4">
                       {step === 1 ? (
                         <span className="text-xs font-medium text-muted-foreground">Step 1 of 3</span>
@@ -605,14 +671,14 @@ const TrackingAuditProfessionalServices = () => {
                         style={{ width: `${(step / 3) * 100}%` }}
                       />
                     </div>
-                    <h2 className="mt-5 text-xl font-semibold">
+                    <h2 className="mt-4 text-xl font-semibold">
                       {step === 1
                         ? "Tell us about your business."
                         : step === 2
                           ? "How do you generate enquiries?"
                           : "Where is the tracking unclear?"}
                     </h2>
-                    <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
+                    <p className="mt-1 text-[13px] leading-5 text-muted-foreground">
                       {step === 1
                         ? "We review every application."
                         : step === 2
@@ -625,7 +691,7 @@ const TrackingAuditProfessionalServices = () => {
                     <input name="tracking-audit-company-website" type="text" tabIndex={-1} autoComplete="off" value={honeypot} onChange={(event) => setHoneypot(event.target.value)} />
                   </div>
 
-                  <form id="tracking-audit-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate aria-label="Request a Free Tracking Audit">
+                  <form id="tracking-audit-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate aria-label="Request a Free Tracking Audit">
                     {step === 1 ? (
                       <motion.div
                         key="tracking-audit-step-1"
@@ -688,7 +754,7 @@ const TrackingAuditProfessionalServices = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.18 }}
                       >
-                        <section className="space-y-3" aria-labelledby="step2-business-context">
+                        <section className="space-y-2.5" aria-labelledby="step2-business-context">
                           <p id="step2-business-context" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">Business context</p>
                           <Field label="Your role" htmlFor="f-role" error={errors.role?.message}>
                             <Controller control={control} name="role" render={({ field }) => (
@@ -706,7 +772,7 @@ const TrackingAuditProfessionalServices = () => {
                           </Field>
                         </section>
 
-                        <section className="mt-5 space-y-4 border-t border-white/[0.06] pt-5" aria-labelledby="step2-marketing-setup">
+                        <section className="mt-4 space-y-3.5 border-t border-white/[0.06] pt-4" aria-labelledby="step2-marketing-setup">
                           <p id="step2-marketing-setup" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">Marketing setup</p>
 
                           <Field label="Are you involved in choosing a provider?" htmlFor="f-decision" error={errors.decisionInfluence?.message}>
@@ -748,7 +814,7 @@ const TrackingAuditProfessionalServices = () => {
                             );
 
                             return (
-                              <div className="space-y-4">
+                              <div className="space-y-3.5">
                                 <Field label="Main ad platform" htmlFor="f-primary-platform" error={errors.adPlatforms?.message}>
                                   <FormSelect
                                     id="f-primary-platform"
@@ -805,7 +871,7 @@ const TrackingAuditProfessionalServices = () => {
                           }} />
                         </section>
 
-                        <Button type="button" size="lg" onClick={handleStepTwoContinue} className="mt-6 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
+                        <Button type="button" size="lg" onClick={handleStepTwoContinue} className="mt-5 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
                           Continue
                           <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
                         </Button>
@@ -817,7 +883,7 @@ const TrackingAuditProfessionalServices = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.18 }}
                       >
-                        <div className="space-y-4">
+                        <div className="space-y-3.5">
                           <Field label="How clear are you on where enquiries come from?" htmlFor="f-maturity" error={errors.trackingMaturity?.message}>
                             <Controller control={control} name="trackingMaturity" render={({ field }) => (
                               <FormSelect
@@ -901,14 +967,14 @@ const TrackingAuditProfessionalServices = () => {
             </motion.div>
           </div>
 
-          <div className="mt-8 hidden justify-center md:mt-10 md:flex lg:mt-0 lg:shrink-0 lg:pb-1">
+          <div className="mt-9 flex justify-center md:mt-11 lg:mt-4 lg:shrink-0 lg:pb-1">
             <a
               href="#measurement-journey"
-              className="group inline-flex flex-col items-center gap-2 text-center text-xs font-medium tracking-wide text-foreground/55 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 lg:gap-1.5"
+              className="group inline-flex items-center gap-3 rounded-full border border-primary/20 bg-primary/[0.055] px-4 py-2.5 text-sm font-semibold text-foreground/82 shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:bg-primary/[0.09] hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
             >
               <span>See what we review</span>
-              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.02] transition-colors group-hover:border-primary/25 group-hover:bg-primary/[0.05] lg:h-7 lg:w-7">
-                <ArrowDown className="h-4 w-4 motion-safe:animate-bounce motion-reduce:animate-none lg:h-3.5 lg:w-3.5" aria-hidden="true" />
+              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-background/55 text-primary">
+                <ArrowDown className="h-4 w-4 motion-safe:animate-bounce motion-reduce:animate-none" aria-hidden="true" />
               </span>
             </a>
           </div>
