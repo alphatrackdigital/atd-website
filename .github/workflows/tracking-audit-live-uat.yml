@@ -77,7 +77,7 @@ jobs:
             taskApi: probe.tasks?.apiOk === true,
             taskCount: tasks.length === 1,
             taskOpen: tasks[0]?.done === false,
-            taskNoDeal: Array.isArray(tasks[0]?.dealsIds) && tasks[0].dealsIds.length === 0,
+            taskNoDeal: !Array.isArray(tasks[0]?.dealsIds) || tasks[0].dealsIds.length === 0,
             applicantReceiptEvent: hasTag(applicantEvents, 'tracking_audit_receipt'),
             internalAuditEvent: hasTag(auditEvents, 'tracking_audit_offer'),
             internalMartechEvent: hasTag(martechEvents, 'tracking_audit_offer'),
