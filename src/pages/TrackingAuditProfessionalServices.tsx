@@ -535,8 +535,10 @@ const TrackingAuditProfessionalServices = () => {
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="pt-2 lg:pt-0">
               <HeroEyebrow>Free Conversion Tracking Audit</HeroEyebrow>
 
-              <h1 className="title-safe mt-5 max-w-[36rem] text-[2.55rem] font-extrabold leading-[1.02] tracking-tight sm:text-5xl md:text-[3.4rem] lg:text-[3.6rem]">
-                Know which ads are bringing you <span className="title-safe-inline text-gradient-atd-hero">real enquiries and booked calls.</span>
+              <h1 className="title-safe mt-5 max-w-[36rem] text-balance text-[2.55rem] font-extrabold leading-[1.02] tracking-tight sm:text-5xl md:text-[3.4rem] lg:text-[3.6rem]">
+                <span className="block">Know which ads are bringing you</span>{" "}
+                <span className="block text-gradient-atd-hero sm:whitespace-nowrap">real enquiries</span>{" "}
+                <span className="block text-gradient-atd-hero sm:whitespace-nowrap">and booked calls.</span>
               </h1>
 
               <p className="mt-5 max-w-[35rem] text-base leading-7 text-foreground/72 md:text-lg md:leading-8">
@@ -562,7 +564,7 @@ const TrackingAuditProfessionalServices = () => {
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: 0.08 }}
-              className="tracking-audit-form-card w-full scroll-mt-24 rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.02)_100%)] p-4 shadow-[0_24px_64px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:p-7 md:p-8 lg:sticky lg:top-24 lg:rounded-[28px]"
+              className="tracking-audit-form-card w-full scroll-mt-24 rounded-[24px] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,0.035)_0%,rgba(255,255,255,0.018)_100%)] p-4 shadow-[0_28px_84px_rgba(0,0,0,0.20)] backdrop-blur-xl sm:p-7 md:p-8 lg:sticky lg:top-24 lg:rounded-[28px]"
             >
               {isSubmitted ? (
                 <div className="py-7 text-center" aria-live="polite">
@@ -923,7 +925,7 @@ const TrackingAuditProfessionalServices = () => {
           className="mb-10 md:mb-12"
         />
 
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-6xl">
           <div className="relative hidden px-8 pt-6 md:block">
             <motion.div
               className="absolute left-[12.5%] right-[12.5%] top-[2.7rem] h-px bg-gradient-to-r from-atd-blue/25 via-primary/55 to-atd-cyan/25"
@@ -945,9 +947,9 @@ const TrackingAuditProfessionalServices = () => {
             />
 
             {JOURNEY_BREAKS.map((item) => (
-              <div key={item.label} className="absolute top-[2.34rem] z-20 -translate-x-1/2" style={{ left: item.position }}>
+              <div key={item.label} className="absolute top-[2.38rem] z-20 -translate-x-1/2" style={{ left: item.position }}>
                 <span className="block h-2.5 w-2.5 rotate-45 border border-amber-300/45 bg-[#0b1118]" aria-hidden="true" />
-                <span className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium text-amber-100/60">
+                <span className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-amber-300/20 bg-background/90 px-2.5 py-1 text-[10px] font-medium text-amber-100/70 shadow-[0_8px_24px_rgba(0,0,0,0.10)] backdrop-blur">
                   {item.label}
                 </span>
               </div>
@@ -956,8 +958,8 @@ const TrackingAuditProfessionalServices = () => {
             <div className="relative grid grid-cols-4 gap-10">
               {MEASUREMENT_JOURNEY.map(({ icon: Icon, title }, index) => (
                 <div key={title} className="text-center">
-                  <div className="tracking-audit-node-ring relative z-10 mx-auto flex h-11 w-11 items-center justify-center rounded-full border border-primary/25 bg-[#0a1017] text-primary">
-                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  <div className="tracking-audit-node-ring relative z-10 mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-primary/25 bg-[#0a1017] text-primary shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
+                    <Icon className="h-5.5 w-5.5" aria-hidden="true" />
                   </div>
                   <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.15em] text-primary/55">
                     {String(index + 1).padStart(2, "0")}
@@ -1000,8 +1002,9 @@ const TrackingAuditProfessionalServices = () => {
         <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/80">The familiar problem</p>
-            <h2 className="mt-4 max-w-xl text-3xl font-bold tracking-tight sm:text-4xl lg:text-[2.8rem] lg:leading-[1.08]">
-              The enquiry arrives. <span className="text-gradient">The source doesn’t.</span>
+            <h2 className="mt-4 max-w-xl text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-[2.8rem] lg:leading-[1.08]">
+              <span className="block">The enquiry arrives.</span>{" "}
+              <span className="block text-gradient sm:whitespace-nowrap">The source doesn’t.</span>
             </h2>
             <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">
               Your team knows people are contacting you. The hard part is confidently connecting those enquiries to the ads, campaigns or channels that produced them.
@@ -1067,16 +1070,16 @@ const TrackingAuditProfessionalServices = () => {
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">Free audit scope</p>
               <h2 className="mt-2.5 text-xl font-bold tracking-tight md:text-2xl">One business. One website. One enquiry journey.</h2>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-4 md:p-5">
               {[
                 ["01", "One company / brand"],
                 ["02", "One website / domain"],
                 ["03", "One core enquiry journey"],
                 ["04", "Up to two paid platforms"],
-              ].map(([number, label], index) => (
-                <div key={label} className={["p-4 sm:p-5", index % 2 === 1 ? "border-l border-white/[0.07]" : "", index > 1 ? "border-t border-white/[0.07] sm:border-t-0 sm:border-l" : ""].join(" ")}>
-                  <p className="text-xs font-semibold text-primary/70">{number}</p>
-                  <p className="mt-2 text-sm font-medium leading-5 text-foreground/88">{label}</p>
+              ].map(([number, label]) => (
+                <div key={label} className="rounded-2xl border border-white/[0.07] bg-background/35 p-4 shadow-[0_10px_28px_rgba(0,0,0,0.05)]">
+                  <p className="text-xs font-semibold text-primary/75">{number}</p>
+                  <p className="mt-2 text-sm font-medium leading-5 text-foreground/90">{label}</p>
                 </div>
               ))}
             </div>
@@ -1089,13 +1092,13 @@ const TrackingAuditProfessionalServices = () => {
               <article
                 key={title}
                 className={[
-                  "py-6 md:px-6 lg:min-h-[12rem] lg:py-7",
+                  "py-8 md:px-7 lg:min-h-[13rem] lg:py-9",
                   index > 0 ? "border-t border-white/[0.07] md:border-l md:border-t-0" : "",
                 ].join(" ")}
               >
                 <div className="flex items-center justify-between gap-4">
                   <span className="text-2xl font-light tracking-tight text-foreground/38">{number}</span>
-                  <Icon className="h-4 w-4 text-primary/70" aria-hidden="true" />
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-primary/15 bg-primary/[0.055] text-primary"><Icon className="h-4 w-4" aria-hidden="true" /></span>
                 </div>
                 <h3 className="mt-6 text-base font-semibold text-foreground">{title}</h3>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
@@ -1118,7 +1121,7 @@ const TrackingAuditProfessionalServices = () => {
           className="mb-9 md:mb-11"
         />
 
-        <div className="mx-auto mb-14 grid max-w-6xl items-center gap-9 lg:grid-cols-[0.82fr_1.18fr] lg:gap-14">
+        <div className="mx-auto mb-16 grid max-w-6xl items-center gap-10 lg:grid-cols-[0.68fr_1.32fr] lg:gap-16">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/80">Example preview</p>
             <h3 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">See the finding, the impact and the priority at a glance.</h3>
@@ -1131,20 +1134,33 @@ const TrackingAuditProfessionalServices = () => {
           </div>
 
           <motion.div
-            className="overflow-hidden rounded-[26px] border border-white/[0.08] bg-white/[0.03] shadow-[0_24px_70px_rgba(0,0,0,0.14)]"
+            className="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-white/[0.03] shadow-[0_30px_90px_rgba(0,0,0,0.16)]"
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.45 }}
           >
-            <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4 sm:px-6">
+            <span className="pointer-events-none absolute -right-5 top-16 -rotate-12 text-5xl font-black uppercase tracking-[0.18em] text-foreground/[0.025]" aria-hidden="true">
+              Sample
+            </span>
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.07] px-5 py-4 sm:px-6">
               <div>
                 <p className="text-sm font-semibold">Tracking Health Scorecard</p>
                 <p className="mt-1 text-[11px] text-muted-foreground">Illustrative preview</p>
               </div>
-              <span className="rounded-full border border-primary/20 bg-primary/[0.07] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">
-                Priority view
-              </span>
+              <div className="flex items-center gap-3">
+                <div className="hidden sm:block">
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Sample health</p>
+                  <div className="mt-1 flex gap-1" aria-hidden="true">
+                    {[0, 1, 2, 3, 4].map((segment) => (
+                      <span key={segment} className={["h-1.5 w-5 rounded-full", segment < 2 ? "bg-amber-400/70" : "bg-white/[0.10]"].join(" ")} />
+                    ))}
+                  </div>
+                </div>
+                <span className="rounded-full border border-primary/20 bg-primary/[0.07] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">
+                  Priority view
+                </span>
+              </div>
             </div>
 
             <div className="divide-y divide-white/[0.07]">
@@ -1189,12 +1205,12 @@ const TrackingAuditProfessionalServices = () => {
         </div>
 
         <div className="relative mx-auto max-w-5xl">
-          <div className="absolute left-[16.5%] right-[16.5%] top-6 hidden h-px bg-gradient-to-r from-primary/20 via-primary/45 to-atd-cyan/20 md:block" aria-hidden="true" />
+          <div className="absolute left-[16.5%] right-[16.5%] top-7 hidden h-px bg-gradient-to-r from-primary/20 via-primary/55 to-atd-cyan/20 md:block" aria-hidden="true" />
 
           <div className="grid gap-7 md:grid-cols-3 md:gap-8">
             {AUDIT_DELIVERABLES.map(({ icon: Icon, title, description }, index) => (
               <article key={title} className="relative text-center md:px-4">
-                <div className="tracking-audit-node-ring relative z-10 mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-[#0a1017] text-primary">
+                <div className="tracking-audit-node-ring relative z-10 mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/20 bg-[#0a1017] text-primary shadow-[0_10px_30px_rgba(0,0,0,0.10)]">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/65">
@@ -1210,15 +1226,18 @@ const TrackingAuditProfessionalServices = () => {
             <div className="relative min-h-[190px] md:min-h-[230px]">
               <img
                 src="/about-hero-team-optimized.jpg"
-                alt="AlphaTrack Digital team"
+                alt="Marketing team reviewing campaign performance"
                 loading="lazy"
                 decoding="async"
-                className="absolute inset-0 h-full w-full object-cover object-center"
+                className="absolute inset-0 h-full w-full object-cover object-center saturate-[0.92] contrast-[1.03]"
               />
               <div
-                className="absolute inset-0 bg-gradient-to-t from-background/45 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-background/15"
+                className="absolute inset-0 bg-gradient-to-t from-background/55 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-background/20"
                 aria-hidden="true"
               />
+              <span className="absolute bottom-3 left-3 rounded-full border border-white/15 bg-black/45 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.12em] text-white/75 backdrop-blur">
+                Illustrative review session
+              </span>
             </div>
 
             <div className="flex flex-col justify-center p-5 sm:p-6 md:p-7">
@@ -1246,19 +1265,29 @@ const TrackingAuditProfessionalServices = () => {
               <h3 className="mt-2 text-xl font-bold tracking-tight">From application to scorecard in four steps.</h3>
             </div>
 
-            <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-              {PROCESS_STEPS.map((item) => (
-                <li key={item.number} className="flex gap-3 lg:block lg:text-center">
-                  <span className="tracking-audit-node-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-[#091017] text-[11px] font-bold text-primary lg:mx-auto">
-                    {item.number}
-                  </span>
-                  <div className="min-w-0 lg:mt-3">
-                    <h4 className="text-sm font-semibold">{item.title}</h4>
-                    <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.description}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
+            <div className="relative">
+              <div className="absolute left-[12.5%] right-[12.5%] top-6 hidden h-px bg-gradient-to-r from-primary/15 via-primary/40 to-atd-cyan/15 lg:block" aria-hidden="true" />
+              <ol className="relative grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-7">
+                {PROCESS_STEPS.map((item, index) => (
+                  <motion.li
+                    key={item.number}
+                    className="flex gap-3 lg:block lg:text-center"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.55 }}
+                    transition={{ duration: 0.3, delay: index * 0.08 }}
+                  >
+                    <span className="tracking-audit-node-ring relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-primary/25 bg-[#091017] text-xs font-bold text-primary lg:mx-auto">
+                      {item.number}
+                    </span>
+                    <div className="min-w-0 lg:mt-4">
+                      <h4 className="text-sm font-semibold">{item.title}</h4>
+                      <p className="mt-1.5 text-xs leading-5 text-muted-foreground">{item.description}</p>
+                    </div>
+                  </motion.li>
+                ))}
+              </ol>
+            </div>
           </div>
 
           <p className="mx-auto mt-7 max-w-2xl text-center text-xs leading-5 text-muted-foreground/90">
@@ -1275,9 +1304,9 @@ const TrackingAuditProfessionalServices = () => {
           variant="minimal"
           density="compact"
           accordionClassName="!overflow-visible !rounded-none !border-0 !bg-transparent"
-          contentClassName="max-w-[46rem]"
+          contentClassName="max-w-[42rem]"
           sectionClassName="bg-transparent"
-          sectionSpacingClassName="py-14 md:py-20"
+          sectionSpacingClassName="py-16 md:py-24"
         />
 
         <section className="tracking-audit-final-cta relative overflow-hidden border-t border-white/[0.05] py-16 md:py-24">
@@ -1288,8 +1317,9 @@ const TrackingAuditProfessionalServices = () => {
 
           <div className="container relative mx-auto px-5 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-3xl text-center">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-                Know which marketing is <span className="text-gradient">actually producing enquiries.</span>
+              <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+                <span className="block">Know which marketing is</span>{" "}
+                <span className="block text-gradient sm:whitespace-nowrap">actually producing enquiries.</span>
               </h2>
               <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
                 If you’re spending on ads but can’t confidently connect them to enquiries or booked calls, request a free audit.
