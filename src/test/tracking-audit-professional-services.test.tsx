@@ -45,7 +45,12 @@ describe("TrackingAuditProfessionalServices", () => {
     ).toBeInTheDocument();
 
     expect(screen.getByText("Illustrative preview")).toBeInTheDocument();
-    expect(screen.getByAltText("Marketing team reviewing campaign performance")).toBeInTheDocument();
+    expect(screen.getByText("Human-reviewed audit")).toBeInTheDocument();
+    expect(screen.getByText("Not an automated report")).toBeInTheDocument();
+    expect(
+      screen.getByText("The free audit includes the review and recommendations. Implementation is separate."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Human-reviewed")).not.toBeInTheDocument();
 
     expect(screen.getByRole("link", { name: "Request My Free Audit" })).toHaveAttribute(
       "href",
