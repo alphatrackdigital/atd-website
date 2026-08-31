@@ -1046,6 +1046,7 @@ const TrackingAuditProfessionalServices = () => {
             {JOURNEY_BREAKS.map((item, index) => (
               <motion.div
                 key={item.label}
+                data-journey-break={index}
                 className="absolute top-0 z-20 w-max -translate-x-1/2 text-center"
                 style={{ left: item.position }}
                 animate={
@@ -1063,6 +1064,7 @@ const TrackingAuditProfessionalServices = () => {
                   {item.label}
                 </span>
                 <motion.span
+                  data-journey-diamond
                   className="absolute left-1/2 top-[2.73rem] block h-2.5 w-2.5 -translate-x-1/2 rotate-45 border border-amber-300/45 bg-[#0b1118]"
                   aria-hidden="true"
                   animate={
@@ -1201,7 +1203,7 @@ const TrackingAuditProfessionalServices = () => {
         </div>
       </PageSection>
 
-      <PageSection id="audit-coverage" spacing="spacious" className="scroll-mt-20 py-16 md:py-24 lg:py-28" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection id="audit-coverage" spacing="spacious" className="relative z-10 scroll-mt-20 py-16 md:py-24 lg:py-28" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
           eyebrow="What we review"
           title="We follow one enquiry from click to handoff."
@@ -1400,7 +1402,7 @@ const TrackingAuditProfessionalServices = () => {
                   >
                     <div className="flex items-center justify-between gap-3">
                       <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/[0.06] text-primary">
-                        <Icon className="h-4.5 w-4.5" aria-hidden="true" />
+                        <Icon className="h-[1.125rem] w-[1.125rem]" aria-hidden="true" />
                       </span>
                       <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/65">
                         {item.number} / 04
