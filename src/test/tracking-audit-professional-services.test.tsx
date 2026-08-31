@@ -21,7 +21,7 @@ describe("TrackingAuditProfessionalServices", () => {
     ).toBeInTheDocument();
 
     expect(screen.getByRole("heading", { name: "Focused enough to be useful." })).toBeInTheDocument();
-    expect(screen.getByText("One core enquiry journey")).toBeInTheDocument();
+    expect(screen.getAllByText("One core enquiry journey")).toHaveLength(2);
     expect(screen.getByText("Up to two paid platforms")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
