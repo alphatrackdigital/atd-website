@@ -35,6 +35,23 @@ describe("TrackingAuditProfessionalServices", () => {
     );
   });
 
+  it("switches between dark and light themes without changing the application flow", () => {
+    window.localStorage.removeItem("atd-tracking-audit-theme");
+
+    renderWithPageProviders(<TrackingAuditProfessionalServices />, {
+      route: "/offer/tracking-audit/professional-services",
+    });
+
+    const lightToggle = screen.getByRole("button", { name: "Switch to light theme" });
+    expect(document.querySelector(".tracking-audit-light")).not.toBeInTheDocument();
+
+    fireEvent.click(lightToggle);
+
+    expect(screen.getByRole("button", { name: "Switch to dark theme" })).toBeInTheDocument();
+    expect(document.querySelector(".tracking-audit-light")).toBeInTheDocument();
+    expect(screen.getByText("Step 1 of 3")).toBeInTheDocument();
+  });
+
   it("preserves the production three-step form and preselects Professional services", async () => {
     renderWithPageProviders(<TrackingAuditProfessionalServices />, {
       route: "/offer/tracking-audit/professional-services",
