@@ -3,7 +3,7 @@ name: Professional Services Premium LP Review
 on:
   push:
     branches:
-      - qa/professional-services-premium-review-v22
+      - qa/professional-services-premium-review-v24
 
 permissions:
   contents: read
@@ -54,7 +54,7 @@ jobs:
       - name: Install Chromium for visual regression
         run: npx playwright install --with-deps chromium
 
-      - name: Verify light theme and select layout stability
+      - name: Verify desktop, tablet and mobile visual stability
         run: npx playwright test e2e/tracking-audit-professional-services.visual.spec.ts
 
       - name: Embed review deployment manifest
