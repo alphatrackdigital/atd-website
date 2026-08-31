@@ -1,0 +1,184 @@
+name: Professional Services Premium LP Review
+
+on:
+  push:
+    branches:
+      - qa/professional-services-premium-review-v22
+
+permissions:
+  contents: read
+
+concurrency:
+  group: professional-services-premium-review
+  cancel-in-progress: true
+
+jobs:
+  deploy-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_STAGING_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_STAGING_ACCOUNT_ID }}
+      WORKER_NAME: atd-website-prof-services-review
+      SOURCE_PR_SHA: 577120241de5a25f21a0afd8e3d9a986c8d32cfc
+      REVIEW_BASE_URL: https://atd-website-prof-services-review.alphatrackdigital.workers.dev
+
+    steps:
+      - name: Check out review branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify Professional Services source commit is preserved
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$SOURCE_PR_SHA" HEAD
+          echo "Professional Services feature source preserved at $SOURCE_PR_SHA"
+          echo "Review wrapper head is $(git rev-parse HEAD)"
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run canonical release preparation
+        env:
+          VITE_LEADS_ENDPOINT: /api/leads
+        run: npm run release:prepare
+
+      - name: Install Chromium for visual regression
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify light theme and select layout stability
+        run: npx playwright test e2e/tracking-audit-professional-services.visual.spec.ts
+
+      - name: Embed review deployment manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs');
+          const manifest = {
+            schemaVersion: 1,
+            app: 'atd-website',
+            environment: 'temporary-review',
+            reviewPurpose: 'Premium Professional Services Tracking Audit LP',
+            sourcePr: 58,
+            sourcePrSha: process.env.SOURCE_PR_SHA,
+            wrapperSha: process.env.GITHUB_SHA,
+            workerName: process.env.WORKER_NAME,
+            formSubmissionEnabled: false,
+            builtAt: new Date().toISOString(),
+            githubRun: `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+          };
+          fs.mkdirSync('dist/__atd', { recursive: true });
+          fs.writeFileSync('dist/__atd/deployment.json', JSON.stringify(manifest, null, 2) + '\n');
+          NODE
+
+      - name: Cloudflare dry-run
+        run: npx --yes wrangler@4 deploy --dry-run --config cloudflare/wrangler.professional-services-review.jsonc --outdir .wrangler-dry-run
+
+      - name: Deploy isolated review Worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4 deploy --config cloudflare/wrangler.professional-services-review.jsonc 2>&1 | tee cloudflare-review-deploy.log
+
+      - name: Smoke review routes and blocked submit endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          for path in /offer/tracking-audit/professional-services/ 
+          do
+            code="$(curl -sS -o /tmp/review-body -w '%{http_code}' \
+              -H 'Accept: text/html' \
+              -H 'Sec-Fetch-Mode: navigate' \
+              "$REVIEW_BASE_URL$path")"
+            echo "$path -> $code"
+            test "$code" = "200"
+          done
+
+          # Wait for the newly deployed manifest to be visible at the edge.
+          for attempt in 1 2 3 4 5 6
+          do
+            curl -sS -H 'Cache-Control: no-cache' \
+              "$REVIEW_BASE_URL/__atd/deployment.json?sha=$SOURCE_PR_SHA&attempt=$attempt" > /tmp/review-manifest-current || true
+            if grep -q "$SOURCE_PR_SHA" /tmp/review-manifest-current; then
+              echo "Latest review manifest visible on attempt $attempt"
+              break
+            fi
+            sleep 2
+          done
+          grep -q "$SOURCE_PR_SHA" /tmp/review-manifest-current
+
+          curl -sS -H 'Accept: text/html' -H 'Sec-Fetch-Mode: navigate' -H 'Cache-Control: no-cache' \
+            "$REVIEW_BASE_URL/offer/tracking-audit/professional-services/?review_sha=$SOURCE_PR_SHA" > /tmp/initial-html
+          grep -q "Know which ads are bringing you" /tmp/initial-html
+          if grep -Fq "You may still receive the lead — but lose the source information that tells you which ad or campaign produced it." /tmp/initial-html; then
+            echo "Removed journey helper copy leaked into review HTML"
+            exit 1
+          fi
+          grep -q "The scorecard gives you three things." /tmp/initial-html
+          if grep -q "For consultancies, agencies, legal, accounting, advisory" /tmp/initial-html; then
+            echo "Removed hero qualifier leaked into review HTML"
+            exit 1
+          fi
+          if grep -q "Your scorecard still covers Conversion Capture" /tmp/initial-html; then
+            echo "Removed dimensions footer leaked into review HTML"
+            exit 1
+          fi
+          grep -q "The enquiry arrives" /tmp/initial-html
+          grep -q "Tracking Health Scorecard" /tmp/initial-html
+          grep -q "From application to scorecard in four steps." /tmp/initial-html
+          if grep -q "Example only. The findings shown here are fictional and do not represent a client." /tmp/initial-html; then
+            echo "Removed scorecard disclaimer leaked into review HTML"
+            exit 1
+          fi
+          grep -q "One business. One website. One enquiry journey." /tmp/initial-html
+          grep -q "Human-reviewed audit" /tmp/initial-html
+          if grep -q "Illustrative review session" /tmp/initial-html; then
+            echo "Removed human-review card leaked into review HTML"
+            exit 1
+          fi
+          grep -q "actually producing enquiries." /tmp/initial-html
+          if grep -q "Reviewed by people, not an automated report." /tmp/initial-html; then
+            echo "Removed human-review card copy leaked into review HTML"
+            exit 1
+          fi
+          if grep -q "Growth should never" /tmp/initial-html; then
+            echo "Homepage prerender leaked into vertical route"
+            exit 1
+          fi
+
+          manifest_code="$(curl -sS -o /tmp/review-manifest -w '%{http_code}' "$REVIEW_BASE_URL/__atd/deployment.json")"
+          echo "/__atd/deployment.json -> $manifest_code"
+          test "$manifest_code" = "200"
+
+          submit_code="$(curl -sS -o /tmp/submit-body -w '%{http_code}' "$REVIEW_BASE_URL/api/leads")"
+          echo "/api/leads -> $submit_code"
+          cat /tmp/submit-body
+          test "$submit_code" = "403"
+
+      - name: Save review evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qa-evidence
+          cp dist/__atd/deployment.json qa-evidence/deployment.json 2>/dev/null || true
+          cp cloudflare-review-deploy.log qa-evidence/cloudflare-review-deploy.log 2>/dev/null || true
+          printf '%s\n' "$SOURCE_PR_SHA" > qa-evidence/source-pr-sha.txt
+          printf '%s\n' "$GITHUB_SHA" > qa-evidence/review-wrapper-sha.txt
+
+      - name: Upload review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: professional-services-premium-review-${{ github.sha }}
+          if-no-files-found: error
+          path: qa-evidence
