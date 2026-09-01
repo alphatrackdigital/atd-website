@@ -1427,6 +1427,7 @@ const TrackingAuditEducation = () => {
 
           <motion.div
             data-process-sequence
+            data-process-pace="deliberate"
             className="relative overflow-hidden rounded-[30px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(0,175,239,0.025),rgba(51,204,153,0.02),rgba(255,255,255,0.012))] px-5 py-9 shadow-[0_22px_64px_rgba(0,0,0,0.07)] sm:px-7 lg:px-9 lg:py-12"
             initial={prefersReducedMotion ? false : "hidden"}
             whileInView="visible"
