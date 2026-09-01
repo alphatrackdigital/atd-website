@@ -1,0 +1,43 @@
+name: Tracking Audit Core Browser Gate
+
+on:
+  push:
+    branches:
+      - qa/tracking-audit-core-v1
+    paths:
+      - ".github/workflows/tracking-audit-core.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  browser-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Run Tracking Audit browser gate
+        run: >-
+          npx playwright test
+          e2e/tracking-audit.responsive.spec.ts
+          e2e/tracking-audit-shared-parity.spec.ts
+          e2e/tracking-audit-beta-application-uat.spec.ts
+          e2e/tracking-audit-discovery.visual.spec.ts
+          e2e/tracking-audit-professional-services.visual.spec.ts
+          e2e/tracking-audit-education.visual.spec.ts
+          e2e/tracking-audit-real-estate.visual.spec.ts
+          --project=chromium
+      - name: Upload failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tracking-audit-core-${{ github.sha }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14
