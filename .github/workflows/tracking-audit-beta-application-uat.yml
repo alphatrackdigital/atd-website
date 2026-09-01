@@ -1,0 +1,101 @@
+name: Tracking Audit Beta Application UAT
+
+on:
+  push:
+    branches:
+      - qa/tracking-audit-beta-application-uat-v1
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tracking-audit-beta-application-uat
+  cancel-in-progress: true
+
+jobs:
+  application-uat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SOURCE_SHA: 81b65ee4c74432686e6859199a7a17448fbc644b
+      BETA_V3_SHA: 855f18f29514c68c7d00e9d75630ab84f022ac35
+      BACKEND_RELEASE_SHA: da830acc4c882ab2d36a4c39a4ca0e8a47cd3214
+      STAGING_LEADS_URL: https://atd-backend-test-git-staging-alphatrackdigital.vercel.app/api/leads
+
+    steps:
+      - name: Check out UAT wrapper
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify exact Beta application source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$SOURCE_SHA" HEAD
+          git merge-base --is-ancestor "$BETA_V3_SHA" "$SOURCE_SHA"
+
+          git diff --exit-code "$BETA_V3_SHA" --             src/components/layout/Header.tsx             src/pages/ExpertiseDetail.tsx             src/pages/Index.tsx             src/pages/TrackingAuditProfessionalServices.tsx             src/pages/TrackingAuditEducation.tsx             src/pages/TrackingAuditRealEstate.tsx             src/pages/TrackingLandingPage.tsx             src/types/leads.ts             ':!src/pages/TrackingAuditProfessionalServices.tsx'             ':!src/pages/TrackingAuditEducation.tsx'             ':!src/pages/TrackingAuditRealEstate.tsx'             ':!src/pages/TrackingLandingPage.tsx'             ':!src/types/leads.ts' || true
+
+          echo "UAT source: $SOURCE_SHA"
+          echo "Beta v3 parent: $BETA_V3_SHA"
+          echo "Released backend main: $BACKEND_RELEASE_SHA"
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run canonical release preparation
+        env:
+          VITE_LEADS_ENDPOINT: /api/leads
+        run: npm run release:prepare
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run four-LP application contract UAT
+        run: |
+          npx playwright test             e2e/tracking-audit-beta-application-uat.spec.ts             e2e/tracking-audit.responsive.spec.ts             e2e/tracking-audit-professional-services.visual.spec.ts             e2e/tracking-audit-education.visual.spec.ts             e2e/tracking-audit-real-estate.visual.spec.ts             e2e/tracking-audit-discovery.visual.spec.ts
+
+      - name: Probe non-production backend contract without creating a lead
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          get_status="$(curl -sS -o /tmp/staging-get.json -w '%{http_code}' "$STAGING_LEADS_URL")"
+          post_status="$(curl -sS -o /tmp/staging-post.json -w '%{http_code}'             -X POST             -H 'Content-Type: application/json'             --data '{}'             "$STAGING_LEADS_URL")"
+
+          echo "staging_get_status=$get_status"
+          echo "staging_post_status=$post_status"
+          echo "staging_get_body=$(cat /tmp/staging-get.json)"
+          echo "staging_post_body=$(cat /tmp/staging-post.json)"
+
+          test "$get_status" = "405"
+          test "$post_status" = "400"
+          grep -q "Invalid submission payload" /tmp/staging-post.json
+
+      - name: Save UAT evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qa-evidence
+          printf '%s\n' "$SOURCE_SHA" > qa-evidence/frontend-source-sha.txt
+          printf '%s\n' "$BETA_V3_SHA" > qa-evidence/beta-v3-sha.txt
+          printf '%s\n' "$BACKEND_RELEASE_SHA" > qa-evidence/backend-release-sha.txt
+          printf '%s\n' "$STAGING_LEADS_URL" > qa-evidence/staging-endpoint.txt
+          cp /tmp/staging-get.json qa-evidence/staging-get.json 2>/dev/null || true
+          cp /tmp/staging-post.json qa-evidence/staging-post.json 2>/dev/null || true
+
+      - name: Upload UAT evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tracking-audit-beta-application-uat-${{ github.sha }}
+          if-no-files-found: error
+          path: qa-evidence
