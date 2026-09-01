@@ -118,10 +118,9 @@ test.describe("General Tracking Audit responsive application", () => {
     await completeStepTwo(page);
     await expect(page.getByText("Step 3 of 3")).toBeVisible();
     await expect(page.getByRole("combobox", { name: "How confident are you in your tracking?" })).toBeVisible();
-    await expect(page.getByText("Tracking", { exact: true })).toBeVisible();
-    await expect(page.getByText("Conversion", { exact: true })).toBeVisible();
-    await expect(page.getByText("Main issue", { exact: true })).toBeVisible();
-    await expect(page.getByText("Timing", { exact: true })).toBeVisible();
+    await expect(page.getByRole("combobox", { name: "What matters most?" })).toBeVisible();
+    await expect(page.getByRole("combobox", { name: "What’s going wrong?" })).toBeVisible();
+    await expect(page.getByRole("combobox", { name: "How soon do you want this addressed?" })).toBeVisible();
     const stepThreeBack = page.getByRole("button", { name: "Back" });
     const stepThreeBackBox = await stepThreeBack.boundingBox();
     const stepThreeHeadingBox = await page.getByRole("heading", { name: "What do you want to understand?" }).boundingBox();
