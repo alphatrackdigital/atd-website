@@ -1173,7 +1173,7 @@ const TrackingLandingPage = () => {
                 <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                 <div className="flex items-start justify-between gap-5">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/15 bg-primary/[0.07] text-primary">
-                    <Icon className="h-4.5 w-4.5" aria-hidden="true" />
+                    <Icon className="h-4 w-4" aria-hidden="true" />
                   </div>
                   <ArrowRight className="mt-1 h-4 w-4 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-primary" aria-hidden="true" />
                 </div>
