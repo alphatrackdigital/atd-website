@@ -11,11 +11,14 @@ import {
   ArrowLeft,
   ArrowRight,
   BarChart3,
+  BriefcaseBusiness,
+  Building2,
   Check,
   CheckCircle2,
   Code2,
   Gauge,
   Globe2,
+  GraduationCap,
   Loader2,
   Route,
   Send,
@@ -235,6 +238,30 @@ const PROCESS_STEPS = [
   { number: "02", title: "Fit review", description: "We check that the free audit is a good fit." },
   { number: "03", title: "Review", description: "We check one customer journey and look for gaps." },
   { number: "04", title: "Scorecard", description: "You get clear findings and next steps." },
+] as const;
+
+const INDUSTRY_AUDIT_OPTIONS = [
+  {
+    icon: BriefcaseBusiness,
+    title: "Professional Services",
+    journey: "Enquiry → booked call → CRM",
+    description: "For service businesses that need clearer visibility from campaign click to qualified enquiry and sales handoff.",
+    to: "/offer/tracking-audit/professional-services",
+  },
+  {
+    icon: GraduationCap,
+    title: "Education & Training",
+    journey: "Enquiry → application → enrolment",
+    description: "For education teams that need to connect recruitment campaigns to applications and admissions follow-up.",
+    to: "/offer/tracking-audit/education",
+  },
+  {
+    icon: Building2,
+    title: "Real Estate",
+    journey: "Enquiry → viewing → sales handoff",
+    description: "For property businesses that need to trace campaign source into enquiries, booked viewings and downstream sales visibility.",
+    to: "/offer/tracking-audit/real-estate",
+  },
 ] as const;
 
 const AUDIT_FAQS: FAQItem[] = [
@@ -1112,6 +1139,67 @@ const TrackingLandingPage = () => {
               </li>
             ))}
           </ol>
+        </div>
+      </PageSection>
+
+      <PageSection
+        id="industry-audits"
+        surface="glow"
+        spacing="spacious"
+        className="border-y border-white/[0.06] py-14 md:py-20"
+        containerClassName="px-5 sm:px-6 lg:px-8"
+      >
+        <SectionIntro
+          eyebrow="Tracking Audit by industry"
+          title="Choose the audit built around your lead journey."
+          description="The core audit is the same. These versions use the language, conversion points and handoff stages that matter most in each industry."
+          align="center"
+          maxWidth="xl"
+          titleClassName="text-balance lg:!max-w-[52rem]"
+          descriptionClassName="text-balance lg:!max-w-[48rem]"
+          className="mb-9 md:mb-11"
+        />
+
+        <div className="mx-auto grid max-w-6xl gap-4 lg:grid-cols-3">
+          {INDUSTRY_AUDIT_OPTIONS.map(({ icon: Icon, title, journey, description, to }) => {
+            const industryTo = withCampaignSearch(to, location.search);
+
+            return (
+              <Link
+                key={title}
+                to={industryTo}
+                className="group relative overflow-hidden rounded-[24px] border border-white/[0.08] bg-white/[0.025] p-5 transition-[transform,border-color,background-color] duration-300 hover:-translate-y-1 hover:border-primary/25 hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 sm:p-6"
+              >
+                <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                <div className="flex items-start justify-between gap-5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/15 bg-primary/[0.07] text-primary">
+                    <Icon className="h-4.5 w-4.5" aria-hidden="true" />
+                  </div>
+                  <ArrowRight className="mt-1 h-4 w-4 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-primary" aria-hidden="true" />
+                </div>
+                <h3 className="mt-6 text-xl font-semibold tracking-tight text-foreground">{title}</h3>
+                <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.13em] text-primary/70">{journey}</p>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">{description}</p>
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-foreground/88 transition-colors group-hover:text-primary">
+                  View industry audit
+                  <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+
+        <div className="mx-auto mt-7 flex max-w-3xl flex-col items-center justify-between gap-4 rounded-2xl border border-white/[0.07] bg-black/10 px-5 py-4 text-center sm:flex-row sm:text-left">
+          <div>
+            <p className="text-sm font-semibold text-foreground/90">Not in one of these industries?</p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">Stay with the general audit and we’ll review the conversion journey that matters most to your business.</p>
+          </div>
+          <Link
+            to={finalCtaTo}
+            className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl border border-white/[0.10] px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/30 hover:text-primary"
+          >
+            Use the general audit
+          </Link>
         </div>
       </PageSection>
 
