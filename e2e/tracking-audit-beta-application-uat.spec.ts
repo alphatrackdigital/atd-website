@@ -1,6 +1,16 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
 
-type CapturedPayload = Record<string, any>;
+type CapturedPayload = Record<string, unknown>;
+
+type CapturedAttribution = {
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  utmContent?: string;
+  utmTerm?: string;
+  fbclid?: string;
+  landingPage?: string;
+};
 
 const UTM_QUERY =
   "?utm_source=meta&utm_medium=paid_social&utm_campaign=tracking_audit_beta_uat&utm_content=route_contract&utm_term=beta&fbclid=uat-click-123";
@@ -68,7 +78,8 @@ const assertSubmissionContract = async (
   expect(payload?.optIn).toBe(false);
   expect(payload?.metaEventId).toMatch(/^atd-/);
 
-  expect(payload?.attribution).toMatchObject({
+  const attribution = (payload?.attribution || {}) as CapturedAttribution;
+  expect(attribution).toMatchObject({
     utmSource: "meta",
     utmMedium: "paid_social",
     utmCampaign: "tracking_audit_beta_uat",
@@ -76,7 +87,7 @@ const assertSubmissionContract = async (
     utmTerm: "beta",
     fbclid: "uat-click-123",
   });
-  expect(payload?.attribution?.landingPage).toBe(`${expected.route}${UTM_QUERY}`);
+  expect(attribution.landingPage).toBe(`${expected.route}${UTM_QUERY}`);
 
   const trackingEvent = await page.evaluate(() =>
     (window.dataLayer || [])
