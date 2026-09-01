@@ -33,6 +33,7 @@ export interface LeadCapturePayload {
   primaryConversionType?: string;
   measurementProblem?: string;
   urgency?: string;
+  websiteRoute?: string;
   serviceInterest?: string[];
   monthlyBudget?: string;
   attribution?: LeadAttribution;
