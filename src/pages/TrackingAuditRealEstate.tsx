@@ -610,10 +610,10 @@ const TrackingAuditRealEstate = () => {
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="pt-2 lg:pt-0">
               <HeroEyebrow>Free Conversion Tracking Audit</HeroEyebrow>
 
-              <h1 className="title-safe mt-5 max-w-[34rem] overflow-visible text-balance text-[2.35rem] font-extrabold leading-[1.1] tracking-tight sm:text-[2.9rem] md:text-[3.2rem] lg:text-[3.35rem]">
+              <h1 className="title-safe mt-5 max-w-[34rem] overflow-visible text-balance text-[2.25rem] font-extrabold leading-[1.1] tracking-tight sm:text-[2.8rem] md:text-[3.05rem] lg:text-[3.2rem]">
                 <span className="block">Know which ads drive</span>
-                <span className="block overflow-visible pb-[0.16em] leading-[1.1] text-gradient-atd-hero lg:whitespace-nowrap">real property enquiries</span>
-                <span className="-mt-[0.02em] block overflow-visible pb-[0.18em] leading-[1.1] text-gradient-atd-hero lg:whitespace-nowrap">and booked viewings.</span>
+                <span className="block w-fit max-w-full overflow-visible pb-[0.17em] pr-[0.08em] leading-[1.1] text-gradient-atd-hero">property enquiries</span>
+                <span className="-mt-[0.02em] block w-fit max-w-full overflow-visible pb-[0.19em] pr-[0.08em] leading-[1.1] text-gradient-atd-hero">and booked viewings.</span>
               </h1>
 
               <p className="mt-5 max-w-[35rem] text-base leading-7 text-foreground/72 md:text-lg md:leading-8">
@@ -1018,10 +1018,17 @@ const TrackingAuditRealEstate = () => {
       <PageSection id="measurement-journey" surface="quiet" spacing="spacious" className="scroll-mt-20 py-16 md:py-24 lg:py-28" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
           eyebrow="Where tracking often breaks"
-          title="A property enquiry can lose its source before your sales team ever sees it."
+          title={
+            <>
+              <span className="lg:block">A property enquiry can lose its source</span>{" "}
+              <span className="lg:block">before your sales team ever sees it.</span>
+            </>
+          }
           description="We check the path from ad to property page to enquiry or viewing request and into your sales system or CRM."
           align="center"
-          maxWidth="2xl"
+          maxWidth="xl"
+          titleClassName="text-balance lg:!max-w-[64rem]"
+          descriptionClassName="text-balance lg:!max-w-[52rem]"
           className="mb-6 md:mb-7"
         />
 
@@ -1250,10 +1257,17 @@ const TrackingAuditRealEstate = () => {
       <PageSection id="audit-coverage" spacing="spacious" className="relative z-10 scroll-mt-20 py-16 md:py-24 lg:py-28" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
           eyebrow="What we review"
-          title="We follow one property lead journey from click to sales handoff."
+          title={
+            <>
+              <span className="lg:block">We follow one property lead journey</span>{" "}
+              <span className="lg:block">from click to sales handoff.</span>
+            </>
+          }
           description="The audit stays focused on one real property lead journey so we can answer three practical questions without burying your marketing or sales team in technical detail."
           align="center"
-          maxWidth="2xl"
+          maxWidth="xl"
+          titleClassName="text-balance lg:!max-w-[58rem]"
+          descriptionClassName="text-balance lg:!max-w-[52rem]"
           className="mb-9 md:mb-11"
         />
 
@@ -1308,7 +1322,9 @@ const TrackingAuditRealEstate = () => {
           title="A scorecard that turns uncertainty into next steps."
           description="You get a short Tracking Health Scorecard that shows what we found, why it matters and what should be checked or fixed first."
           align="center"
-          maxWidth="2xl"
+          maxWidth="xl"
+          titleClassName="text-balance"
+          descriptionClassName="text-balance lg:!max-w-[52rem]"
           className="mb-9 md:mb-11"
         />
 
