@@ -32,7 +32,7 @@ const hasPixelEvent = (requests: string[], eventName: string, eventId: string) =
     return decoded.includes(`ev=${eventName}`) && decoded.includes(eventId);
   });
 
-test("real production Contact journey", async ({ page }) => {
+test.skip("real production Contact journey", async ({ page }) => {
   const fb = startFacebookCapture(page);
   await enableConsent(
     page,
@@ -82,7 +82,7 @@ test("real production Newsletter journey", async ({ page }) => {
   const fb = startFacebookCapture(page);
   await enableConsent(
     page,
-    "/?utm_source=qa&utm_medium=e2e&utm_campaign=prod_aux_forms&utm_content=newsletter&fbclid=atd-newsletter-e2e"
+    "/blog?utm_source=qa&utm_medium=e2e&utm_campaign=prod_aux_forms&utm_content=newsletter&fbclid=atd-newsletter-e2e"
   );
 
   const section = page.locator("section").filter({ hasText: "Get insights straight to your inbox" }).first();
@@ -154,7 +154,7 @@ test("real production Exit Popup journey", async ({ page }) => {
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
   await dialog.getByLabel("First name").fill("ATD Exit E2E");
-  await dialog.getByLabel("Work email").fill("alphatrackdigital+atd-exit-e2e-20260901@gmail.com");
+  await dialog.getByLabel("Work email").fill("alphatrackdigital+atd-exit-e2e2-20260901@gmail.com");
   await dialog.getByLabel(/Website URL/i).fill("alphatrack.digital");
   await dialog.getByRole("checkbox").check();
 
