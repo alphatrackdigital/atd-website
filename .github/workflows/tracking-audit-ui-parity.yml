@@ -8,6 +8,7 @@ on:
       - ".github/workflows/tracking-audit-ui-parity.yml"
       - "e2e/qa-tracking-audit-screenshots.spec.ts"
 
+# Release-source test sync: 2ded4e5a75dea4aa26a9d4cc0077f101f42bee80
 permissions:
   contents: read
 
