@@ -1,5 +1,5 @@
 import { Link, useLocation, useParams } from "react-router-dom";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 import ExpertiseHero, { type ExpertiseHeroContent } from "@/components/shared/ExpertiseHero";
@@ -70,61 +70,6 @@ const staggerContainer = {
 const GradientRule = () => (
   <div className="pointer-events-none h-px w-full bg-gradient-to-r from-transparent via-white/[0.07] to-transparent" />
 );
-
-const expertiseAuditLinks = {
-  education: {
-    eyebrow: "Free Education Tracking Audit",
-    title: "See where your enrolment tracking loses the source.",
-    description:
-      "Trace one recruitment journey from campaign click to enquiry or application and into the admissions handoff.",
-    label: "Explore the Education Tracking Audit",
-    to: "/offer/tracking-audit/education",
-  },
-  "real-estate": {
-    eyebrow: "Free Real Estate Tracking Audit",
-    title: "See where your property lead tracking loses the source.",
-    description:
-      "Trace one property journey from campaign click to enquiry or viewing request and into the sales handoff.",
-    label: "Explore the Real Estate Tracking Audit",
-    to: "/offer/tracking-audit/real-estate",
-  },
-} as const;
-
-const ExpertiseTrackingAuditCallout = ({
-  expertiseSlug,
-  search,
-}: {
-  expertiseSlug: keyof typeof expertiseAuditLinks;
-  search: string;
-}) => {
-  const audit = expertiseAuditLinks[expertiseSlug];
-  const auditTo = withCampaignSearch(audit.to, search);
-
-  return (
-    <PageSection mode="content" spacing="compact" className="relative overflow-hidden py-10 md:py-14">
-      <div className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-primary/18 bg-[linear-gradient(135deg,rgba(0,175,239,0.055),rgba(51,204,153,0.045)_52%,rgba(255,255,255,0.018))] p-5 shadow-[0_22px_70px_rgba(0,0,0,0.18)] md:p-7">
-        <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-primary/80">{audit.eyebrow}</p>
-            <h2 className="mt-2.5 max-w-[28ch] text-xl font-bold leading-tight text-foreground md:text-2xl">
-              {audit.title}
-            </h2>
-            <p className="mt-3 max-w-2xl text-[13px] leading-6 text-muted-foreground md:text-sm md:leading-7">
-              {audit.description}
-            </p>
-          </div>
-          <Link
-            to={auditTo}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-primary/25 bg-primary/[0.08] px-5 py-2.5 text-sm font-bold text-primary transition-colors hover:bg-primary/[0.13] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-          >
-            {audit.label}
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
-        </div>
-      </div>
-    </PageSection>
-  );
-};
 
 const saasChallengeDetails = [
   {
@@ -1214,16 +1159,6 @@ const ExpertiseDetail = () => {
           <ExpertiseFitSection expertiseName={expertise.name} idealFor={expertise.idealFor} search={location.search} profile={profile} />
 
           <GradientRule />
-
-          {expertise.slug in expertiseAuditLinks && (
-            <>
-              <ExpertiseTrackingAuditCallout
-                expertiseSlug={expertise.slug as keyof typeof expertiseAuditLinks}
-                search={location.search}
-              />
-              <GradientRule />
-            </>
-          )}
 
           <FAQAccordion
             items={expertise.faqs}
