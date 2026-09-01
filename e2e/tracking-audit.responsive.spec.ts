@@ -27,8 +27,8 @@ const completeStepOne = async (page: Page) => {
 };
 
 const selectOption = async (page: Page, label: string, option: string) => {
-  await page.getByLabel(label).click();
-  await page.getByRole("option", { name: option }).click();
+  await page.getByRole("combobox", { name: label, exact: true }).click();
+  await page.getByRole("option", { name: option, exact: true }).click();
 };
 
 const completeStepTwo = async (page: Page) => {
