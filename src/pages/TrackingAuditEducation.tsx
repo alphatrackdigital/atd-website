@@ -1207,7 +1207,7 @@ const TrackingAuditEducation = () => {
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/80">The familiar problem</p>
               <h2 className="mt-4 max-w-xl text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-[2.55rem] lg:leading-[1.08] xl:text-[2.7rem]">
-                <span className="block lg:whitespace-nowrap" data-familiar-problem-line>The application arrives.</span>
+                <span className="block lg:whitespace-nowrap" data-familiar-problem-line>The application arrives.</span>{" "}
                 <span className="block text-gradient sm:whitespace-nowrap">The source doesn’t.</span>
               </h2>
               <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">
