@@ -11,7 +11,14 @@ const campaignParamNames = new Set([
   "li_fat_id",
 ]);
 
-const campaignConversionPaths = new Set(["/book-a-call", "/offer/tracking-audit", "/contact-us"]);
+const campaignConversionPaths = new Set([
+  "/book-a-call",
+  "/offer/tracking-audit",
+  "/offer/tracking-audit/professional-services",
+  "/offer/tracking-audit/education",
+  "/offer/tracking-audit/real-estate",
+  "/contact-us",
+]);
 
 export const getCampaignSearch = (search: string) => {
   if (!search) return "";
