@@ -1307,7 +1307,15 @@ const TrackingAuditRealEstate = () => {
                   <span className="text-2xl font-light tracking-tight text-foreground/38">{number}</span>
                   <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-primary/15 bg-primary/[0.055] text-primary"><Icon className="h-4 w-4" aria-hidden="true" /></span>
                 </div>
-                <h3 className="mt-6 text-base font-semibold text-foreground">{title}</h3>
+                <h3
+                  className={[
+                    "mt-6 text-[0.95rem] font-semibold tracking-[-0.01em] text-foreground",
+                    index === 1 ? "lg:whitespace-nowrap lg:text-[0.9rem] xl:text-[0.95rem]" : "",
+                  ].join(" ")}
+                  data-health-dimension-title={index}
+                >
+                  {title}
+                </h3>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
               </article>
             ))}
@@ -1421,6 +1429,7 @@ const TrackingAuditRealEstate = () => {
 
           <motion.div
             data-process-sequence
+            data-process-pace="deliberate"
             className="relative overflow-hidden rounded-[30px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(0,175,239,0.025),rgba(51,204,153,0.02),rgba(255,255,255,0.012))] px-5 py-9 shadow-[0_22px_64px_rgba(0,0,0,0.07)] sm:px-7 lg:px-9 lg:py-12"
             initial={prefersReducedMotion ? false : "hidden"}
             whileInView="visible"
@@ -1445,7 +1454,7 @@ const TrackingAuditRealEstate = () => {
                     ? undefined
                     : {
                         hidden: { pathLength: 0, opacity: 0.18 },
-                        visible: { pathLength: 1, opacity: 1, transition: { duration: 0.95, ease: "easeInOut" } },
+                        visible: { pathLength: 1, opacity: 1, transition: { duration: 2.1, ease: "easeInOut" } },
                       }
                 }
               />
@@ -1456,7 +1465,7 @@ const TrackingAuditRealEstate = () => {
               variants={
                 prefersReducedMotion
                   ? undefined
-                  : { hidden: {}, visible: { transition: { delayChildren: 0.18, staggerChildren: 0.16 } } }
+                  : { hidden: {}, visible: { transition: { delayChildren: 0.32, staggerChildren: 0.42 } } }
               }
             >
               {PROCESS_STEPS.map((item, index) => {
@@ -1470,7 +1479,7 @@ const TrackingAuditRealEstate = () => {
                         ? undefined
                         : {
                             hidden: { opacity: 0, y: 18, scale: 0.985 },
-                            visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.42, ease: "easeOut" } },
+                            visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.62, ease: "easeOut" } },
                           }
                     }
                   >
