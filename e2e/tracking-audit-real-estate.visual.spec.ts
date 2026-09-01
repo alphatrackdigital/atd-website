@@ -169,6 +169,7 @@ test.describe("Real Estate Tracking Audit visual stability", () => {
       }
     }
 
+    await page.setViewportSize({ width: 1440, height: 1000 });
     await advanceToStepThree(page);
     await expect(page.getByText(/Review and recommendations are included\. Implementation is separate\./)).toBeVisible();
 
