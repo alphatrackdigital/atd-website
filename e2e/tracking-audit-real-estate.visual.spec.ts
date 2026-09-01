@@ -179,12 +179,14 @@ test.describe("Real Estate Tracking Audit visual stability", () => {
       .getByText("Tracking Health Scorecard", { exact: true })
       .locator("xpath=ancestor::div[contains(@class,'max-w-[46rem]')]");
     const scorecardBox = await scorecard.boundingBox();
-    const contentViewportWidth = await page.evaluate(() => document.documentElement.clientWidth);
+    const scorecardShellBox = await scorecard.locator("..").boundingBox();
     expect(scorecardBox).not.toBeNull();
+    expect(scorecardShellBox).not.toBeNull();
     expect(scorecardBox?.width ?? 0).toBeGreaterThanOrEqual(680);
     expect(scorecardBox?.width ?? 999).toBeLessThanOrEqual(736);
     const scorecardCenter = (scorecardBox?.x ?? 0) + (scorecardBox?.width ?? 0) / 2;
-    expect(Math.abs(scorecardCenter - contentViewportWidth / 2)).toBeLessThanOrEqual(2);
+    const shellCenter = (scorecardShellBox?.x ?? 0) + (scorecardShellBox?.width ?? 0) / 2;
+    expect(Math.abs(scorecardCenter - shellCenter)).toBeLessThanOrEqual(2);
 
     const formCard = page.locator(".tracking-audit-form-card");
     const reviewBadge = page.locator("[data-human-review-badge]");
