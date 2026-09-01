@@ -610,10 +610,10 @@ const TrackingAuditRealEstate = () => {
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="pt-2 lg:pt-0">
               <HeroEyebrow>Free Conversion Tracking Audit</HeroEyebrow>
 
-              <h1 className="title-safe mt-5 max-w-[36rem] overflow-visible text-balance text-[2.55rem] font-extrabold leading-[1.08] tracking-tight sm:text-5xl md:text-[3.4rem] lg:text-[3.6rem]">
-                <span className="block">Know which campaigns are producing</span>{" "}
-                <span className="block overflow-visible pb-[0.12em] leading-[1.08] text-gradient-atd-hero sm:whitespace-nowrap">real property enquiries</span>{" "}
-                <span className="-mt-[0.04em] block overflow-visible pb-[0.16em] leading-[1.08] text-gradient-atd-hero sm:whitespace-nowrap">and booked viewings.</span>
+              <h1 className="title-safe mt-5 max-w-[34rem] overflow-visible text-balance text-[2.35rem] font-extrabold leading-[1.1] tracking-tight sm:text-[2.9rem] md:text-[3.2rem] lg:text-[3.35rem]">
+                <span className="block">Know which ads drive</span>
+                <span className="block overflow-visible pb-[0.16em] leading-[1.1] text-gradient-atd-hero lg:whitespace-nowrap">real property enquiries</span>
+                <span className="-mt-[0.02em] block overflow-visible pb-[0.18em] leading-[1.1] text-gradient-atd-hero lg:whitespace-nowrap">and booked viewings.</span>
               </h1>
 
               <p className="mt-5 max-w-[35rem] text-base leading-7 text-foreground/72 md:text-lg md:leading-8">
@@ -629,20 +629,33 @@ const TrackingAuditRealEstate = () => {
                 ))}
               </div>
 
-              <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/[0.06] px-3 py-1.5 text-xs font-semibold text-foreground/82">
-                <ShieldCheck className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                <span>Human-reviewed audit</span>
-                <span className="text-muted-foreground/70">·</span>
-                <span className="font-medium text-muted-foreground">Not an automated report</span>
-              </div>
             </motion.div>
 
-            <motion.div
-              id="claim"
+            <div className="relative w-full lg:sticky lg:top-24">
+              <div
+                className="absolute right-3 -top-5 z-40 sm:-right-3 sm:-top-4"
+                data-human-review-badge
+                aria-label="Human-reviewed audit. Not an automated report."
+              >
+                <div className="relative flex items-center gap-2 rounded-xl border border-amber-200/80 bg-[linear-gradient(135deg,#fff7d6_0%,#f3cf6b_42%,#d99a24_100%)] px-3.5 py-2 text-[10px] font-semibold text-[#3f2a07] shadow-[0_12px_28px_rgba(116,73,8,0.24),0_0_0_1px_rgba(255,255,255,0.35)_inset] sm:text-[11px]">
+                  <ShieldCheck className="h-4 w-4 shrink-0 text-[#795009]" aria-hidden="true" />
+                  <span className="leading-tight">
+                    <span className="block uppercase tracking-[0.12em]">Human-reviewed audit</span>
+                    <span className="mt-0.5 block font-medium tracking-normal text-[#65420a]/85">Not an automated report</span>
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="absolute -bottom-1.5 right-4 h-3 w-3 rotate-45 border-b border-r border-[#b97911]/55 bg-[#cf8d1e]"
+                  />
+                </div>
+              </div>
+
+              <motion.div
+                id="claim"
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: 0.08 }}
-              className="tracking-audit-form-card w-full scroll-mt-24 rounded-[24px] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,0.035)_0%,rgba(255,255,255,0.018)_100%)] p-4 shadow-[0_28px_84px_rgba(0,0,0,0.20)] backdrop-blur-xl sm:p-7 md:p-8 lg:sticky lg:top-24 lg:rounded-[28px]"
+              className="tracking-audit-form-card w-full scroll-mt-24 rounded-[24px] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,0.035)_0%,rgba(255,255,255,0.018)_100%)] p-4 shadow-[0_28px_84px_rgba(0,0,0,0.20)] backdrop-blur-xl sm:p-7 md:p-8 lg:rounded-[28px]"
             >
               {isSubmitted ? (
                 <div className="py-7 text-center" aria-live="polite">
@@ -984,7 +997,8 @@ const TrackingAuditRealEstate = () => {
                   </form>
                 </>
               )}
-            </motion.div>
+              </motion.div>
+            </div>
           </div>
 
           <div className="mt-9 flex justify-center md:mt-11 lg:mt-4 lg:shrink-0 lg:pb-1">
@@ -1298,23 +1312,15 @@ const TrackingAuditRealEstate = () => {
           className="mb-9 md:mb-11"
         />
 
-        <div className="mx-auto mb-16 grid max-w-5xl items-center gap-9 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/80">Example preview</p>
-            <h3 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">See the finding, the impact and the priority at a glance.</h3>
-            <p className="mt-4 max-w-lg text-sm leading-7 text-muted-foreground">
-              The scorecard is designed to be useful to a founder, marketing or sales lead — not just someone who works in analytics.
-            </p>
-          </div>
-
+        <div className="mx-auto mb-16 flex max-w-6xl justify-center">
           <motion.div
-            className="relative w-full max-w-[36rem] overflow-hidden rounded-[26px] border border-white/[0.08] bg-white/[0.03] shadow-[0_30px_90px_rgba(0,0,0,0.16)] lg:justify-self-end"
+            className="relative w-full max-w-[46rem] overflow-hidden rounded-[26px] border border-white/[0.08] bg-white/[0.03] shadow-[0_30px_90px_rgba(0,0,0,0.16)]"
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.45 }}
           >
-            <div className="flex items-center justify-between gap-4 border-b border-white/[0.07] px-5 py-3 sm:px-5">
+            <div className="flex items-center justify-between gap-4 border-b border-white/[0.07] px-5 py-3.5 sm:px-7">
               <div>
                 <p className="text-sm font-semibold">Tracking Health Scorecard</p>
               </div>
@@ -1327,7 +1333,7 @@ const TrackingAuditRealEstate = () => {
               {SCORECARD_PREVIEW.map((item, index) => (
                 <motion.div
                   key={item.label}
-                  className="px-5 py-3 sm:px-5"
+                  className="px-5 py-3.5 sm:px-7"
                   initial={{ opacity: 0, x: 10 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, amount: 0.6 }}
