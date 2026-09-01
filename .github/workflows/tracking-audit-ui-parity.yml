@@ -1,0 +1,45 @@
+name: Tracking Audit UI Parity E2E
+
+on:
+  push:
+    branches:
+      - qa/tracking-audit-ui-parity-v1
+    paths:
+      - ".github/workflows/tracking-audit-ui-parity.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  tracking-audit-ui-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Run Tracking Audit responsive, parity, visual and mocked contract suites
+        run: >-
+          npx playwright test
+          e2e/tracking-audit.responsive.spec.ts
+          e2e/tracking-audit-shared-parity.spec.ts
+          e2e/tracking-audit-beta-application-uat.spec.ts
+          e2e/tracking-audit-discovery.visual.spec.ts
+          e2e/tracking-audit-professional-services.visual.spec.ts
+          e2e/tracking-audit-education.visual.spec.ts
+          e2e/tracking-audit-real-estate.visual.spec.ts
+          --project=chromium
+      - name: Upload browser QA evidence on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tracking-audit-ui-parity-${{ github.sha }}
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+          retention-days: 14
