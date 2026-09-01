@@ -59,6 +59,21 @@ const selectCombobox = async (page: Page, label: string, option: string) => {
   await page.getByRole("option", { name: option, exact: true }).click();
 };
 
+const assertPremiumSuccessState = async (page: Page) => {
+  await expect(page.getByRole("heading", { name: "Application received." })).toBeVisible();
+  await expect(
+    page.getByText("Thanks — we’ve received your Tracking Audit application.", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("We’ll review it and email you within one business day if the audit is a good fit.", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("No passwords or account credentials are required.", { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Back to site" })).toBeVisible();
+  await expect(page.getByText(/Application contact:/)).toHaveCount(0);
+};
+
 const assertSubmissionContract = async (
   page: Page,
   payload: CapturedPayload | null,
@@ -127,19 +142,19 @@ test.describe("Tracking Audit Beta application contract UAT", () => {
 
     await selectCombobox(page, "Industry", "Other");
     await selectCombobox(page, "Your role", "Founder / CEO");
-    await page.getByText("Final decision maker", { exact: true }).click();
+    await selectCombobox(page, "Your role in this decision", "Final decision maker");
     await selectCombobox(page, "Monthly ad spend", "GHS 3k–6k");
-    await page.getByText("Meta", { exact: true }).click();
+    await selectCombobox(page, "Main ad platform", "Meta");
     await page.getByRole("button", { name: "Continue", exact: true }).click();
 
-    await page.getByText("Partly working", { exact: true }).click();
-    await page.getByText("Lead form", { exact: true }).click();
+    await selectCombobox(page, "How confident are you in your tracking?", "Partly working");
+    await selectCombobox(page, "What matters most?", "Lead form");
     await selectCombobox(page, "What’s going wrong?", "Lead sources are missing");
-    await page.getByText("Within 30 days", { exact: true }).click();
+    await selectCombobox(page, "How soon do you want this addressed?", "Within 30 days");
 
     await page.waitForTimeout(1600);
     await page.getByRole("button", { name: "Request My Free Audit" }).click();
-    await expect(page.getByRole("heading", { name: "Application received." })).toBeVisible();
+    await assertPremiumSuccessState(page);
 
     await assertSubmissionContract(page, getCaptured(), {
       route,
@@ -176,7 +191,7 @@ test.describe("Tracking Audit Beta application contract UAT", () => {
 
     await page.waitForTimeout(1600);
     await page.getByRole("button", { name: "Request My Free Audit" }).click();
-    await expect(page.getByRole("heading", { name: "Application received." })).toBeVisible();
+    await assertPremiumSuccessState(page);
 
     await assertSubmissionContract(page, getCaptured(), {
       route,
@@ -213,7 +228,7 @@ test.describe("Tracking Audit Beta application contract UAT", () => {
 
     await page.waitForTimeout(1600);
     await page.getByRole("button", { name: "Request My Free Audit" }).click();
-    await expect(page.getByRole("heading", { name: "Application received." })).toBeVisible();
+    await assertPremiumSuccessState(page);
 
     await assertSubmissionContract(page, getCaptured(), {
       route,
@@ -250,7 +265,7 @@ test.describe("Tracking Audit Beta application contract UAT", () => {
 
     await page.waitForTimeout(1600);
     await page.getByRole("button", { name: "Request My Free Audit" }).click();
-    await expect(page.getByRole("heading", { name: "Application received." })).toBeVisible();
+    await assertPremiumSuccessState(page);
 
     await assertSubmissionContract(page, getCaptured(), {
       route,
