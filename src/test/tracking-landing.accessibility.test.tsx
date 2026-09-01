@@ -46,15 +46,15 @@ describe("TrackingLandingPage accessibility", () => {
       expect(screen.getByLabelText("Industry")).toBeInTheDocument();
     });
     expect(screen.getByLabelText("Your role")).toBeInTheDocument();
-    expect(screen.getByRole("group", { name: "Your role in this decision" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Your role in this decision" })).toBeInTheDocument();
     expect(screen.getByLabelText("Monthly ad spend")).toBeInTheDocument();
-    expect(screen.getByRole("group", { name: "Where do you advertise?" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Main ad platform" })).toBeInTheDocument();
     expect(screen.getByText("Step 2 of 3")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Back" })).toBeInTheDocument();
     expect(screen.getByText("Business context")).toBeInTheDocument();
     expect(screen.getByText("Decision & spend")).toBeInTheDocument();
     expect(screen.getByText("Advertising")).toBeInTheDocument();
-    expect(screen.queryByRole("group", { name: "How confident are you in your tracking?" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: "How confident are you in your tracking?" })).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Send me occasional ATD marketing insights.")).not.toBeInTheDocument();
   });
 
