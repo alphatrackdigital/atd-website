@@ -1,5 +1,13 @@
 import { expect, test, type Page } from "@playwright/test";
 
+const openTrackingAudit = async (page: Page) => {
+  await page.route("https://global.ketchcdn.com/**", (route) => route.abort());
+  await openTrackingAudit(page);
+  await page.addStyleTag({
+    content: "#lanyard_root, [data-ketch-backdrop='true'] { display: none !important; pointer-events: none !important; }",
+  });
+};
+
 const assertNoHorizontalOverflow = async (page: Page) => {
   const dimensions = await page.evaluate(() => ({
     scrollWidth: document.documentElement.scrollWidth,
@@ -35,7 +43,7 @@ const completeStepTwo = async (page: Page) => {
 test.describe("General Tracking Audit responsive application", () => {
   test("mobile website validation rejects a hostname without a public suffix", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/offer/tracking-audit");
+    await openTrackingAudit(page);
 
     await page.getByLabel("First Name").fill("Jane");
     await page.getByLabel("Last Name").fill("Smith");
@@ -52,7 +60,7 @@ test.describe("General Tracking Audit responsive application", () => {
 
   test("mobile step one is usable without horizontal overflow", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/offer/tracking-audit");
+    await openTrackingAudit(page);
 
     await expect(
       page.getByRole("heading", { name: /Know what your marketing is actually producing/i }),
@@ -71,7 +79,7 @@ test.describe("General Tracking Audit responsive application", () => {
 
   test("mobile step transition opens with the first second-step control in view", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/offer/tracking-audit");
+    await openTrackingAudit(page);
 
     await completeStepOne(page);
 
@@ -128,7 +136,7 @@ test.describe("General Tracking Audit responsive application", () => {
 
   test("desktop hero and application card remain readable side by side", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.goto("/offer/tracking-audit");
+    await openTrackingAudit(page);
 
     const heroHeading = page.getByRole("heading", {
       name: /Know what your marketing is actually producing/i,
