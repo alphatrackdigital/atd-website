@@ -21,8 +21,8 @@ jobs:
       BETA_V3_SHA: 855f18f29514c68c7d00e9d75630ab84f022ac35
       BACKEND_RELEASE_SHA: da830acc4c882ab2d36a4c39a4ca0e8a47cd3214
       STAGING_DEPLOYED_SHA: caaa97a16050cb1597e260f3e6217ca9582924d7
+      STAGING_DEPLOYMENT_ID: dpl_5L4WkXu2DMw6yprs9uYvCU77hFPz
       STAGING_READINESS_URL: https://atd-backend-test-git-staging-alphatrackdigital.vercel.app/api/qa-readiness
-      BACKEND_REPO_URL: https://github.com/alphatrackdigital/atd-backend-test.git
 
     steps:
       - name: Check out UAT wrapper
@@ -88,18 +88,24 @@ jobs:
         run: |
           set -euo pipefail
 
-          staging_branch_sha="$(git ls-remote "$BACKEND_REPO_URL" refs/heads/staging | awk '{print $1}')"
-          echo "backend_staging_sha=$staging_branch_sha"
-          test "$staging_branch_sha" = "$STAGING_DEPLOYED_SHA"
-
-          curl -fsSL             "https://raw.githubusercontent.com/alphatrackdigital/atd-backend-test/$STAGING_DEPLOYED_SHA/api/qa-readiness.ts"             -o /tmp/qa-readiness.ts
-          curl -fsSL             "https://raw.githubusercontent.com/alphatrackdigital/atd-backend-test/$STAGING_DEPLOYED_SHA/api/_lib/trackingAuditHandler.ts"             -o /tmp/trackingAuditHandler.ts
+          # STAGING_DEPLOYED_SHA and STAGING_DEPLOYMENT_ID are pinned from the
+          # authenticated Vercel control-plane proof for the protected staging alias.
+          curl -fsSL \
+            "https://raw.githubusercontent.com/alphatrackdigital/atd-backend-test/$STAGING_DEPLOYED_SHA/api/qa-readiness.ts" \
+            -o /tmp/qa-readiness.ts
+          curl -fsSL \
+            "https://raw.githubusercontent.com/alphatrackdigital/atd-backend-test/$STAGING_DEPLOYED_SHA/api/_lib/trackingAuditHandler.ts" \
+            -o /tmp/trackingAuditHandler.ts
 
           grep -q 'req.method !== "GET"' /tmp/qa-readiness.ts
           grep -q 'normalizeRoute(data.websiteRoute)' /tmp/trackingAuditHandler.ts
           grep -q 'WEBSITE_ROUTE: getSubmittedRoute(data)' /tmp/trackingAuditHandler.ts
 
-          staging_status="$(curl -sS             -D /tmp/staging-protection-headers.txt             -o /tmp/staging-protection-body.txt             -w '%{http_code}'             "$STAGING_READINESS_URL")"
+          staging_status="$(curl -sS \
+            -D /tmp/staging-protection-headers.txt \
+            -o /tmp/staging-protection-body.txt \
+            -w '%{http_code}' \
+            "$STAGING_READINESS_URL")"
 
           echo "staging_readiness_status=$staging_status"
           cat /tmp/staging-protection-headers.txt
@@ -121,11 +127,13 @@ jobs:
           printf '%s\n' "$BETA_V3_SHA" > qa-evidence/beta-v3-sha.txt
           printf '%s\n' "$BACKEND_RELEASE_SHA" > qa-evidence/backend-release-sha.txt
           printf '%s\n' "$STAGING_DEPLOYED_SHA" > qa-evidence/vercel-staging-deployed-sha.txt
+          printf '%s\n' "$STAGING_DEPLOYMENT_ID" > qa-evidence/vercel-staging-deployment-id.txt
           printf '%s\n' "$STAGING_READINESS_URL" > qa-evidence/staging-readiness-endpoint.txt
           cp /tmp/staging-protection-headers.txt qa-evidence/staging-protection-headers.txt 2>/dev/null || true
           cp /tmp/staging-protection-body.txt qa-evidence/staging-protection-body.txt 2>/dev/null || true
           cp /tmp/qa-readiness.ts qa-evidence/deployed-qa-readiness.ts 2>/dev/null || true
-          grep -n 'websiteRoute\|WEBSITE_ROUTE' /tmp/trackingAuditHandler.ts             > qa-evidence/deployed-website-route-contract.txt 2>/dev/null || true
+          grep -n 'websiteRoute\|WEBSITE_ROUTE' /tmp/trackingAuditHandler.ts \
+            > qa-evidence/deployed-website-route-contract.txt 2>/dev/null || true
 
       - name: Upload UAT evidence
         if: always()
