@@ -542,8 +542,9 @@ const TrackingLandingPage = () => {
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="pt-2 lg:pt-0">
               <HeroEyebrow>Free Conversion Tracking Audit</HeroEyebrow>
 
-              <h1 className="title-safe mt-5 max-w-[36rem] text-[2.55rem] font-extrabold leading-[1.02] tracking-tight sm:text-5xl md:text-[3.4rem] lg:text-[3.6rem]">
-                Know what your marketing is <span className="title-safe-inline text-gradient-atd-hero">actually producing.</span>
+              <h1 className="title-safe mt-5 max-w-[34rem] overflow-visible text-balance text-[2.35rem] font-extrabold leading-[1.08] tracking-tight sm:text-[2.9rem] md:text-[3.2rem] lg:text-[3.4rem]">
+                <span className="block">Know what your marketing is</span>
+                <span className="block w-fit max-w-full overflow-visible pb-[0.17em] pr-[0.08em] leading-[1.08] text-gradient-atd-hero">actually producing.</span>
               </h1>
 
               <p className="mt-5 max-w-[35rem] text-base leading-7 text-foreground/72 md:text-lg md:leading-8">
@@ -902,7 +903,9 @@ const TrackingLandingPage = () => {
           title="Your results pass through a few key steps."
           description="We check where important information gets lost between the ad click and the final lead or sale."
           align="center"
-          maxWidth="2xl"
+          maxWidth="xl"
+          titleClassName="text-balance"
+          descriptionClassName="text-balance lg:!max-w-[48rem]"
           className="mb-10 md:mb-12"
         />
 
@@ -975,7 +978,9 @@ const TrackingLandingPage = () => {
           title="We check five parts of your tracking."
           description="For your reports to be useful, these five parts need to work together."
           align="center"
-          maxWidth="2xl"
+          maxWidth="xl"
+          titleClassName="text-balance"
+          descriptionClassName="text-balance lg:!max-w-[44rem]"
           className="mb-10 md:mb-14"
         />
 
@@ -1009,7 +1014,9 @@ const TrackingLandingPage = () => {
           title="A clear answer to three questions."
           description="Your Tracking Health Scorecard shows what we found, why it matters and what to do next."
           align="center"
-          maxWidth="2xl"
+          maxWidth="xl"
+          titleClassName="text-balance"
+          descriptionClassName="text-balance lg:!max-w-[44rem]"
           className="mb-10 md:mb-12"
         />
 
@@ -1084,7 +1091,9 @@ const TrackingLandingPage = () => {
           title="Here’s how the audit works."
           description="You apply, we check fit, review one journey and send your scorecard."
           align="center"
-          maxWidth="2xl"
+          maxWidth="xl"
+          titleClassName="text-balance"
+          descriptionClassName="text-balance lg:!max-w-[44rem]"
           className="mb-12 md:mb-16"
         />
 
