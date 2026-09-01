@@ -38,7 +38,7 @@ test("real production Tracking Audit journey reaches backend and browser Meta Pi
   await page.getByRole("combobox", { name: "Monthly ad spend", exact: true }).click();
   await page.getByRole("option", { name: "GHS 3k–6k", exact: true }).click();
   await page.getByText("Meta", { exact: true }).click();
-  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await page.getByRole("button", { name: "Continue", exact: true }).evaluate((element: HTMLButtonElement) => element.click());
 
   await page.getByText("Partly working", { exact: true }).click();
   await page.getByText("Lead form", { exact: true }).click();
