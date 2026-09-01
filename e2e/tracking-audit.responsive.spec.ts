@@ -154,5 +154,53 @@ test.describe("General Tracking Audit responsive application", () => {
     expect(cueBox).not.toBeNull();
     expect(heroBox!.x).toBeLessThan(formBox!.x);
     expect(cueBox!.y).toBeGreaterThanOrEqual(claimBox!.y + claimBox!.height);
+
+    const gradientLine = heroHeading.locator(".text-gradient-atd-hero");
+    await expect(gradientLine).toHaveCount(1);
+
+    for (const width of [1440, 1024, 768, 390]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await heroHeading.scrollIntoViewIfNeeded();
+      await assertNoHorizontalOverflow(page);
+
+      const currentHeroBox = await heroHeading.boundingBox();
+      const gradientBox = await gradientLine.boundingBox();
+      const metrics = await gradientLine.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return {
+          paddingBottom: Number.parseFloat(style.paddingBottom),
+          paddingRight: Number.parseFloat(style.paddingRight),
+          lineHeight: Number.parseFloat(style.lineHeight),
+          fontSize: Number.parseFloat(style.fontSize),
+          overflow: style.overflow,
+          scrollWidth: element.scrollWidth,
+          clientWidth: element.clientWidth,
+        };
+      });
+
+      expect(currentHeroBox).not.toBeNull();
+      expect(gradientBox).not.toBeNull();
+      expect(metrics.paddingBottom).toBeGreaterThan(0);
+      expect(metrics.paddingRight).toBeGreaterThan(0);
+      expect(metrics.lineHeight).toBeGreaterThanOrEqual(metrics.fontSize * 1.04);
+      expect(metrics.overflow).toBe("visible");
+      expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1);
+      expect((gradientBox?.x ?? 0) + (gradientBox?.width ?? 0)).toBeLessThanOrEqual(
+        (currentHeroBox?.x ?? 0) + (currentHeroBox?.width ?? 0) + 1,
+      );
+    }
+
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    for (const copy of [
+      "We check where important information gets lost between the ad click and the final lead or sale.",
+      "For your reports to be useful, these five parts need to work together.",
+      "Your Tracking Health Scorecard shows what we found, why it matters and what to do next.",
+      "You apply, we check fit, review one journey and send your scorecard.",
+    ]) {
+      const subtitle = page.getByText(copy, { exact: true });
+      const subtitleBox = await subtitle.boundingBox();
+      expect(subtitleBox).not.toBeNull();
+      expect(subtitleBox?.width ?? 9999).toBeLessThanOrEqual(768);
+    }
   });
 });
