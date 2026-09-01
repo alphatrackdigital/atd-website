@@ -10,7 +10,7 @@ describe("TrackingAuditProfessionalServices", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "Know which ads are bringing you real enquiries and booked calls.",
+        name: "Know which ads drive real enquiries and booked calls.",
       }),
     ).toBeInTheDocument();
 
@@ -48,6 +48,7 @@ describe("TrackingAuditProfessionalServices", () => {
     ).toBeInTheDocument();
 
     expect(screen.queryByText("Illustrative preview")).not.toBeInTheDocument();
+    expect(screen.queryByText("Example preview")).not.toBeInTheDocument();
     expect(screen.getByText("Human-reviewed audit")).toBeInTheDocument();
     expect(screen.getByText("Not an automated report")).toBeInTheDocument();
     expect(screen.queryByText(/The free audit includes the review and recommendations/)).not.toBeInTheDocument();
