@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,7 +10,6 @@ import {
   ArrowLeft,
   ArrowRight,
   BarChart3,
-  ChevronDown,
   Check,
   CheckCircle2,
   Code2,
@@ -28,6 +27,7 @@ import HeroEyebrow from "@/components/shared/HeroEyebrow";
 import PageSection from "@/components/shared/PageSection";
 import SectionIntro from "@/components/shared/SectionIntro";
 import {
+  TrackingAuditFormSelect as FormSelect,
   TrackingAuditHumanReviewBadge,
   TrackingAuditReviewCue,
   TrackingAuditSuccessState,
@@ -284,122 +284,6 @@ const Field = ({ label, htmlFor, error, children }: { label: string; htmlFor: st
     )}
   </div>
 );
-
-type FormSelectOption = {
-  value: string;
-  label: string;
-};
-
-const FormSelect = ({
-  id,
-  label,
-  value,
-  onValueChange,
-  options,
-  placeholder,
-  error,
-}: {
-  id: string;
-  label: string;
-  value?: string;
-  onValueChange: (value: string) => void;
-  options: readonly FormSelectOption[];
-  placeholder: string;
-  error?: string;
-}) => {
-  const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const selected = options.find((option) => option.value === value);
-
-  useEffect(() => {
-    if (!open) return;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
-    };
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleEscape);
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [open]);
-
-  return (
-    <div ref={rootRef} className="relative">
-      <button
-        id={id}
-        type="button"
-        role="combobox"
-        aria-label={label}
-        aria-expanded={open}
-        aria-controls={`${id}-listbox`}
-        aria-haspopup="listbox"
-        aria-invalid={Boolean(error)}
-        aria-describedby={error ? `${id}-err` : undefined}
-        onClick={() => setOpen((current) => !current)}
-        onKeyDown={(event) => {
-          if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            setOpen(true);
-          }
-        }}
-        className={[
-          "flex h-11 w-full items-center justify-between gap-3 rounded-xl border px-3 text-left text-[13px] font-medium outline-none transition-all",
-          "border-border bg-card text-card-foreground shadow-[0_1px_0_rgba(255,255,255,0.025)] hover:border-primary/30 hover:bg-accent",
-          "focus-visible:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/20",
-          error ? "border-red-500/45" : "",
-        ].join(" ")}
-      >
-        <span className={selected ? "truncate text-foreground" : "truncate text-muted-foreground/75"}>
-          {selected?.label ?? placeholder}
-        </span>
-        <ChevronDown
-          className={["h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-150", open ? "rotate-180" : ""].join(" ")}
-          aria-hidden="true"
-        />
-      </button>
-
-      {open && (
-        <div
-          id={`${id}-listbox`}
-          role="listbox"
-          aria-label={label}
-          className="absolute left-0 right-0 z-[80] mt-1.5 max-h-56 overflow-y-auto rounded-xl border border-border bg-card p-1.5 text-card-foreground shadow-[0_20px_50px_rgba(0,0,0,0.32)]"
-        >
-          {options.map((option) => {
-            const isSelected = option.value === value;
-            return (
-              <button
-                key={option.value}
-                type="button"
-                role="option"
-                aria-selected={isSelected}
-                onClick={() => {
-                  onValueChange(option.value);
-                  setOpen(false);
-                }}
-                className={[
-                  "flex min-h-9 w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-[13px] leading-5 transition-colors",
-                  isSelected
-                    ? "bg-primary/[0.10] font-semibold text-primary"
-                    : "text-foreground/88 hover:bg-accent hover:text-accent-foreground",
-                ].join(" ")}
-              >
-                <span>{option.label}</span>
-                {isSelected && <Check className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-};
 
 const TrackingLandingPage = () => {
   const location = useLocation();
