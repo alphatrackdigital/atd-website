@@ -52,6 +52,12 @@
     <priority>0.8</priority>
     <changefreq>monthly</changefreq>
   </url>
+  <url>
+    <loc>https://alphatrack.digital/offer/tracking-audit/real-estate</loc>
+    <lastmod>2026-09-01</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
 
   <!-- Services -->
   <url>
