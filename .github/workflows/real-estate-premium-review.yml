@@ -1,0 +1,184 @@
+name: Real Estate Premium LP Review
+
+on:
+  push:
+    branches:
+      - qa/real-estate-premium-review-v4
+
+permissions:
+  contents: read
+
+concurrency:
+  group: real-estate-premium-review
+  cancel-in-progress: true
+
+jobs:
+  deploy-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_STAGING_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_STAGING_ACCOUNT_ID }}
+      WORKER_NAME: atd-website-real-estate-review
+      SOURCE_PR_SHA: 4630acbaa375ab67c07e728687b1781403880607
+      LOCKED_EDUCATION_SHA: 430864ade0ec5ce9c1cd4f321f58c8ab8b0ea229
+      OLATUNDE_SOURCE_SHA: 029e52ef0d2083f8c37e0d2e1a0fbb8ebac855b0
+      REVIEW_BASE_URL: https://atd-website-real-estate-review.alphatrackdigital.workers.dev
+
+    steps:
+      - name: Check out review branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify Real Estate source and locked vertical baselines
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$SOURCE_PR_SHA" HEAD
+          git diff --exit-code "$LOCKED_EDUCATION_SHA" -- src/pages/TrackingAuditProfessionalServices.tsx
+          git diff --exit-code "$LOCKED_EDUCATION_SHA" -- src/pages/TrackingAuditEducation.tsx
+          git diff --exit-code "$LOCKED_EDUCATION_SHA" -- src/pages/TrackingLandingPage.tsx
+          echo "Real Estate feature source preserved at $SOURCE_PR_SHA"
+          echo "Professional Services, Education and General Tracking Audit source files remain unchanged."
+          echo "Olatunde source reference: $OLATUNDE_SOURCE_SHA"
+          echo "Review wrapper head is $(git rev-parse HEAD)"
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run canonical release preparation
+        env:
+          VITE_LEADS_ENDPOINT: /api/leads
+        run: npm run release:prepare
+
+      - name: Install Chromium for visual regression
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify Real Estate visual and submission contract
+        run: npx playwright test e2e/tracking-audit-real-estate.visual.spec.ts
+
+      - name: Embed review deployment manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs');
+          const manifest = {
+            schemaVersion: 1,
+            app: 'atd-website',
+            environment: 'temporary-review',
+            reviewPurpose: 'Premium Real Estate Tracking Audit LP',
+            sourcePr: 60,
+            sourcePrSha: process.env.SOURCE_PR_SHA,
+            lockedEducationSha: process.env.LOCKED_EDUCATION_SHA,
+            olatundeSourceSha: process.env.OLATUNDE_SOURCE_SHA,
+            wrapperSha: process.env.GITHUB_SHA,
+            workerName: process.env.WORKER_NAME,
+            formSubmissionEnabled: false,
+            builtAt: new Date().toISOString(),
+            githubRun: `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+          };
+          fs.mkdirSync('dist/__atd', { recursive: true });
+          fs.writeFileSync('dist/__atd/deployment.json', JSON.stringify(manifest, null, 2) + '\n');
+          NODE
+
+      - name: Cloudflare dry-run
+        run: npx --yes wrangler@4 deploy --dry-run --config cloudflare/wrangler.real-estate-review.jsonc --outdir .wrangler-dry-run
+
+      - name: Deploy isolated review Worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4 deploy --config cloudflare/wrangler.real-estate-review.jsonc 2>&1 | tee cloudflare-review-deploy.log
+
+      - name: Smoke Real Estate route and blocked submit endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          code="000"
+          for route_attempt in 1 2 3 4 5 6 7 8
+          do
+            code="$(curl -sS -o /tmp/review-body -w '%{http_code}' -H 'Accept: text/html' -H 'Sec-Fetch-Mode: navigate' -H 'Cache-Control: no-cache' "$REVIEW_BASE_URL/offer/tracking-audit/real-estate/")"
+            echo "/offer/tracking-audit/real-estate/ -> $code (attempt $route_attempt)"
+            if [ "$code" = "200" ]; then
+              break
+            fi
+            sleep 2
+          done
+          test "$code" = "200"
+
+          for attempt in 1 2 3 4 5 6
+          do
+            curl -sS -H 'Cache-Control: no-cache' "$REVIEW_BASE_URL/__atd/deployment.json?sha=$SOURCE_PR_SHA&attempt=$attempt" > /tmp/review-manifest-current || true
+            if grep -q "$SOURCE_PR_SHA" /tmp/review-manifest-current; then
+              echo "Latest review manifest visible on attempt $attempt"
+              break
+            fi
+            sleep 2
+          done
+          grep -q "$SOURCE_PR_SHA" /tmp/review-manifest-current
+          grep -q "$OLATUNDE_SOURCE_SHA" /tmp/review-manifest-current
+
+          curl -sS -H 'Accept: text/html' -H 'Sec-Fetch-Mode: navigate' -H 'Cache-Control: no-cache'             "$REVIEW_BASE_URL/offer/tracking-audit/real-estate/?review_sha=$SOURCE_PR_SHA" > /tmp/initial-html
+
+          grep -q "Know which campaigns are producing" /tmp/initial-html
+          grep -q "real property enquiries" /tmp/initial-html
+          grep -q "and booked viewings." /tmp/initial-html
+          grep -q "A property enquiry can lose its source before your sales team ever sees it." /tmp/initial-html
+          grep -q "One real estate brand. One website. One property lead journey." /tmp/initial-html
+          grep -q "Reports 22 leads." /tmp/initial-html
+          grep -q "Shows 14 enquiries." /tmp/initial-html
+          grep -q "Receives 17 enquiries." /tmp/initial-html
+          grep -q "Human-reviewed audit" /tmp/initial-html
+          grep -q "actually producing enquiries." /tmp/initial-html
+
+          if grep -q "Know which recruitment campaigns are" /tmp/initial-html; then
+            echo "Education hero/CTA leaked into Real Estate prerender"
+            exit 1
+          fi
+          if grep -q "Know which marketing is" /tmp/initial-html; then
+            echo "Professional Services CTA leaked into Real Estate prerender"
+            exit 1
+          fi
+          if grep -q "Growth should never" /tmp/initial-html; then
+            echo "Homepage prerender leaked into Real Estate route"
+            exit 1
+          fi
+
+          manifest_code="$(curl -sS -o /tmp/review-manifest -w '%{http_code}' "$REVIEW_BASE_URL/__atd/deployment.json")"
+          echo "/__atd/deployment.json -> $manifest_code"
+          test "$manifest_code" = "200"
+
+          submit_code="$(curl -sS -o /tmp/submit-body -w '%{http_code}' "$REVIEW_BASE_URL/api/leads")"
+          echo "/api/leads -> $submit_code"
+          cat /tmp/submit-body
+          test "$submit_code" = "403"
+
+      - name: Save review evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qa-evidence
+          cp dist/__atd/deployment.json qa-evidence/deployment.json 2>/dev/null || true
+          cp cloudflare-review-deploy.log qa-evidence/cloudflare-review-deploy.log 2>/dev/null || true
+          printf '%s\n' "$SOURCE_PR_SHA" > qa-evidence/source-pr-sha.txt
+          printf '%s\n' "$LOCKED_EDUCATION_SHA" > qa-evidence/locked-education-sha.txt
+          printf '%s\n' "$OLATUNDE_SOURCE_SHA" > qa-evidence/olatunde-source-sha.txt
+          printf '%s\n' "$GITHUB_SHA" > qa-evidence/review-wrapper-sha.txt
+
+      - name: Upload review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-estate-premium-review-${{ github.sha }}
+          if-no-files-found: error
+          path: qa-evidence
