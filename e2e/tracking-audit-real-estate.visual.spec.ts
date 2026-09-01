@@ -135,7 +135,7 @@ test.describe("Real Estate Tracking Audit visual stability", () => {
     }
 
     const heroHeading = page.getByRole("heading", {
-      name: "Know which ads drive real property enquiries and booked viewings.",
+      name: "Know which ads drive property enquiries and booked viewings.",
     });
     const heroGradientLines = heroHeading.locator(".text-gradient-atd-hero");
     await expect(heroGradientLines).toHaveCount(2);
@@ -150,23 +150,67 @@ test.describe("Real Estate Tracking Audit visual stability", () => {
       }));
       expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
 
+      const heroBox = await heroHeading.boundingBox();
+      expect(heroBox).not.toBeNull();
+
       for (let index = 0; index < 2; index += 1) {
-        const metrics = await heroGradientLines.nth(index).evaluate((element) => {
+        const gradientLine = heroGradientLines.nth(index);
+        const metrics = await gradientLine.evaluate((element) => {
           const style = getComputedStyle(element);
           return {
             height: element.getBoundingClientRect().height,
             fontSize: Number.parseFloat(style.fontSize),
             lineHeight: Number.parseFloat(style.lineHeight),
             paddingBottom: Number.parseFloat(style.paddingBottom),
+            paddingRight: Number.parseFloat(style.paddingRight),
             overflow: style.overflow,
+            scrollWidth: element.scrollWidth,
+            clientWidth: element.clientWidth,
           };
         });
+        const gradientBox = await gradientLine.boundingBox();
 
+        expect(gradientBox).not.toBeNull();
         expect(metrics.height).toBeGreaterThan(metrics.fontSize);
         expect(metrics.lineHeight).toBeGreaterThanOrEqual(metrics.fontSize * 1.04);
         expect(metrics.paddingBottom).toBeGreaterThan(0);
+        expect(metrics.paddingRight).toBeGreaterThan(0);
         expect(metrics.overflow).toBe("visible");
+        expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1);
+        expect((gradientBox?.x ?? 0) + (gradientBox?.width ?? 0)).toBeLessThanOrEqual(
+          (heroBox?.x ?? 0) + (heroBox?.width ?? 0) + 1,
+        );
       }
+    }
+
+    await page.setViewportSize({ width: 1440, height: 1000 });
+
+    const measurementHeading = page.getByRole("heading", {
+      name: "A property enquiry can lose its source before your sales team ever sees it.",
+    });
+    const reviewHeading = page.getByRole("heading", {
+      name: "We follow one property lead journey from click to sales handoff.",
+    });
+
+    for (const heading of [measurementHeading, reviewHeading]) {
+      const lines = heading.locator(":scope > span");
+      await expect(lines).toHaveCount(2);
+      const firstLine = await lines.nth(0).boundingBox();
+      const secondLine = await lines.nth(1).boundingBox();
+      expect(firstLine).not.toBeNull();
+      expect(secondLine).not.toBeNull();
+      expect(secondLine?.y ?? 0).toBeGreaterThan((firstLine?.y ?? 0) + 8);
+    }
+
+    for (const copy of [
+      "We check the path from ad to property page to enquiry or viewing request and into your sales system or CRM.",
+      "The audit stays focused on one real property lead journey so we can answer three practical questions without burying your marketing or sales team in technical detail.",
+      "You get a short Tracking Health Scorecard that shows what we found, why it matters and what should be checked or fixed first.",
+    ]) {
+      const subtitle = page.getByText(copy, { exact: true });
+      const subtitleBox = await subtitle.boundingBox();
+      expect(subtitleBox).not.toBeNull();
+      expect(subtitleBox?.width ?? 9999).toBeLessThanOrEqual(832);
     }
 
     await page.setViewportSize({ width: 1440, height: 1000 });
