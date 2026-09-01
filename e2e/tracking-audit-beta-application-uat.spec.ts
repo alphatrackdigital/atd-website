@@ -233,7 +233,7 @@ test.describe("Tracking Audit Beta application contract UAT", () => {
     await page.getByLabel("First Name").fill("Beta");
     await page.getByLabel("Last Name").fill("Real Estate");
     await page.getByLabel("Work Email").fill("beta-real-estate@example.com");
-    await page.getByLabel("Business / Company").fill("Beta Realty");
+    await page.getByLabel("Company / Organisation").fill("Beta Realty");
     await page.getByLabel("Website").fill("example.com");
     await page.getByRole("button", { name: "Continue" }).click();
 
