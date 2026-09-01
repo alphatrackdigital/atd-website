@@ -1,0 +1,52 @@
+name: Production Post-Deploy QA
+
+on:
+  push:
+    branches:
+      - qa/production-postdeploy-v1
+    paths:
+      - ".github/workflows/production-postdeploy-qa.yml"
+      - "playwright.production.config.ts"
+      - "e2e/production-postdeploy.spec.ts"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-postdeploy-qa
+  cancel-in-progress: true
+
+jobs:
+  production-qa:
+    name: Full production browser QA
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out QA branch
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run production browser QA
+        run: npx playwright test --config=playwright.production.config.ts
+
+      - name: Upload production QA report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-postdeploy-qa-${{ github.sha }}
+          path: |
+            playwright-report-production/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 30
