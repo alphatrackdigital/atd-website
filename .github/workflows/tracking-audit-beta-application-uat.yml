@@ -20,8 +20,9 @@ jobs:
       SOURCE_SHA: 176723ed08fa5e816ba04b11f28df4ee05e8ae51
       BETA_V3_SHA: 855f18f29514c68c7d00e9d75630ab84f022ac35
       BACKEND_RELEASE_SHA: da830acc4c882ab2d36a4c39a4ca0e8a47cd3214
-      STAGING_LEADS_URL: https://atd-backend-test-git-staging-alphatrackdigital.vercel.app/api/leads
-      PRODUCTION_LEADS_URL: https://alphatra-serv.netlify.app/api/leads
+      STAGING_DEPLOYED_SHA: caaa97a16050cb1597e260f3e6217ca9582924d7
+      STAGING_READINESS_URL: https://atd-backend-test-git-staging-alphatrackdigital.vercel.app/api/qa-readiness
+      BACKEND_REPO_URL: https://github.com/alphatrackdigital/atd-backend-test.git
 
     steps:
       - name: Check out UAT wrapper
@@ -33,10 +34,23 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
           git merge-base --is-ancestor "$SOURCE_SHA" HEAD
           git merge-base --is-ancestor "$BETA_V3_SHA" "$SOURCE_SHA"
 
-          git diff --exit-code "$BETA_V3_SHA" --             src/components/layout/Header.tsx             src/pages/ExpertiseDetail.tsx             src/pages/Index.tsx             src/pages/TrackingAuditProfessionalServices.tsx             src/pages/TrackingAuditEducation.tsx             src/pages/TrackingAuditRealEstate.tsx             src/pages/TrackingLandingPage.tsx             src/types/leads.ts             ':!src/pages/TrackingAuditProfessionalServices.tsx'             ':!src/pages/TrackingAuditEducation.tsx'             ':!src/pages/TrackingAuditRealEstate.tsx'             ':!src/pages/TrackingLandingPage.tsx'             ':!src/types/leads.ts' || true
+          mapfile -t wrapper_files < <(git diff --name-only "$SOURCE_SHA" HEAD)
+          test "${#wrapper_files[@]}" -eq 1
+          test "${wrapper_files[0]}" = ".github/workflows/tracking-audit-beta-application-uat.yml"
+
+          expected_files="$(printf '%s\n' \
+            e2e/tracking-audit-beta-application-uat.spec.ts \
+            src/pages/TrackingAuditEducation.tsx \
+            src/pages/TrackingAuditProfessionalServices.tsx \
+            src/pages/TrackingAuditRealEstate.tsx \
+            src/pages/TrackingLandingPage.tsx \
+            src/types/leads.ts | sort)"
+          actual_files="$(git diff --name-only "$BETA_V3_SHA" "$SOURCE_SHA" | sort)"
+          test "$actual_files" = "$expected_files"
 
           echo "UAT source: $SOURCE_SHA"
           echo "Beta v3 parent: $BETA_V3_SHA"
@@ -61,38 +75,41 @@ jobs:
 
       - name: Run four-LP application contract UAT
         run: |
-          npx playwright test             e2e/tracking-audit-beta-application-uat.spec.ts             e2e/tracking-audit.responsive.spec.ts             e2e/tracking-audit-professional-services.visual.spec.ts             e2e/tracking-audit-education.visual.spec.ts             e2e/tracking-audit-real-estate.visual.spec.ts             e2e/tracking-audit-discovery.visual.spec.ts
+          npx playwright test \
+            e2e/tracking-audit-beta-application-uat.spec.ts \
+            e2e/tracking-audit.responsive.spec.ts \
+            e2e/tracking-audit-professional-services.visual.spec.ts \
+            e2e/tracking-audit-education.visual.spec.ts \
+            e2e/tracking-audit-real-estate.visual.spec.ts \
+            e2e/tracking-audit-discovery.visual.spec.ts
 
-      - name: Verify protected staging and released backend contract without creating a lead
+      - name: Verify protected Vercel staging without submitting a lead
         shell: bash
         run: |
           set -euo pipefail
 
-          staging_get_status="$(curl -sS -o /tmp/staging-get.json -w '%{http_code}' "$STAGING_LEADS_URL")"
-          staging_post_status="$(curl -sS -o /tmp/staging-post.json -w '%{http_code}'             -X POST             -H 'Content-Type: application/json'             --data '{}'             "$STAGING_LEADS_URL")"
+          staging_branch_sha="$(git ls-remote "$BACKEND_REPO_URL" refs/heads/staging | awk '{print $1}')"
+          echo "backend_staging_sha=$staging_branch_sha"
+          test "$staging_branch_sha" = "$STAGING_DEPLOYED_SHA"
 
-          echo "staging_get_status=$staging_get_status"
-          echo "staging_post_status=$staging_post_status"
-          echo "staging_get_body=$(cat /tmp/staging-get.json)"
-          echo "staging_post_body=$(cat /tmp/staging-post.json)"
+          curl -fsSL             "https://raw.githubusercontent.com/alphatrackdigital/atd-backend-test/$STAGING_DEPLOYED_SHA/api/qa-readiness.ts"             -o /tmp/qa-readiness.ts
+          curl -fsSL             "https://raw.githubusercontent.com/alphatrackdigital/atd-backend-test/$STAGING_DEPLOYED_SHA/api/_lib/trackingAuditHandler.ts"             -o /tmp/trackingAuditHandler.ts
 
-          # Vercel staging is intentionally protected after the Aug 31 UAT window closed.
-          test "$staging_get_status" = "302"
-          test "$staging_post_status" = "401"
-          grep -q "Protected deployment" /tmp/staging-post.json
+          grep -q 'req.method !== "GET"' /tmp/qa-readiness.ts
+          grep -q 'normalizeRoute(data.websiteRoute)' /tmp/trackingAuditHandler.ts
+          grep -q 'WEBSITE_ROUTE: getSubmittedRoute(data)' /tmp/trackingAuditHandler.ts
 
-          production_get_status="$(curl -sS -o /tmp/production-get.json -w '%{http_code}' "$PRODUCTION_LEADS_URL")"
-          production_post_status="$(curl -sS -o /tmp/production-post.json -w '%{http_code}'             -X POST             -H 'Content-Type: application/json'             --data '{}'             "$PRODUCTION_LEADS_URL")"
+          staging_status="$(curl -sS             -D /tmp/staging-protection-headers.txt             -o /tmp/staging-protection-body.txt             -w '%{http_code}'             "$STAGING_READINESS_URL")"
 
-          echo "production_get_status=$production_get_status"
-          echo "production_post_status=$production_post_status"
-          echo "production_get_body=$(cat /tmp/production-get.json)"
-          echo "production_post_body=$(cat /tmp/production-post.json)"
+          echo "staging_readiness_status=$staging_status"
+          cat /tmp/staging-protection-headers.txt
+          cat /tmp/staging-protection-body.txt
 
-          # Empty payload is rejected before any provider write, so this creates no lead.
-          test "$production_get_status" = "405"
-          test "$production_post_status" = "400"
-          grep -q "Invalid submission payload" /tmp/production-post.json
+          test "$staging_status" = "302"
+          grep -qi '^server: Vercel' /tmp/staging-protection-headers.txt
+          grep -qi '^location: https://vercel.com/sso-api?' /tmp/staging-protection-headers.txt
+          grep -qi '^x-robots-tag: noindex' /tmp/staging-protection-headers.txt
+          grep -q 'Redirecting' /tmp/staging-protection-body.txt
 
       - name: Save UAT evidence
         if: always()
@@ -103,12 +120,12 @@ jobs:
           printf '%s\n' "$SOURCE_SHA" > qa-evidence/frontend-source-sha.txt
           printf '%s\n' "$BETA_V3_SHA" > qa-evidence/beta-v3-sha.txt
           printf '%s\n' "$BACKEND_RELEASE_SHA" > qa-evidence/backend-release-sha.txt
-          printf '%s\n' "$STAGING_LEADS_URL" > qa-evidence/staging-endpoint.txt
-          printf '%s\n' "$PRODUCTION_LEADS_URL" > qa-evidence/production-endpoint.txt
-          cp /tmp/staging-get.json qa-evidence/staging-get.json 2>/dev/null || true
-          cp /tmp/staging-post.json qa-evidence/staging-post.json 2>/dev/null || true
-          cp /tmp/production-get.json qa-evidence/production-get.json 2>/dev/null || true
-          cp /tmp/production-post.json qa-evidence/production-post.json 2>/dev/null || true
+          printf '%s\n' "$STAGING_DEPLOYED_SHA" > qa-evidence/vercel-staging-deployed-sha.txt
+          printf '%s\n' "$STAGING_READINESS_URL" > qa-evidence/staging-readiness-endpoint.txt
+          cp /tmp/staging-protection-headers.txt qa-evidence/staging-protection-headers.txt 2>/dev/null || true
+          cp /tmp/staging-protection-body.txt qa-evidence/staging-protection-body.txt 2>/dev/null || true
+          cp /tmp/qa-readiness.ts qa-evidence/deployed-qa-readiness.ts 2>/dev/null || true
+          grep -n 'websiteRoute\|WEBSITE_ROUTE' /tmp/trackingAuditHandler.ts             > qa-evidence/deployed-website-route-contract.txt 2>/dev/null || true
 
       - name: Upload UAT evidence
         if: always()
