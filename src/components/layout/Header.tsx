@@ -120,40 +120,21 @@ const Header = () => {
   const getLinkTarget = (path: string, hash?: string): To =>
     hash ? { pathname: path, hash } : path;
 
-  const headerElevated = scrolled || desktopServicesOpen || desktopExpertiseOpen || mobileOpen;
+  const isTrackingAuditPage = location.pathname.startsWith("/offer/tracking-audit");
+  const headerElevated = isTrackingAuditPage || scrolled || desktopServicesOpen || desktopExpertiseOpen || mobileOpen;
   const strategyCallTo = withCampaignSearch(BOOK_A_FREE_STRATEGY_CALL_CTA.to, location.search);
   const featuredExpertisePages = expertisePages.filter((item) => featuredExpertiseSlugs.includes(item.slug));
-  const isTrackingAuditLanding =
-    location.pathname === "/offer/tracking-audit" || location.pathname === "/offer/tracking-audit/";
-
-  if (isTrackingAuditLanding) {
-    return (
-      <header className="fixed left-0 right-0 top-0 z-50 border-b border-white/[0.06] bg-background/88 backdrop-blur-xl">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="flex h-16 items-center">
-            <Link to="/" aria-label="AlphaTrack Digital Home" className="flex items-center">
-              <img
-                src="/logo-wordmark-240.webp"
-                alt="AlphaTrack Digital"
-                className="h-[25px] w-auto sm:h-[27px]"
-                width={240}
-                height={56}
-              />
-            </Link>
-          </div>
-        </div>
-      </header>
-    );
-  }
 
   return (
     <header className="fixed left-0 right-0 top-0 z-50 transition-all duration-300">
       <div
         className={cn(
           "transition-all duration-300",
-          headerElevated
-            ? "bg-background/78 shadow-[0_10px_28px_rgba(0,10,28,0.22)] backdrop-blur-xl"
-            : "bg-[linear-gradient(180deg,rgba(7,10,16,0.82)_0%,rgba(7,10,16,0.46)_54%,rgba(7,10,16,0)_100%)]",
+          isTrackingAuditPage
+            ? "bg-[#070a10] shadow-[0_10px_28px_rgba(0,10,28,0.20)]"
+            : headerElevated
+              ? "bg-background/78 shadow-[0_10px_28px_rgba(0,10,28,0.22)] backdrop-blur-xl"
+              : "bg-[linear-gradient(180deg,rgba(7,10,16,0.82)_0%,rgba(7,10,16,0.46)_54%,rgba(7,10,16,0)_100%)]",
         )}
       >
         <div className="container mx-auto px-4 lg:px-8">
