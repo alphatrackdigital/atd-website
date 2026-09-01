@@ -135,7 +135,7 @@ test.describe("Real Estate Tracking Audit visual stability", () => {
     }
 
     const heroHeading = page.getByRole("heading", {
-      name: "Know which campaigns are producing real property enquiries and booked viewings.",
+      name: "Know which ads drive real property enquiries and booked viewings.",
     });
     const heroGradientLines = heroHeading.locator(".text-gradient-atd-hero");
     await expect(heroGradientLines).toHaveCount(2);
@@ -172,12 +172,33 @@ test.describe("Real Estate Tracking Audit visual stability", () => {
     await advanceToStepThree(page);
     await expect(page.getByText(/Review and recommendations are included\. Implementation is separate\./)).toBeVisible();
 
+    await expect(page.getByText("Example preview", { exact: true })).toHaveCount(0);
+
     const scorecard = page
       .getByText("Tracking Health Scorecard", { exact: true })
-      .locator("xpath=ancestor::div[contains(@class,'max-w-[36rem]')]");
+      .locator("xpath=ancestor::div[contains(@class,'max-w-[46rem]')]");
     const scorecardBox = await scorecard.boundingBox();
+    const viewportAtScorecard = page.viewportSize();
     expect(scorecardBox).not.toBeNull();
-    expect(scorecardBox?.width ?? 999).toBeLessThanOrEqual(576);
+    expect(viewportAtScorecard).not.toBeNull();
+    expect(scorecardBox?.width ?? 0).toBeGreaterThanOrEqual(680);
+    expect(scorecardBox?.width ?? 999).toBeLessThanOrEqual(736);
+    const scorecardCenter = (scorecardBox?.x ?? 0) + (scorecardBox?.width ?? 0) / 2;
+    expect(Math.abs(scorecardCenter - (viewportAtScorecard?.width ?? 0) / 2)).toBeLessThanOrEqual(2);
+
+    const formCard = page.locator(".tracking-audit-form-card");
+    const reviewBadge = page.locator("[data-human-review-badge]");
+    await expect(reviewBadge).toBeVisible();
+    const badgeIsInsideCard = await formCard.evaluate((element) =>
+      element.contains(document.querySelector("[data-human-review-badge]")),
+    );
+    expect(badgeIsInsideCard).toBe(false);
+    const cardBox = await formCard.boundingBox();
+    const badgeBox = await reviewBadge.boundingBox();
+    expect(cardBox).not.toBeNull();
+    expect(badgeBox).not.toBeNull();
+    expect(badgeBox?.y ?? 9999).toBeLessThan(cardBox?.y ?? 0);
+    expect((badgeBox?.x ?? 0) + (badgeBox?.width ?? 0)).toBeGreaterThan((cardBox?.x ?? 0) + (cardBox?.width ?? 0) - 24);
 
     await expect(page.getByRole("heading", { name: "From application to scorecard in four steps." })).toBeVisible();
     await expect(page.locator("[data-process-sequence]")).toHaveCount(1);
