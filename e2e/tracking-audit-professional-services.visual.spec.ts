@@ -250,6 +250,7 @@ test.describe("Professional Services visual stability", () => {
 
     await expect(page.getByRole("heading", { name: "From application to scorecard in four steps." })).toBeVisible();
     await expect(page.locator("[data-process-sequence]")).toHaveCount(1);
+    await expect(page.locator("[data-process-sequence]")).toHaveAttribute("data-process-pace", "deliberate");
     await expect(page.locator("[data-process-step]")).toHaveCount(4);
     await expect(page.locator("[data-process-path]")).toHaveCount(1);
   });
