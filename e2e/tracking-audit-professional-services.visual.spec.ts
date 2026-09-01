@@ -140,28 +140,75 @@ test.describe("Professional Services visual stability", () => {
       expect(Math.abs(diamondCenter - expectedMidpoint)).toBeLessThanOrEqual(1.5);
     }
 
-    const heroHeading = page.getByRole("heading", { name: "Know which ads are bringing you real enquiries and booked calls." });
+    const heroHeading = page.getByRole("heading", { name: "Know which ads drive real enquiries and booked calls." });
     const heroGradientLines = heroHeading.locator(".text-gradient-atd-hero");
     await expect(heroGradientLines).toHaveCount(2);
+
     for (const width of [1440, 1024, 768, 390]) {
       await page.setViewportSize({ width, height: 1000 });
       await heroHeading.scrollIntoViewIfNeeded();
+
+      const dimensions = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      }));
+      expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+
+      const heroBox = await heroHeading.boundingBox();
+      expect(heroBox).not.toBeNull();
+
       for (let index = 0; index < 2; index += 1) {
-        const metrics = await heroGradientLines.nth(index).evaluate((element) => {
+        const gradientLine = heroGradientLines.nth(index);
+        const metrics = await gradientLine.evaluate((element) => {
           const style = getComputedStyle(element);
           return {
             height: element.getBoundingClientRect().height,
             fontSize: Number.parseFloat(style.fontSize),
             lineHeight: Number.parseFloat(style.lineHeight),
             paddingBottom: Number.parseFloat(style.paddingBottom),
+            paddingRight: Number.parseFloat(style.paddingRight),
             overflow: style.overflow,
+            scrollWidth: element.scrollWidth,
+            clientWidth: element.clientWidth,
           };
         });
+        const gradientBox = await gradientLine.boundingBox();
+
+        expect(gradientBox).not.toBeNull();
         expect(metrics.height).toBeGreaterThan(metrics.fontSize);
         expect(metrics.lineHeight).toBeGreaterThanOrEqual(metrics.fontSize * 1.04);
         expect(metrics.paddingBottom).toBeGreaterThan(0);
+        expect(metrics.paddingRight).toBeGreaterThan(0);
         expect(metrics.overflow).toBe("visible");
+        expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1);
+        expect((gradientBox?.x ?? 0) + (gradientBox?.width ?? 0)).toBeLessThanOrEqual(
+          (heroBox?.x ?? 0) + (heroBox?.width ?? 0) + 1,
+        );
       }
+    }
+
+    await page.setViewportSize({ width: 1440, height: 1000 });
+
+    const measurementHeading = page.getByRole("heading", {
+      name: "An enquiry can lose its source before your team ever sees it.",
+    });
+    const measurementLines = measurementHeading.locator(":scope > span");
+    await expect(measurementLines).toHaveCount(2);
+    const firstLine = await measurementLines.nth(0).boundingBox();
+    const secondLine = await measurementLines.nth(1).boundingBox();
+    expect(firstLine).not.toBeNull();
+    expect(secondLine).not.toBeNull();
+    expect(secondLine?.y ?? 0).toBeGreaterThan((firstLine?.y ?? 0) + 8);
+
+    for (const copy of [
+      "We check the simple path from ad to website to enquiry and into your CRM or inbox.",
+      "The audit stays focused on one real journey so we can answer three practical questions without burying you in technical detail.",
+      "You get a short Tracking Health Scorecard that shows what we found, why it matters and what should be checked or fixed first.",
+    ]) {
+      const subtitle = page.getByText(copy, { exact: true });
+      const subtitleBox = await subtitle.boundingBox();
+      expect(subtitleBox).not.toBeNull();
+      expect(subtitleBox?.width ?? 9999).toBeLessThanOrEqual(832);
     }
 
     await advanceToStepThree(page);
@@ -183,10 +230,23 @@ test.describe("Professional Services visual stability", () => {
 
     await expect(page.getByText("9 conversions", { exact: true })).toBeVisible();
 
-    const scorecard = page.getByText("Tracking Health Scorecard", { exact: true }).locator("xpath=ancestor::div[contains(@class,'max-w-[36rem]')]");
+    await expect(page.getByText("Example preview", { exact: true })).toHaveCount(0);
+
+    const scorecard = page.getByText("Tracking Health Scorecard", { exact: true }).locator("xpath=ancestor::div[contains(@class,'max-w-[46rem]')]");
     const scorecardBox = await scorecard.boundingBox();
+    const scorecardShellBox = await scorecard.locator("..").boundingBox();
     expect(scorecardBox).not.toBeNull();
-    expect(scorecardBox?.width ?? 999).toBeLessThanOrEqual(576);
+    expect(scorecardShellBox).not.toBeNull();
+    expect(scorecardBox?.width ?? 0).toBeGreaterThanOrEqual(680);
+    expect(scorecardBox?.width ?? 999).toBeLessThanOrEqual(736);
+    const scorecardCenter = (scorecardBox?.x ?? 0) + (scorecardBox?.width ?? 0) / 2;
+    const shellCenter = (scorecardShellBox?.x ?? 0) + (scorecardShellBox?.width ?? 0) / 2;
+    expect(Math.abs(scorecardCenter - shellCenter)).toBeLessThanOrEqual(2);
+
+    const formCard = page.locator(".tracking-audit-form-card");
+    const reviewBadge = page.locator("[data-human-review-badge]");
+    await expect(reviewBadge).toBeVisible();
+    expect(await formCard.evaluate((element) => element.contains(document.querySelector("[data-human-review-badge]")))).toBe(false);
 
     await expect(page.getByRole("heading", { name: "From application to scorecard in four steps." })).toBeVisible();
     await expect(page.locator("[data-process-sequence]")).toHaveCount(1);
