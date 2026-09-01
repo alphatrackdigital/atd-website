@@ -58,6 +58,36 @@ describe("TrackingLandingPage accessibility", () => {
     expect(screen.queryByLabelText("Send me occasional ATD marketing insights.")).not.toBeInTheDocument();
   });
 
+  it("supports keyboard navigation and selection in shared audit comboboxes", async () => {
+    renderWithPageProviders(<TrackingLandingPage />, { route: "/offer/tracking-audit" });
+
+    fireEvent.change(screen.getByLabelText("First Name"), { target: { value: "Jane" } });
+    fireEvent.change(screen.getByLabelText("Last Name"), { target: { value: "Smith" } });
+    fireEvent.change(screen.getByLabelText("Work Email"), { target: { value: "jane@example.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Example Ltd" } });
+    fireEvent.change(screen.getByLabelText("Website"), { target: { value: "example.com" } });
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    const industry = await screen.findByRole("combobox", { name: "Industry" });
+    industry.focus();
+    fireEvent.keyDown(industry, { key: "ArrowDown" });
+
+    const options = await screen.findAllByRole("option");
+    await waitFor(() => expect(options[0]).toHaveFocus());
+
+    fireEvent.keyDown(options[0], { key: "ArrowDown" });
+    await waitFor(() => expect(options[1]).toHaveFocus());
+
+    const chosenLabel = options[1].textContent ?? "";
+    fireEvent.keyDown(options[1], { key: "Enter" });
+
+    await waitFor(() => {
+      expect(industry).toHaveFocus();
+      expect(industry).toHaveAttribute("aria-expanded", "false");
+      expect(industry).toHaveTextContent(chosenLabel);
+    });
+  });
+
   it("presents the application-first audit scope and links the final call to action to the form", () => {
     renderWithPageProviders(<TrackingLandingPage />, { route: "/offer/tracking-audit" });
 
