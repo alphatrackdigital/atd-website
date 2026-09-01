@@ -62,6 +62,195 @@
 }
 
 @layer base {
+  .tracking-audit-light {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 160 60% 38%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 196 100% 40%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 214 32% 93%;
+    --muted-foreground: 215 16% 42%;
+
+    --accent: 210 40% 95%;
+    --accent-foreground: 222 47% 11%;
+
+    --border: 214 24% 84%;
+    --input: 214 24% 84%;
+    --ring: 160 60% 38%;
+
+    --atd-blue: 220 92% 38%;
+    --atd-cyan: 196 100% 38%;
+    --atd-green: 160 60% 38%;
+
+    color-scheme: light;
+  }
+}
+
+.tracking-audit-light-popover {
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --accent: 210 40% 95%;
+  --accent-foreground: 222 47% 11%;
+  --border: 214 24% 84%;
+  --input: 214 24% 84%;
+  --ring: 160 60% 38%;
+}
+
+@layer components {
+  .tracking-audit-theme {
+    transition:
+      background-color 180ms ease,
+      color 180ms ease;
+  }
+
+  .tracking-audit-light .tracking-audit-hero {
+    background:
+      radial-gradient(ellipse 64% 52% at 28% 34%, hsl(var(--atd-cyan) / 0.10) 0%, transparent 72%),
+      radial-gradient(ellipse 42% 44% at 75% 28%, hsl(var(--atd-green) / 0.08) 0%, transparent 70%),
+      linear-gradient(180deg, hsl(210 40% 99%) 0%, hsl(var(--background)) 100%);
+  }
+
+  .tracking-audit-light .tracking-audit-grid-overlay {
+    opacity: 0.42 !important;
+    background-image:
+      linear-gradient(rgb(15 23 42 / 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(15 23 42 / 0.045) 1px, transparent 1px) !important;
+  }
+
+  .tracking-audit-light .tracking-audit-form-card {
+    border-color: hsl(var(--border));
+    background:
+      linear-gradient(180deg, hsl(var(--card)) 0%, hsl(210 40% 97%) 100%);
+    box-shadow:
+      0 24px 64px rgb(15 23 42 / 0.10),
+      0 1px 0 rgb(255 255 255 / 0.88) inset;
+  }
+
+  .tracking-audit-light .tracking-audit-form-card [role="combobox"],
+  .tracking-audit-light .tracking-audit-form-card input[type="text"],
+  .tracking-audit-light .tracking-audit-form-card input[type="email"] {
+    border-color: hsl(var(--input));
+    background-color: hsl(var(--card));
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.035);
+  }
+
+  .tracking-audit-light .tracking-audit-form-card [role="combobox"]:hover,
+  .tracking-audit-light .tracking-audit-form-card input[type="text"]:hover,
+  .tracking-audit-light .tracking-audit-form-card input[type="email"]:hover {
+    border-color: hsl(215 20% 74%);
+  }
+
+  .tracking-audit-light .tracking-audit-form-card [role="combobox"]:focus,
+  .tracking-audit-light .tracking-audit-form-card input[type="text"]:focus,
+  .tracking-audit-light .tracking-audit-form-card input[type="email"]:focus {
+    border-color: hsl(var(--primary) / 0.55);
+  }
+
+  .tracking-audit-light .tracking-audit-scope-card {
+    border-color: hsl(var(--border));
+    background:
+      linear-gradient(135deg, hsl(var(--primary) / 0.06), hsl(var(--secondary) / 0.035) 48%, hsl(var(--card)) 100%);
+    box-shadow: 0 14px 36px rgb(15 23 42 / 0.055);
+  }
+
+  .tracking-audit-light .tracking-audit-trust-card {
+    border-color: hsl(var(--border));
+    background: hsl(var(--card));
+    box-shadow: 0 10px 28px rgb(15 23 42 / 0.045);
+  }
+
+  .tracking-audit-node-ring {
+    box-shadow: 0 0 0 7px hsl(var(--background));
+  }
+
+  .tracking-audit-light .tracking-audit-node-ring {
+    border-color: hsl(var(--primary) / 0.26);
+    background-color: hsl(var(--card)) !important;
+    box-shadow:
+      0 0 0 7px hsl(var(--background)),
+      0 8px 18px rgb(15 23 42 / 0.06);
+  }
+
+  .tracking-audit-light .tracking-audit-final-cta {
+    background:
+      radial-gradient(ellipse 60% 70% at 50% 100%, hsl(var(--primary) / 0.09), transparent 70%),
+      linear-gradient(180deg, hsl(var(--background)) 0%, hsl(210 40% 96%) 100%);
+  }
+
+  .tracking-audit-light [class~="bg-[#091017]"],
+  .tracking-audit-light [class~="bg-[#0a1017]"],
+  .tracking-audit-light [class~="bg-[#0b1118]"] {
+    background-color: hsl(var(--card)) !important;
+  }
+
+  .tracking-audit-light [class~="bg-white/5"],
+  .tracking-audit-light [class~="bg-white/[0.01]"],
+  .tracking-audit-light [class~="bg-white/[0.018]"],
+  .tracking-audit-light [class~="bg-white/[0.02]"],
+  .tracking-audit-light [class~="bg-white/[0.025]"],
+  .tracking-audit-light [class~="bg-white/[0.045]"],
+  .tracking-audit-light [class~="bg-white/[0.055]"],
+  .tracking-audit-light [class~="bg-white/[0.07]"],
+  .tracking-audit-light [class~="bg-white/[0.08]"],
+  .tracking-audit-light [class~="bg-white/[0.10]"] {
+    background-color: hsl(var(--muted) / 0.62) !important;
+  }
+
+  .tracking-audit-light [class~="border-white/10"],
+  .tracking-audit-light [class~="border-white/20"],
+  .tracking-audit-light [class~="border-white/[0.05]"],
+  .tracking-audit-light [class~="border-white/[0.06]"],
+  .tracking-audit-light [class~="border-white/[0.07]"],
+  .tracking-audit-light [class~="border-white/[0.08]"],
+  .tracking-audit-light [class~="border-white/[0.10]"] {
+    border-color: hsl(var(--border)) !important;
+  }
+
+  .tracking-audit-light [class*="text-amber-100/"],
+  .tracking-audit-light [class*="text-amber-200/"] {
+    color: hsl(32 78% 34% / 0.88) !important;
+  }
+}
+
+.tracking-audit-light-popover {
+  border-color: hsl(214 24% 82%) !important;
+  background: hsl(0 0% 100%);
+  box-shadow:
+    0 18px 38px rgb(15 23 42 / 0.14),
+    0 1px 2px rgb(15 23 42 / 0.06);
+}
+
+.tracking-audit-light-popover [role="option"] {
+  color: hsl(222 47% 14%);
+}
+
+.tracking-audit-light-popover [role="option"]:focus {
+  background: hsl(160 60% 38% / 0.10);
+  color: hsl(160 60% 28%);
+}
+
+@layer base {
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  body[data-scroll-locked] {
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+@layer base {
   * {
     @apply border-border;
   }
