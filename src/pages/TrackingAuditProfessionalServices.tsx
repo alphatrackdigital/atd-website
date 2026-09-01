@@ -542,6 +542,7 @@ const TrackingAuditProfessionalServices = () => {
         primaryConversionType: data.primaryConversionType,
         measurementProblem: data.measurementProblem,
         urgency: data.urgency,
+        websiteRoute: location.pathname,
         optIn: data.marketingOptIn === true,
       });
 
