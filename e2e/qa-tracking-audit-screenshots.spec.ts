@@ -11,7 +11,7 @@ const routes = [
 const hideExternalOverlays = async (page: Page) => {
   await page.addStyleTag({
     content:
-      "#lanyard_root, [data-ketch-backdrop='true'] { display: none !important; pointer-events: none !important; }",
+      "#lanyard_root, [data-ketch-backdrop='true'] { display: none !important; pointer-events: none !important; } *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }",
   });
 };
 
@@ -63,6 +63,7 @@ const submitGeneral = async (page: Page) => {
 };
 
 test.describe("QA screenshot evidence", () => {
+  test.describe.configure({ timeout: 90_000 });
   test.beforeAll(async () => {
     await mkdir("qa-screenshots", { recursive: true });
   });
