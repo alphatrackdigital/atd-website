@@ -1,0 +1,188 @@
+name: Tracking Audit Beta Integration
+
+on:
+  push:
+    branches:
+      - qa/tracking-audit-beta-integration-v1
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tracking-audit-beta-integration
+  cancel-in-progress: true
+
+jobs:
+  beta-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_STAGING_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_STAGING_ACCOUNT_ID }}
+      WORKER_NAME: atd-website-tracking-audit-beta
+      INTEGRATION_SHA: 9669de67fafbe4d7109e41e2369845f1b25353cc
+      MAIN_SHA: a29c48b091299dccc56a309affe92ee2110f6d61
+      GENERAL_SHA: 45b95dc86903399dddaf84c4cc650a2466e49ddd
+      PRO_SHA: 2fe7b25f9e27799c7753e556facf9bb03210b2ac
+      EDUCATION_SHA: a204941c9372827f4c1f76f9bf40ab298d4e113e
+      REAL_ESTATE_SHA: e33005864934a34dd846f12dcb08c03053e3be40
+      REVIEW_BASE_URL: https://atd-website-tracking-audit-beta.alphatrackdigital.workers.dev
+
+    steps:
+      - name: Check out Beta integration wrapper
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify locked Beta source heads
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$INTEGRATION_SHA" HEAD
+          git merge-base --is-ancestor "$GENERAL_SHA" "$INTEGRATION_SHA"
+          git merge-base --is-ancestor "$REAL_ESTATE_SHA" "$INTEGRATION_SHA"
+
+          git diff --exit-code "$GENERAL_SHA" -- src/pages/TrackingLandingPage.tsx e2e/tracking-audit.responsive.spec.ts
+          git diff --exit-code "$PRO_SHA" -- src/pages/TrackingAuditProfessionalServices.tsx e2e/tracking-audit-professional-services.visual.spec.ts
+          git diff --exit-code "$EDUCATION_SHA" -- src/pages/TrackingAuditEducation.tsx e2e/tracking-audit-education.visual.spec.ts
+          git diff --exit-code "$REAL_ESTATE_SHA" -- src/pages/TrackingAuditRealEstate.tsx e2e/tracking-audit-real-estate.visual.spec.ts
+
+          echo "Beta integration source preserved at $INTEGRATION_SHA"
+          echo "General Beta: $GENERAL_SHA"
+          echo "Professional Services Beta: $PRO_SHA"
+          echo "Education Beta: $EDUCATION_SHA"
+          echo "Real Estate Beta: $REAL_ESTATE_SHA"
+          echo "QA wrapper: $(git rev-parse HEAD)"
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run canonical release preparation
+        env:
+          VITE_LEADS_ENDPOINT: /api/leads
+        run: npm run release:prepare
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run cross-LP Beta browser gate
+        run: |
+          npx playwright test             e2e/tracking-audit.responsive.spec.ts             e2e/tracking-audit-professional-services.visual.spec.ts             e2e/tracking-audit-education.visual.spec.ts             e2e/tracking-audit-real-estate.visual.spec.ts
+
+      - name: Embed Beta deployment manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs');
+          const manifest = {
+            schemaVersion: 1,
+            app: 'atd-website',
+            environment: 'beta-integration-review',
+            integrationSha: process.env.INTEGRATION_SHA,
+            lockedHeads: {
+              main: process.env.MAIN_SHA,
+              general: process.env.GENERAL_SHA,
+              professionalServices: process.env.PRO_SHA,
+              education: process.env.EDUCATION_SHA,
+              realEstate: process.env.REAL_ESTATE_SHA,
+            },
+            wrapperSha: process.env.GITHUB_SHA,
+            workerName: process.env.WORKER_NAME,
+            formSubmissionEnabled: false,
+            builtAt: new Date().toISOString(),
+            githubRun: `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+          };
+          fs.mkdirSync('dist/__atd', { recursive: true });
+          fs.writeFileSync('dist/__atd/deployment.json', JSON.stringify(manifest, null, 2) + '\n');
+          NODE
+
+      - name: Cloudflare dry-run
+        run: npx --yes wrangler@4 deploy --dry-run --config cloudflare/wrangler.tracking-audit-beta.jsonc --outdir .wrangler-dry-run
+
+      - name: Deploy Beta integration Worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4 deploy --config cloudflare/wrangler.tracking-audit-beta.jsonc 2>&1 | tee cloudflare-beta-deploy.log
+
+      - name: Smoke all locked Beta routes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          smoke_route () {
+            local route="$1"
+            local text_a="$2"
+            local text_b="$3"
+            local code="000"
+
+            for attempt in 1 2 3 4 5 6
+            do
+              code="$(curl -sS -o /tmp/route-body -w '%{http_code}'                 -H 'Accept: text/html'                 -H 'Sec-Fetch-Mode: navigate'                 -H 'Cache-Control: no-cache'                 "$REVIEW_BASE_URL$route?integration=$INTEGRATION_SHA")"
+              echo "$route -> $code (attempt $attempt)"
+              if [ "$code" = "200" ]; then break; fi
+              sleep 2
+            done
+            test "$code" = "200"
+            grep -q "$text_a" /tmp/route-body
+            grep -q "$text_b" /tmp/route-body
+          }
+
+          smoke_route "/offer/tracking-audit/" "Know what your marketing is" "actually producing."
+          smoke_route "/offer/tracking-audit/professional-services/" "Know which ads drive" "real enquiries"
+          smoke_route "/offer/tracking-audit/education/" "Know which campaigns drive" "applications"
+          smoke_route "/offer/tracking-audit/real-estate/" "Know which ads drive" "property enquiries"
+
+          for attempt in 1 2 3 4 5 6
+          do
+            curl -sS -H 'Cache-Control: no-cache' "$REVIEW_BASE_URL/__atd/deployment.json?sha=$INTEGRATION_SHA&attempt=$attempt" > /tmp/manifest || true
+            if grep -q "$INTEGRATION_SHA" /tmp/manifest; then
+              echo "Latest Beta manifest visible on attempt $attempt"
+              break
+            fi
+            sleep 2
+          done
+
+          grep -q "$INTEGRATION_SHA" /tmp/manifest
+          grep -q "$GENERAL_SHA" /tmp/manifest
+          grep -q "$PRO_SHA" /tmp/manifest
+          grep -q "$EDUCATION_SHA" /tmp/manifest
+          grep -q "$REAL_ESTATE_SHA" /tmp/manifest
+
+          manifest_code="$(curl -sS -o /tmp/manifest-final -w '%{http_code}' "$REVIEW_BASE_URL/__atd/deployment.json")"
+          echo "/__atd/deployment.json -> $manifest_code"
+          test "$manifest_code" = "200"
+
+          submit_code="$(curl -sS -o /tmp/submit-body -w '%{http_code}' "$REVIEW_BASE_URL/api/leads")"
+          echo "/api/leads -> $submit_code"
+          test "$submit_code" = "403"
+
+      - name: Save Beta evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qa-evidence
+          cp dist/__atd/deployment.json qa-evidence/deployment.json 2>/dev/null || true
+          cp cloudflare-beta-deploy.log qa-evidence/cloudflare-beta-deploy.log 2>/dev/null || true
+          printf '%s\n' "$INTEGRATION_SHA" > qa-evidence/integration-sha.txt
+          printf '%s\n' "$GENERAL_SHA" > qa-evidence/general-sha.txt
+          printf '%s\n' "$PRO_SHA" > qa-evidence/pro-sha.txt
+          printf '%s\n' "$EDUCATION_SHA" > qa-evidence/education-sha.txt
+          printf '%s\n' "$REAL_ESTATE_SHA" > qa-evidence/real-estate-sha.txt
+          printf '%s\n' "$GITHUB_SHA" > qa-evidence/wrapper-sha.txt
+
+      - name: Upload Beta evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tracking-audit-beta-integration-${{ github.sha }}
+          if-no-files-found: error
+          path: qa-evidence
