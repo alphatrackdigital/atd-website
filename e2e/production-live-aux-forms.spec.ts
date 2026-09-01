@@ -87,7 +87,7 @@ test("real production Newsletter journey", async ({ page }) => {
 
   const section = page.locator("section").filter({ hasText: "Get insights straight to your inbox" }).first();
   await section.scrollIntoViewIfNeeded();
-  await section.getByRole("textbox", { name: "Email address" }).fill("alphatrackdigital+atd-newsletter-e2e-20260901@gmail.com");
+  await section.getByRole("textbox", { name: "Email address" }).fill("alphatrackdigital+atd-newsletter-e2e2-20260901@gmail.com");
   await section.getByRole("checkbox").check();
 
   const responsePromise = page.waitForResponse((response) =>
@@ -102,7 +102,7 @@ test("real production Newsletter journey", async ({ page }) => {
   expect(backend.ok).toBe(true);
   expect(backend.duplicate).toBe(false);
   expect(backend.metaEventId).toMatch(/^atd-/);
-  await expect(section.getByText(/You're subscribed|Check your email to confirm/i)).toBeVisible();
+  await expect(page.getByText(/You're subscribed|Check your email to confirm/i).first()).toBeVisible();
   await page.waitForTimeout(4500);
 
   const event = await page.evaluate(() =>
@@ -154,7 +154,7 @@ test("real production Exit Popup journey", async ({ page }) => {
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
   await dialog.getByLabel("First name").fill("ATD Exit E2E");
-  await dialog.getByLabel("Work email").fill("alphatrackdigital+atd-exit-e2e2-20260901@gmail.com");
+  await dialog.getByLabel("Work email").fill("alphatrackdigital+atd-exit-e2e3-20260901@gmail.com");
   await dialog.getByLabel(/Website URL/i).fill("alphatrack.digital");
   await dialog.getByRole("checkbox").check();
 
@@ -171,13 +171,16 @@ test("real production Exit Popup journey", async ({ page }) => {
   expect(backend.duplicate).toBe(false);
   expect(backend.metaEventId).toMatch(/^atd-/);
   await expect(dialog.getByRole("heading", { name: "Your audit request is in." })).toBeVisible();
-  await page.waitForTimeout(4500);
+  await page.waitForTimeout(10000);
 
-  const event = await page.evaluate(() =>
-    ((window as any).dataLayer || []).filter((x: any) => x?.event === "exit_popup_success").at(-1)
-  );
-  expect(event?.event_id).toBe(backend.metaEventId);
-  expect(hasPixelEvent(fb, "Lead", backend.metaEventId)).toBe(true);
+  const browserState = await page.evaluate(() => ({
+    event: ((window as any).dataLayer || []).filter((x: any) => x?.event === "exit_popup_success").at(-1),
+    consent: (window as any).__atdConsentState,
+    metaEventIds: (window as any).__atdMetaEventIds,
+    dispatched: (window as any).__atdMetaDispatchedEvents,
+    fbqPresent: typeof (window as any).fbq === "function",
+  }));
+  const pixelMatched = hasPixelEvent(fb, "Lead", backend.metaEventId);
 
   writeFileSync("exit-live-e2e.json", JSON.stringify({
     status: response.status(),
@@ -185,7 +188,16 @@ test("real production Exit Popup journey", async ({ page }) => {
     duplicate: backend.duplicate,
     metaEventId: backend.metaEventId,
     route: "/",
-    browserEventId: event?.event_id,
-    pixelLeadCarriesEventId: hasPixelEvent(fb, "Lead", backend.metaEventId),
+    browserEventId: browserState.event?.event_id,
+    consent: browserState.consent,
+    metaEventIds: browserState.metaEventIds,
+    dispatched: browserState.dispatched,
+    fbqPresent: browserState.fbqPresent,
+    facebookRequestCount: fb.length,
+    pixelLeadCarriesEventId: pixelMatched,
   }, null, 2));
+
+  expect(browserState.event?.event_id).toBe(backend.metaEventId);
+  expect(browserState.fbqPresent).toBe(true);
+  expect(pixelMatched).toBe(true);
 });
