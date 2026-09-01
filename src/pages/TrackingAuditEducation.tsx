@@ -1206,8 +1206,8 @@ const TrackingAuditEducation = () => {
           <div className="relative grid items-center gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:gap-12">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/80">The familiar problem</p>
-              <h2 className="mt-4 max-w-xl text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-[2.8rem] lg:leading-[1.08]">
-                <span className="block">The application arrives.</span>{" "}
+              <h2 className="mt-4 max-w-xl text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-[2.55rem] lg:leading-[1.08] xl:text-[2.7rem]">
+                <span className="block lg:whitespace-nowrap" data-familiar-problem-line>The application arrives.</span>
                 <span className="block text-gradient sm:whitespace-nowrap">The source doesn’t.</span>
               </h2>
               <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">
@@ -1305,7 +1305,15 @@ const TrackingAuditEducation = () => {
                   <span className="text-2xl font-light tracking-tight text-foreground/38">{number}</span>
                   <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-primary/15 bg-primary/[0.055] text-primary"><Icon className="h-4 w-4" aria-hidden="true" /></span>
                 </div>
-                <h3 className="mt-6 text-base font-semibold text-foreground">{title}</h3>
+                <h3
+                  className={[
+                    "mt-6 text-[0.95rem] font-semibold tracking-[-0.01em] text-foreground",
+                    index === 1 ? "lg:whitespace-nowrap lg:text-[0.9rem] xl:text-[0.95rem]" : "",
+                  ].join(" ")}
+                  data-health-dimension-title={index}
+                >
+                  {title}
+                </h3>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
               </article>
             ))}
@@ -1443,7 +1451,7 @@ const TrackingAuditEducation = () => {
                     ? undefined
                     : {
                         hidden: { pathLength: 0, opacity: 0.18 },
-                        visible: { pathLength: 1, opacity: 1, transition: { duration: 0.95, ease: "easeInOut" } },
+                        visible: { pathLength: 1, opacity: 1, transition: { duration: 2.1, ease: "easeInOut" } },
                       }
                 }
               />
@@ -1454,7 +1462,7 @@ const TrackingAuditEducation = () => {
               variants={
                 prefersReducedMotion
                   ? undefined
-                  : { hidden: {}, visible: { transition: { delayChildren: 0.18, staggerChildren: 0.16 } } }
+                  : { hidden: {}, visible: { transition: { delayChildren: 0.32, staggerChildren: 0.42 } } }
               }
             >
               {PROCESS_STEPS.map((item, index) => {
@@ -1468,7 +1476,7 @@ const TrackingAuditEducation = () => {
                         ? undefined
                         : {
                             hidden: { opacity: 0, y: 18, scale: 0.985 },
-                            visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.42, ease: "easeOut" } },
+                            visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.62, ease: "easeOut" } },
                           }
                     }
                   >
