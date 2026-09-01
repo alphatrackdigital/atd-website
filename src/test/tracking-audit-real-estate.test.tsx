@@ -10,7 +10,7 @@ describe("TrackingAuditRealEstate", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "Know which ads drive real property enquiries and booked viewings.",
+        name: "Know which ads drive property enquiries and booked viewings.",
       }),
     ).toBeInTheDocument();
 
