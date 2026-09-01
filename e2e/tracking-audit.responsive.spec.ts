@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 const openTrackingAudit = async (page: Page) => {
   await page.route("https://global.ketchcdn.com/**", (route) => route.abort());
-  await openTrackingAudit(page);
+  await page.goto("/offer/tracking-audit");
   await page.addStyleTag({
     content: "#lanyard_root, [data-ketch-backdrop='true'] { display: none !important; pointer-events: none !important; }",
   });
