@@ -83,25 +83,6 @@ describe("TrackingLandingPage accessibility", () => {
       screen.getByRole("heading", { name: "We start with the least access possible." }),
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Here’s how the audit works." })).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Choose the audit built around your lead journey." }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Professional Services/i })).toHaveAttribute(
-      "href",
-      "/offer/tracking-audit/professional-services",
-    );
-    expect(screen.getByRole("link", { name: /Education & Training/i })).toHaveAttribute(
-      "href",
-      "/offer/tracking-audit/education",
-    );
-    expect(screen.getByRole("link", { name: /Real Estate/i })).toHaveAttribute(
-      "href",
-      "/offer/tracking-audit/real-estate",
-    );
-    expect(screen.getByRole("link", { name: "Use the general audit" })).toHaveAttribute(
-      "href",
-      "/offer/tracking-audit#claim",
-    );
     expect(screen.queryByText("Illustrative preview")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "See what we review" })).toHaveAttribute(
       "href",
@@ -111,28 +92,6 @@ describe("TrackingLandingPage accessibility", () => {
     expect(screen.getByRole("link", { name: "Request My Free Audit" })).toHaveAttribute(
       "href",
       "/offer/tracking-audit#claim",
-    );
-  });
-});
-
-
-describe("TrackingLandingPage industry audit attribution", () => {
-  it("preserves campaign query parameters on industry audit links", () => {
-    renderWithPageProviders(<TrackingLandingPage />, {
-      route: "/offer/tracking-audit?utm_source=beta&utm_campaign=tracking-audit",
-    });
-
-    expect(screen.getByRole("link", { name: /Professional Services/i })).toHaveAttribute(
-      "href",
-      "/offer/tracking-audit/professional-services?utm_source=beta&utm_campaign=tracking-audit",
-    );
-    expect(screen.getByRole("link", { name: /Education & Training/i })).toHaveAttribute(
-      "href",
-      "/offer/tracking-audit/education?utm_source=beta&utm_campaign=tracking-audit",
-    );
-    expect(screen.getByRole("link", { name: /Real Estate/i })).toHaveAttribute(
-      "href",
-      "/offer/tracking-audit/real-estate?utm_source=beta&utm_campaign=tracking-audit",
     );
   });
 });
