@@ -8,6 +8,7 @@ test("real production Tracking Audit journey reaches backend and browser Meta Pi
     if (/facebook\.com\/tr|connect\.facebook\.net/i.test(url)) facebookRequests.push(url);
   });
 
+  await page.route("https://global.ketchcdn.com/**", (route) => route.abort());
   const query = "?utm_source=meta&utm_medium=paid_social&utm_campaign=atd_prod_live_e2e_20260901&utm_content=full_journey&utm_term=qa&fbclid=atd-prod-live-e2e";
   await page.goto("/offer/tracking-audit" + query, { waitUntil: "domcontentloaded" });
   await page.addStyleTag({ content: "#lanyard_root, [data-ketch-backdrop='true'] { display:none !important; pointer-events:none !important; }" });
@@ -20,6 +21,10 @@ test("real production Tracking Audit journey reaches backend and browser Meta Pi
       analytics___measurement: true,
       targeted_advertising: true,
     });
+  });
+  await page.evaluate(() => {
+    document.documentElement.style.overflow = "auto";
+    document.body.style.overflow = "auto";
   });
   await page.waitForTimeout(2500);
 
