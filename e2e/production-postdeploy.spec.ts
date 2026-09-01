@@ -212,9 +212,9 @@ test.describe("ATD production post-deployment QA", () => {
     await blockOptionalTracking(page);
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await page.getByTestId("desktop-services-trigger").click();
+    await page.getByTestId("desktop-services-trigger").hover();
     await expect(page.getByTestId("desktop-services-menu")).toBeVisible();
-    await page.getByTestId("desktop-expertise-trigger").click();
+    await page.getByTestId("desktop-expertise-trigger").hover();
     await expect(page.getByTestId("desktop-expertise-menu")).toBeVisible();
     await expect(page.getByRole("link", { name: /Book.*Strategy Call/i }).first()).toBeVisible();
 
@@ -296,15 +296,20 @@ test.describe("ATD production post-deployment QA", () => {
     await page.goto("/contact-us", { waitUntil: "domcontentloaded" });
     await hideOverlays(page);
 
-    await page.getByRole("button", { name: "Start the Conversation" }).click();
-    await expect(page.getByText("First name is required")).toBeVisible();
-
+    await page.waitForTimeout(700);
     await page.getByLabel("First Name").fill("Production");
     await page.getByLabel("Last Name").fill("QA");
+    await page.getByLabel("Company Email").fill("not-an-email");
+    await page.getByRole("button", { name: "Start the Conversation" }).click();
+    await expect(page.getByText("Please enter a valid email")).toBeVisible();
+
     await page.getByLabel("Company Email").fill("production-qa@example.com");
+    await page.getByRole("button", { name: "Start the Conversation" }).click();
+    await expect(page.getByText("Please select at least one service")).toBeVisible();
+
     await page.getByText("Analytics & Tracking", { exact: true }).click();
     await page.getByLabel("Your Message").fill("Production post-deployment form contract QA.");
-    await page.waitForTimeout(1600);
+    await page.waitForTimeout(900);
     await page.getByRole("button", { name: "Start the Conversation" }).click();
     await page.waitForURL("**/contact-us/thank-you");
 
@@ -312,6 +317,91 @@ test.describe("ATD production post-deployment QA", () => {
     expect(payload?.source).toBe("contact_form");
     expect(payload?.serviceInterest).toContain("Analytics/Tracking");
     await expect(page.getByText(/thank|received|message/i).first()).toBeVisible();
+  });
+
+  test("footer newsletter validates consent and completes with a mocked lead response", async ({ page }) => {
+    await blockOptionalTracking(page);
+    const getCaptured = await installLeadMock(page);
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await hideOverlays(page);
+    await page.waitForTimeout(700);
+
+    const footer = page.locator("footer");
+    await footer.scrollIntoViewIfNeeded();
+    const email = footer.getByRole("textbox", { name: "Email address" });
+    const subscribe = footer.getByRole("button", { name: "Subscribe" });
+    await subscribe.click();
+    await expect(footer.getByText("Please enter a valid email address.")).toBeVisible();
+
+    await email.fill("production-newsletter-qa@example.com");
+    await subscribe.click();
+    await expect(footer.getByText(/confirm you'd like to receive emails/i)).toBeVisible();
+
+    await footer.getByRole("checkbox").check();
+    await subscribe.click();
+    await expect(footer.getByText(/You're subscribed|Check your inbox to confirm/i)).toBeVisible();
+
+    const payload = getCaptured();
+    expect(payload?.source).toBe("newsletter");
+    expect(payload?.optIn).toBe(true);
+    const event = await page.evaluate(() =>
+      (window.dataLayer || []).filter((item: any) => item?.event === "newsletter_subscribe").at(-1),
+    );
+    expect(event?.lead_source).toBe("newsletter");
+    expect(event?.event_id).toBe(payload?.metaEventId);
+  });
+
+  test("desktop exit-intent popup validates and submits through a mocked Brevo endpoint", async ({ page }) => {
+    await page.route("https://global.ketchcdn.com/**", (route) => route.abort());
+    let captured: Record<string, unknown> | null = null;
+    await page.route("**/api/brevo-subscribe", async (route) => {
+      if (route.request().method() !== "POST") return route.continue();
+      captured = JSON.parse(route.request().postData() || "{}");
+      const metaEventId = String(captured.metaEventId || "exit-prod-qa");
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ ok: true, duplicate: false, metaEventId }),
+      });
+    });
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => {
+      localStorage.removeItem("atd_exit_popup_dismissed_until");
+      localStorage.removeItem("atd_exit_popup_submitted");
+      sessionStorage.removeItem("atd_exit_popup_seen_session");
+    });
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(700);
+    await page.evaluate(() => {
+      document.dispatchEvent(new MouseEvent("mouseout", {
+        bubbles: true,
+        clientY: 0,
+        relatedTarget: null,
+      }));
+    });
+
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: /submit|get.*audit|free.*audit/i }).click();
+    await expect(dialog.getByText("First name is required.")).toBeVisible();
+
+    await dialog.getByLabel("First name").fill("Production");
+    await dialog.getByLabel("Work email").fill("production-exit-qa@example.com");
+    await dialog.getByLabel(/Website URL/i).fill("example.com");
+    const optin = dialog.getByRole("checkbox");
+    if (await optin.count()) await optin.check();
+    await dialog.getByRole("button", { name: /submit|get.*audit|free.*audit/i }).click();
+    await expect(dialog.getByRole("heading", { name: "Your audit request is in." })).toBeVisible();
+
+    expect(captured?.websiteRoute).toBe("/");
+    expect(captured?.metaEventId).toMatch(/^atd-/);
+    const event = await page.evaluate(() =>
+      (window.dataLayer || []).filter((item: any) => item?.event === "exit_popup_success").at(-1),
+    );
+    expect(event?.lead_source).toBe("exit_popup");
   });
 
   test("consent defaults deny optional tracking and GTM is gated until a consent grant", async ({ page }) => {
@@ -379,7 +469,7 @@ test.describe("ATD production post-deployment QA", () => {
   test("404 and admin access gates render safely", async ({ page }) => {
     await blockOptionalTracking(page);
     const missing = await page.goto("/definitely-not-a-real-atd-route", { waitUntil: "domcontentloaded" });
-    expect(missing?.status()).toBeLessThan(400);
+    expect(missing?.status()).toBe(404);
     await expect(page.getByText(/page.*not found|404/i).first()).toBeVisible();
 
     await page.goto("/admin/login", { waitUntil: "domcontentloaded" });
