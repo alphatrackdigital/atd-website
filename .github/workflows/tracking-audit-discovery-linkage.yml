@@ -1,0 +1,200 @@
+name: Tracking Audit Navigation Restoration
+
+on:
+  push:
+    branches:
+      - qa/tracking-audit-navigation-restoration-v2
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tracking-audit-discovery-linkage
+  cancel-in-progress: true
+
+jobs:
+  navigation-restoration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_STAGING_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_STAGING_ACCOUNT_ID }}
+      WORKER_NAME: atd-website-tracking-audit-discovery
+      SOURCE_SHA: 855f18f29514c68c7d00e9d75630ab84f022ac35
+      BETA_INTEGRATION_SHA: 9669de67fafbe4d7109e41e2369845f1b25353cc
+      GENERAL_BETA_SHA: 45b95dc86903399dddaf84c4cc650a2466e49ddd
+      PRO_SHA: 2fe7b25f9e27799c7753e556facf9bb03210b2ac
+      EDUCATION_SHA: a204941c9372827f4c1f76f9bf40ab298d4e113e
+      REAL_ESTATE_SHA: e33005864934a34dd846f12dcb08c03053e3be40
+      REVIEW_BASE_URL: https://atd-website-tracking-audit-discovery.alphatrackdigital.workers.dev
+
+    steps:
+      - name: Check out navigation wrapper
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify navigation-only scope and locked Beta pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$SOURCE_SHA" HEAD
+          git merge-base --is-ancestor "$BETA_INTEGRATION_SHA" "$SOURCE_SHA"
+
+          git diff --exit-code "$PRO_SHA" -- src/pages/TrackingAuditProfessionalServices.tsx e2e/tracking-audit-professional-services.visual.spec.ts
+          git diff --exit-code "$EDUCATION_SHA" -- src/pages/TrackingAuditEducation.tsx e2e/tracking-audit-education.visual.spec.ts
+          git diff --exit-code "$REAL_ESTATE_SHA" -- src/pages/TrackingAuditRealEstate.tsx e2e/tracking-audit-real-estate.visual.spec.ts
+          git diff --exit-code "$BETA_INTEGRATION_SHA" -- src/pages/TrackingLandingPage.tsx src/pages/ExpertiseDetail.tsx src/lib/campaignAttribution.ts src/pages/Index.tsx
+
+          echo "Navigation source preserved at $SOURCE_SHA"
+          echo "General LP content unchanged from Beta integration."
+          echo "Education and Real Estate Expertise content unchanged from Beta integration."
+          echo "Homepage unchanged from Beta integration."
+          echo "Professional Services Beta unchanged at $PRO_SHA"
+          echo "Education Beta unchanged at $EDUCATION_SHA"
+          echo "Real Estate Beta unchanged at $REAL_ESTATE_SHA"
+          echo "QA wrapper: $(git rev-parse HEAD)"
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run canonical release preparation
+        env:
+          VITE_LEADS_ENDPOINT: /api/leads
+        run: npm run release:prepare
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Tracking Audit and navigation browser gates
+        run: |
+          npx playwright test             e2e/tracking-audit.responsive.spec.ts             e2e/tracking-audit-professional-services.visual.spec.ts             e2e/tracking-audit-education.visual.spec.ts             e2e/tracking-audit-real-estate.visual.spec.ts             e2e/tracking-audit-discovery.visual.spec.ts
+
+      - name: Embed navigation deployment manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs');
+          const manifest = {
+            schemaVersion: 1,
+            app: 'atd-website',
+            environment: 'tracking-audit-navigation-review',
+            sourceSha: process.env.SOURCE_SHA,
+            betaIntegrationSha: process.env.BETA_INTEGRATION_SHA,
+            lockedHeads: {
+              generalBeta: process.env.GENERAL_BETA_SHA,
+              professionalServices: process.env.PRO_SHA,
+              education: process.env.EDUCATION_SHA,
+              realEstate: process.env.REAL_ESTATE_SHA,
+            },
+            homepageLinkageAdded: false,
+            generalStandardNavigationRestored: true,
+            generalIndustryDiscoveryAdded: false,
+            expertiseAuditLinksAdded: [],
+            wrapperSha: process.env.GITHUB_SHA,
+            workerName: process.env.WORKER_NAME,
+            formSubmissionEnabled: false,
+            builtAt: new Date().toISOString(),
+            githubRun: `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+          };
+          fs.mkdirSync('dist/__atd', { recursive: true });
+          fs.writeFileSync('dist/__atd/deployment.json', JSON.stringify(manifest, null, 2) + '\n');
+          NODE
+
+      - name: Cloudflare dry-run
+        run: npx --yes wrangler@4 deploy --dry-run --config cloudflare/wrangler.tracking-audit-discovery.jsonc --outdir .wrangler-dry-run
+
+      - name: Deploy navigation review Worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4 deploy --config cloudflare/wrangler.tracking-audit-discovery.jsonc 2>&1 | tee cloudflare-navigation-deploy.log
+
+      - name: Smoke audit routes and removed-link state
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          smoke_route () {
+            local route="$1"
+            local text_a="$2"
+            local text_b="$3"
+            local code="000"
+
+            for attempt in 1 2 3 4 5 6
+            do
+              code="$(curl -sS -o /tmp/route-body -w '%{http_code}'                 -H 'Accept: text/html'                 -H 'Sec-Fetch-Mode: navigate'                 -H 'Cache-Control: no-cache'                 "$REVIEW_BASE_URL$route?review=$SOURCE_SHA")"
+              echo "$route -> $code (attempt $attempt)"
+              if [ "$code" = "200" ]; then break; fi
+              sleep 2
+            done
+            test "$code" = "200"
+            grep -q "$text_a" /tmp/route-body
+            grep -q "$text_b" /tmp/route-body
+          }
+
+          smoke_route "/offer/tracking-audit/" "Know what your marketing is" "actually producing."
+          smoke_route "/offer/tracking-audit/professional-services/" "Know which ads drive" "real enquiries"
+          smoke_route "/offer/tracking-audit/education/" "Know which campaigns drive" "applications"
+          smoke_route "/offer/tracking-audit/real-estate/" "Know which ads drive" "property enquiries"
+
+          for expertise_route in "/expertise/education/" "/expertise/real-estate/"
+          do
+            expertise_code="$(curl -sS -o /tmp/expertise-body -w '%{http_code}'               -H 'Accept: text/html'               -H 'Sec-Fetch-Mode: navigate'               -H 'Cache-Control: no-cache'               "$REVIEW_BASE_URL$expertise_route?review=$SOURCE_SHA")"
+            echo "$expertise_route -> $expertise_code"
+            test "$expertise_code" = "200"
+            if grep -q "Free Education Tracking Audit\|Free Real Estate Tracking Audit\|Explore the Education Tracking Audit\|Explore the Real Estate Tracking Audit" /tmp/expertise-body; then
+              echo "Unexpected Tracking Audit expertise CTA found on $expertise_route"
+              exit 1
+            fi
+          done
+
+          for attempt in 1 2 3 4 5 6
+          do
+            curl -sS -H 'Cache-Control: no-cache' "$REVIEW_BASE_URL/__atd/deployment.json?sha=$SOURCE_SHA&attempt=$attempt" > /tmp/manifest || true
+            if grep -q "$SOURCE_SHA" /tmp/manifest; then
+              echo "Latest discovery manifest visible on attempt $attempt"
+              break
+            fi
+            sleep 2
+          done
+
+          grep -q "$SOURCE_SHA" /tmp/manifest
+          grep -q '"homepageLinkageAdded": false' /tmp/manifest
+          grep -q '"generalStandardNavigationRestored": true' /tmp/manifest
+          grep -q '"generalIndustryDiscoveryAdded": false' /tmp/manifest
+          grep -q '"expertiseAuditLinksAdded": \[\]' /tmp/manifest
+
+          manifest_code="$(curl -sS -o /tmp/manifest-final -w '%{http_code}' "$REVIEW_BASE_URL/__atd/deployment.json")"
+          echo "/__atd/deployment.json -> $manifest_code"
+          test "$manifest_code" = "200"
+
+          submit_code="$(curl -sS -o /tmp/submit-body -w '%{http_code}' "$REVIEW_BASE_URL/api/leads")"
+          echo "/api/leads -> $submit_code"
+          test "$submit_code" = "403"
+
+      - name: Save navigation evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qa-evidence
+          cp dist/__atd/deployment.json qa-evidence/deployment.json 2>/dev/null || true
+          cp cloudflare-discovery-deploy.log qa-evidence/cloudflare-discovery-deploy.log 2>/dev/null || true
+          printf '%s\n' "$SOURCE_SHA" > qa-evidence/source-sha.txt
+          printf '%s\n' "$GITHUB_SHA" > qa-evidence/wrapper-sha.txt
+
+      - name: Upload discovery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tracking-audit-navigation-${{ github.sha }}
+          if-no-files-found: error
+          path: qa-evidence
