@@ -1,0 +1,49 @@
+name: Tracking Audit UI Parity E2E
+
+on:
+  push:
+    branches:
+      - qa/tracking-audit-ui-parity-v2
+    paths:
+      - ".github/workflows/tracking-audit-ui-parity.yml"
+      - "e2e/qa-tracking-audit-screenshots.spec.ts"
+
+# Release-source test sync: f758d9e579d7abc1bef3cd539b9d39bc3998571c
+permissions:
+  contents: read
+
+jobs:
+  tracking-audit-ui-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Run Tracking Audit responsive, parity, visual and mocked contract suites
+        run: >-
+          npx playwright test
+          e2e/tracking-audit.responsive.spec.ts
+          e2e/tracking-audit-shared-parity.spec.ts
+          e2e/tracking-audit-beta-application-uat.spec.ts
+          e2e/tracking-audit-discovery.visual.spec.ts
+          e2e/tracking-audit-professional-services.visual.spec.ts
+          e2e/tracking-audit-education.visual.spec.ts
+          e2e/tracking-audit-real-estate.visual.spec.ts
+          e2e/qa-tracking-audit-screenshots.spec.ts
+          --project=chromium
+      - name: Upload browser QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tracking-audit-ui-parity-${{ github.sha }}
+          path: |
+            qa-screenshots/
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+          retention-days: 14
