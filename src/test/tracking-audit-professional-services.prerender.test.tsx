@@ -6,7 +6,7 @@ describe("Professional Services Tracking Audit prerender", () => {
   it("renders the vertical landing page directly instead of homepage content", async () => {
     const { html, head } = await render("/offer/tracking-audit/professional-services");
 
-    expect(html).toContain("Know which ads are bringing you");
+    expect(html).toContain("Know which ads drive");
     expect(html).toContain("real enquiries");
     expect(html).toContain("and booked calls.");
     expect(html).toContain("Book A Free Strategy Call");
