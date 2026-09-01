@@ -1409,6 +1409,7 @@ const TrackingAuditProfessionalServices = () => {
 
           <motion.div
             data-process-sequence
+            data-process-pace="deliberate"
             className="relative overflow-hidden rounded-[30px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(0,175,239,0.025),rgba(51,204,153,0.02),rgba(255,255,255,0.012))] px-5 py-9 shadow-[0_22px_64px_rgba(0,0,0,0.07)] sm:px-7 lg:px-9 lg:py-12"
             initial={prefersReducedMotion ? false : "hidden"}
             whileInView="visible"
@@ -1433,7 +1434,7 @@ const TrackingAuditProfessionalServices = () => {
                     ? undefined
                     : {
                         hidden: { pathLength: 0, opacity: 0.18 },
-                        visible: { pathLength: 1, opacity: 1, transition: { duration: 0.95, ease: "easeInOut" } },
+                        visible: { pathLength: 1, opacity: 1, transition: { duration: 2.1, ease: "easeInOut" } },
                       }
                 }
               />
@@ -1444,7 +1445,7 @@ const TrackingAuditProfessionalServices = () => {
               variants={
                 prefersReducedMotion
                   ? undefined
-                  : { hidden: {}, visible: { transition: { delayChildren: 0.18, staggerChildren: 0.16 } } }
+                  : { hidden: {}, visible: { transition: { delayChildren: 0.32, staggerChildren: 0.42 } } }
               }
             >
               {PROCESS_STEPS.map((item, index) => {
@@ -1458,7 +1459,7 @@ const TrackingAuditProfessionalServices = () => {
                         ? undefined
                         : {
                             hidden: { opacity: 0, y: 18, scale: 0.985 },
-                            visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.42, ease: "easeOut" } },
+                            visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.62, ease: "easeOut" } },
                           }
                     }
                   >
