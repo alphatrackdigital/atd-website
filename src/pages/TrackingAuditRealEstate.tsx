@@ -7,7 +7,6 @@ import { motion, useReducedMotion } from "framer-motion";
 import { z } from "zod";
 import { toast } from "sonner";
 import {
-  ArrowDown,
   ArrowLeft,
   ArrowRight,
   ChevronDown,
@@ -30,6 +29,11 @@ import FAQAccordion, { type FAQItem } from "@/components/shared/FAQAccordion";
 import HeroEyebrow from "@/components/shared/HeroEyebrow";
 import PageSection from "@/components/shared/PageSection";
 import SectionIntro from "@/components/shared/SectionIntro";
+import {
+  TrackingAuditHumanReviewBadge,
+  TrackingAuditReviewCue,
+  TrackingAuditSuccessState,
+} from "@/components/shared/TrackingAuditShared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { companyProfile } from "@/data/companyProfile";
@@ -370,7 +374,7 @@ const FormSelect = ({
           }
         }}
         className={[
-          "flex h-10 w-full items-center justify-between gap-3 rounded-xl border px-3 text-left text-[13px] font-medium outline-none transition-all",
+          "flex h-11 w-full items-center justify-between gap-3 rounded-xl border px-3 text-left text-[13px] font-medium outline-none transition-all",
           "border-border bg-card text-card-foreground shadow-[0_1px_0_rgba(255,255,255,0.025)] hover:border-primary/30 hover:bg-accent",
           "focus-visible:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/20",
           error ? "border-red-500/45" : "",
@@ -430,7 +434,6 @@ const TrackingAuditRealEstate = () => {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submittedEmail, setSubmittedEmail] = useState("");
   const [honeypot, setHoneypot] = useState("");
   const formStartAt = useRef(0);
   const formStartTracked = useRef(false);
@@ -560,7 +563,6 @@ const TrackingAuditRealEstate = () => {
         });
       }
 
-      setSubmittedEmail(data.email);
       setIsSubmitted(true);
     } catch {
       toast.error(`Something went wrong. Email us at ${companyProfile.contact.email}`);
@@ -633,23 +635,7 @@ const TrackingAuditRealEstate = () => {
             </motion.div>
 
             <div className="relative w-full lg:sticky lg:top-24">
-              <div
-                className="absolute right-3 -top-5 z-40 sm:-right-3 sm:-top-4"
-                data-human-review-badge
-                aria-label="Human-reviewed audit. Not an automated report."
-              >
-                <div className="relative flex items-center gap-2 rounded-xl border border-amber-200/80 bg-[linear-gradient(135deg,#fff7d6_0%,#f3cf6b_42%,#d99a24_100%)] px-3.5 py-2 text-[10px] font-semibold text-[#3f2a07] shadow-[0_12px_28px_rgba(116,73,8,0.24),0_0_0_1px_rgba(255,255,255,0.35)_inset] sm:text-[11px]">
-                  <ShieldCheck className="h-4 w-4 shrink-0 text-[#795009]" aria-hidden="true" />
-                  <span className="leading-tight">
-                    <span className="block uppercase tracking-[0.12em]">Human-reviewed audit</span>
-                    <span className="mt-0.5 block font-medium tracking-normal text-[#65420a]/85">Not an automated report</span>
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    className="absolute -bottom-1.5 right-4 h-3 w-3 rotate-45 border-b border-r border-[#b97911]/55 bg-[#cf8d1e]"
-                  />
-                </div>
-              </div>
+              <TrackingAuditHumanReviewBadge />
 
               <motion.div
                 id="claim"
@@ -659,20 +645,7 @@ const TrackingAuditRealEstate = () => {
               className="tracking-audit-form-card w-full scroll-mt-24 rounded-[24px] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,0.035)_0%,rgba(255,255,255,0.018)_100%)] p-4 shadow-[0_28px_84px_rgba(0,0,0,0.20)] backdrop-blur-xl sm:p-7 md:p-8 lg:rounded-[28px]"
             >
               {isSubmitted ? (
-                <div className="py-7 text-center" aria-live="polite">
-                  <CheckCircle2 className="mx-auto h-12 w-12 text-primary" aria-hidden="true" />
-                  <h2 className="mt-4 text-2xl font-semibold">Application received.</h2>
-                  <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
-                    Thanks for requesting a Free Conversion Tracking Audit. We’ll review your application to see if the free audit is a good fit. If it is, we’ll confirm what we’ll review and tell you if we need any read-only access. Please do not send passwords or account credentials.
-                  </p>
-                  <p className="mx-auto mt-4 max-w-md text-xs leading-5 text-muted-foreground">
-                    We aim to review applications within one business day, but submitting the form does not automatically mean the audit has been accepted.
-                  </p>
-                  <p className="mt-4 text-xs text-foreground/70">Application contact: {submittedEmail}</p>
-                  <Button asChild variant="ghost" className="mt-6 rounded-xl text-muted-foreground hover:text-foreground">
-                    <Link to="/">Back to site</Link>
-                  </Button>
-                </div>
+                <TrackingAuditSuccessState />
               ) : (
                 <>
                   <div className="mb-5">
@@ -1002,17 +975,7 @@ const TrackingAuditRealEstate = () => {
             </div>
           </div>
 
-          <div className="mt-9 flex justify-center md:mt-11 lg:mt-4 lg:shrink-0 lg:pb-1">
-            <a
-              href="#measurement-journey"
-              className="group inline-flex items-center gap-3 rounded-full border border-primary/20 bg-primary/[0.055] px-4 py-2.5 text-sm font-semibold text-foreground/82 shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:bg-primary/[0.09] hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-            >
-              <span>See what we review</span>
-              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-background/55 text-primary">
-                <ArrowDown className="h-4 w-4 motion-safe:animate-bounce motion-reduce:animate-none" aria-hidden="true" />
-              </span>
-            </a>
-          </div>
+          <TrackingAuditReviewCue />
         </div>
       </section>
 
