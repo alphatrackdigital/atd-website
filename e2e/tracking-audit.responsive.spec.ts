@@ -34,9 +34,9 @@ const selectOption = async (page: Page, label: string, option: string) => {
 const completeStepTwo = async (page: Page) => {
   await selectOption(page, "Industry", "Professional services");
   await selectOption(page, "Your role", "Founder / CEO");
-  await page.getByText("Final decision maker", { exact: true }).click();
+  await selectOption(page, "Your role in this decision", "Final decision maker");
   await selectOption(page, "Monthly ad spend", "GHS 3k–6k");
-  await page.getByText("Meta", { exact: true }).click();
+  await selectOption(page, "Main ad platform", "Meta");
   await page.getByRole("button", { name: "Continue" }).click();
 };
 
@@ -117,7 +117,7 @@ test.describe("General Tracking Audit responsive application", () => {
 
     await completeStepTwo(page);
     await expect(page.getByText("Step 3 of 3")).toBeVisible();
-    await expect(page.getByRole("group", { name: "How confident are you in your tracking?" })).toBeVisible();
+    await expect(page.getByRole("combobox", { name: "How confident are you in your tracking?" })).toBeVisible();
     await expect(page.getByText("Tracking", { exact: true })).toBeVisible();
     await expect(page.getByText("Conversion", { exact: true })).toBeVisible();
     await expect(page.getByText("Main issue", { exact: true })).toBeVisible();
@@ -132,6 +132,34 @@ test.describe("General Tracking Audit responsive application", () => {
     await expect(page.getByRole("button", { name: "Request My Free Audit" })).toBeVisible();
     await expect(page.getByText("No passwords, API keys or admin credentials.", { exact: true })).not.toBeVisible();
     await assertNoHorizontalOverflow(page);
+  });
+
+  test("canonical Meta UTMs survive the review-cue hash navigation", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.route("https://global.ketchcdn.com/**", (route) => route.abort());
+
+    const query =
+      "?utm_source=meta&utm_medium=paid_social&utm_campaign=atd_tracking_audit_gh_accra_p1&utm_content=before_scale_general_static_v1&utm_placement=feed&utm_platform=facebook&utm_campaign_id=120253615106800079&utm_adset_id=120253615390690079&utm_ad_id=120253616390000079";
+
+    await page.goto(`/offer/tracking-audit${query}`);
+    await page.addStyleTag({
+      content: "#lanyard_root, [data-ketch-backdrop='true'] { display: none !important; pointer-events: none !important; }",
+    });
+
+    const cue = page.getByRole("link", { name: "See what we review" });
+    await expect(cue).toBeVisible();
+    await expect(cue).toHaveAttribute("href", "#measurement-journey");
+    await cue.click();
+
+    await expect.poll(() => page.evaluate(() => window.location.hash)).toBe("#measurement-journey");
+    expect(await page.evaluate(() => window.location.search)).toBe(query);
+    await expect(page.locator("#measurement-journey")).toBeVisible();
+    await assertNoHorizontalOverflow(page);
+
+    await page.goto(`/offer/tracking-audit${query}#measurement-journey`);
+    await expect.poll(() => page.evaluate(() => window.location.hash)).toBe("#measurement-journey");
+    expect(await page.evaluate(() => window.location.search)).toBe(query);
+    await expect(page.locator("#measurement-journey")).toBeVisible();
   });
 
   test("desktop hero and application card remain readable side by side", async ({ page }) => {
