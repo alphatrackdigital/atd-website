@@ -6,6 +6,7 @@ on:
       - qa/tracking-audit-ui-parity-v1
     paths:
       - ".github/workflows/tracking-audit-ui-parity.yml"
+      - "e2e/qa-tracking-audit-screenshots.spec.ts"
 
 permissions:
   contents: read
@@ -32,13 +33,15 @@ jobs:
           e2e/tracking-audit-professional-services.visual.spec.ts
           e2e/tracking-audit-education.visual.spec.ts
           e2e/tracking-audit-real-estate.visual.spec.ts
+          e2e/qa-tracking-audit-screenshots.spec.ts
           --project=chromium
-      - name: Upload browser QA evidence on failure
-        if: failure()
+      - name: Upload browser QA evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: tracking-audit-ui-parity-${{ github.sha }}
           path: |
+            qa-screenshots/
             test-results/
             playwright-report/
           if-no-files-found: ignore
