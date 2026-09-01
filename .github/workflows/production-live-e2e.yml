@@ -1,0 +1,35 @@
+name: Production Live Journey E2E
+on:
+  push:
+    branches:
+      - qa/production-live-e2e-v1
+    paths:
+      - ".github/workflows/production-live-e2e.yml"
+      - "playwright.live-e2e.config.ts"
+      - "e2e/production-live-e2e.spec.ts"
+permissions:
+  contents: read
+jobs:
+  live-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Run one controlled live Tracking Audit submission
+        run: npx playwright test --config=playwright.live-e2e.config.ts
+      - name: Upload redacted journey evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-live-e2e-${{ github.sha }}
+          path: |
+            production-live-e2e-evidence.json
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 30
