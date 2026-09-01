@@ -1,5 +1,13 @@
 import { expect, test, type Page } from "@playwright/test";
 
+const openTrackingAudit = async (page: Page) => {
+  await page.route("https://global.ketchcdn.com/**", (route) => route.abort());
+  await page.goto("/offer/tracking-audit");
+  await page.addStyleTag({
+    content: "#lanyard_root, [data-ketch-backdrop='true'] { display: none !important; pointer-events: none !important; }",
+  });
+};
+
 const assertNoHorizontalOverflow = async (page: Page) => {
   const dimensions = await page.evaluate(() => ({
     scrollWidth: document.documentElement.scrollWidth,
@@ -35,7 +43,7 @@ const completeStepTwo = async (page: Page) => {
 test.describe("General Tracking Audit responsive application", () => {
   test("mobile website validation rejects a hostname without a public suffix", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/offer/tracking-audit");
+    await openTrackingAudit(page);
 
     await page.getByLabel("First Name").fill("Jane");
     await page.getByLabel("Last Name").fill("Smith");
@@ -52,7 +60,7 @@ test.describe("General Tracking Audit responsive application", () => {
 
   test("mobile step one is usable without horizontal overflow", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/offer/tracking-audit");
+    await openTrackingAudit(page);
 
     await expect(
       page.getByRole("heading", { name: /Know what your marketing is actually producing/i }),
@@ -71,7 +79,7 @@ test.describe("General Tracking Audit responsive application", () => {
 
   test("mobile step transition opens with the first second-step control in view", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/offer/tracking-audit");
+    await openTrackingAudit(page);
 
     await completeStepOne(page);
 
@@ -128,7 +136,7 @@ test.describe("General Tracking Audit responsive application", () => {
 
   test("desktop hero and application card remain readable side by side", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.goto("/offer/tracking-audit");
+    await openTrackingAudit(page);
 
     const heroHeading = page.getByRole("heading", {
       name: /Know what your marketing is actually producing/i,
@@ -154,5 +162,53 @@ test.describe("General Tracking Audit responsive application", () => {
     expect(cueBox).not.toBeNull();
     expect(heroBox!.x).toBeLessThan(formBox!.x);
     expect(cueBox!.y).toBeGreaterThanOrEqual(claimBox!.y + claimBox!.height);
+
+    const gradientLine = heroHeading.locator(".text-gradient-atd-hero");
+    await expect(gradientLine).toHaveCount(1);
+
+    for (const width of [1440, 1024, 768, 390]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await heroHeading.scrollIntoViewIfNeeded();
+      await assertNoHorizontalOverflow(page);
+
+      const currentHeroBox = await heroHeading.boundingBox();
+      const gradientBox = await gradientLine.boundingBox();
+      const metrics = await gradientLine.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return {
+          paddingBottom: Number.parseFloat(style.paddingBottom),
+          paddingRight: Number.parseFloat(style.paddingRight),
+          lineHeight: Number.parseFloat(style.lineHeight),
+          fontSize: Number.parseFloat(style.fontSize),
+          overflow: style.overflow,
+          scrollWidth: element.scrollWidth,
+          clientWidth: element.clientWidth,
+        };
+      });
+
+      expect(currentHeroBox).not.toBeNull();
+      expect(gradientBox).not.toBeNull();
+      expect(metrics.paddingBottom).toBeGreaterThan(0);
+      expect(metrics.paddingRight).toBeGreaterThan(0);
+      expect(metrics.lineHeight).toBeGreaterThanOrEqual(metrics.fontSize * 1.04);
+      expect(metrics.overflow).toBe("visible");
+      expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1);
+      expect((gradientBox?.x ?? 0) + (gradientBox?.width ?? 0)).toBeLessThanOrEqual(
+        (currentHeroBox?.x ?? 0) + (currentHeroBox?.width ?? 0) + 1,
+      );
+    }
+
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    for (const copy of [
+      "We check where important information gets lost between the ad click and the final lead or sale.",
+      "For your reports to be useful, these five parts need to work together.",
+      "Your Tracking Health Scorecard shows what we found, why it matters and what to do next.",
+      "You apply, we check fit, review one journey and send your scorecard.",
+    ]) {
+      const subtitle = page.getByText(copy, { exact: true });
+      const subtitleBox = await subtitle.boundingBox();
+      expect(subtitleBox).not.toBeNull();
+      expect(subtitleBox?.width ?? 9999).toBeLessThanOrEqual(768);
+    }
   });
 });
