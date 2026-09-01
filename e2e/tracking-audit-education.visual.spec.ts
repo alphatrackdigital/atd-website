@@ -213,6 +213,26 @@ test.describe("Education Tracking Audit visual stability", () => {
       expect(subtitleBox?.width ?? 9999).toBeLessThanOrEqual(832);
     }
 
+    const familiarProblemLine = page.locator("[data-familiar-problem-line]");
+    const familiarMetrics = await familiarProblemLine.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return {
+        height: element.getBoundingClientRect().height,
+        lineHeight: Number.parseFloat(style.lineHeight),
+      };
+    });
+    expect(familiarMetrics.height).toBeLessThanOrEqual(familiarMetrics.lineHeight * 1.15);
+
+    const attributionQuestion = page.locator('[data-health-dimension-title="1"]');
+    const attributionMetrics = await attributionQuestion.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return {
+        height: element.getBoundingClientRect().height,
+        lineHeight: Number.parseFloat(style.lineHeight),
+      };
+    });
+    expect(attributionMetrics.height).toBeLessThanOrEqual(attributionMetrics.lineHeight * 1.15);
+
     await advanceToStepThree(page);
     await expect(page.getByText(/Review and recommendations are included\. Implementation is separate\./)).toBeVisible();
 
@@ -238,6 +258,7 @@ test.describe("Education Tracking Audit visual stability", () => {
 
     await expect(page.getByRole("heading", { name: "From application to scorecard in four steps." })).toBeVisible();
     await expect(page.locator("[data-process-sequence]")).toHaveCount(1);
+    await expect(page.locator("[data-process-sequence]")).toHaveAttribute("data-process-pace", "deliberate");
     await expect(page.locator("[data-process-step]")).toHaveCount(4);
     await expect(page.locator("[data-process-path]")).toHaveCount(1);
 
