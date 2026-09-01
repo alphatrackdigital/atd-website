@@ -10,7 +10,7 @@ describe("TrackingAuditRealEstate", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "Know which campaigns are producing real property enquiries and booked viewings.",
+        name: "Know which ads drive real property enquiries and booked viewings.",
       }),
     ).toBeInTheDocument();
 
@@ -54,6 +54,7 @@ describe("TrackingAuditRealEstate", () => {
     expect(screen.getByText("Human-reviewed audit")).toBeInTheDocument();
     expect(screen.getByText("Not an automated report")).toBeInTheDocument();
     expect(screen.queryByText("Illustrative preview")).not.toBeInTheDocument();
+    expect(screen.queryByText("Example preview")).not.toBeInTheDocument();
     expect(screen.getByText("The scorecard gives you three things.")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "From application to scorecard in four steps." })).toBeInTheDocument();
 
