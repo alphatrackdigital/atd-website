@@ -7,10 +7,8 @@ import { motion, useReducedMotion } from "framer-motion";
 import { z } from "zod";
 import { toast } from "sonner";
 import {
-  ArrowDown,
   ArrowLeft,
   ArrowRight,
-  ChevronDown,
   BarChart3,
   Check,
   CheckCircle2,
@@ -30,12 +28,20 @@ import FAQAccordion, { type FAQItem } from "@/components/shared/FAQAccordion";
 import HeroEyebrow from "@/components/shared/HeroEyebrow";
 import PageSection from "@/components/shared/PageSection";
 import SectionIntro from "@/components/shared/SectionIntro";
+import {
+  TrackingAuditFormSelect as FormSelect,
+  TrackingAuditHumanReviewBadge,
+  TrackingAuditReviewCue,
+  TrackingAuditSuccessState,
+} from "@/components/shared/TrackingAuditShared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { companyProfile } from "@/data/companyProfile";
 import { submitLead } from "@/lib/leads";
 import { withCampaignSearch } from "@/lib/campaignAttribution";
 import { pushLeadSubmissionEvent } from "@/lib/tracking";
+
+const TRACKING_AUDIT_THEME_STORAGE_KEY = "atd-tracking-audit-theme";
 
 const normalizeWebsiteUrl = (value: string) => {
   const trimmed = value.trim();
@@ -303,125 +309,6 @@ const Field = ({ label, htmlFor, error, children }: { label: string; htmlFor: st
 
 type TrackingAuditTheme = "dark" | "light";
 
-type FormSelectOption = {
-  value: string;
-  label: string;
-};
-
-const TRACKING_AUDIT_THEME_STORAGE_KEY = "atd-tracking-audit-theme";
-
-const FormSelect = ({
-  id,
-  label,
-  value,
-  onValueChange,
-  options,
-  placeholder,
-  error,
-}: {
-  id: string;
-  label: string;
-  value?: string;
-  onValueChange: (value: string) => void;
-  options: readonly FormSelectOption[];
-  placeholder: string;
-  error?: string;
-  theme: TrackingAuditTheme;
-}) => {
-  const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const selected = options.find((option) => option.value === value);
-
-  useEffect(() => {
-    if (!open) return;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
-    };
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleEscape);
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [open]);
-
-  return (
-    <div ref={rootRef} className="relative">
-      <button
-        id={id}
-        type="button"
-        role="combobox"
-        aria-label={label}
-        aria-expanded={open}
-        aria-controls={`${id}-listbox`}
-        aria-haspopup="listbox"
-        aria-invalid={Boolean(error)}
-        aria-describedby={error ? `${id}-err` : undefined}
-        onClick={() => setOpen((current) => !current)}
-        onKeyDown={(event) => {
-          if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            setOpen(true);
-          }
-        }}
-        className={[
-          "flex h-10 w-full items-center justify-between gap-3 rounded-xl border px-3 text-left text-[13px] font-medium outline-none transition-all",
-          "border-border bg-card text-card-foreground shadow-[0_1px_0_rgba(255,255,255,0.025)] hover:border-primary/30 hover:bg-accent",
-          "focus-visible:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/20",
-          error ? "border-red-500/45" : "",
-        ].join(" ")}
-      >
-        <span className={selected ? "truncate text-foreground" : "truncate text-muted-foreground/75"}>
-          {selected?.label ?? placeholder}
-        </span>
-        <ChevronDown
-          className={["h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-150", open ? "rotate-180" : ""].join(" ")}
-          aria-hidden="true"
-        />
-      </button>
-
-      {open && (
-        <div
-          id={`${id}-listbox`}
-          role="listbox"
-          aria-label={label}
-          className="absolute left-0 right-0 z-[80] mt-1.5 max-h-56 overflow-y-auto rounded-xl border border-border bg-card p-1.5 text-card-foreground shadow-[0_20px_50px_rgba(0,0,0,0.32)]"
-        >
-          {options.map((option) => {
-            const isSelected = option.value === value;
-            return (
-              <button
-                key={option.value}
-                type="button"
-                role="option"
-                aria-selected={isSelected}
-                onClick={() => {
-                  onValueChange(option.value);
-                  setOpen(false);
-                }}
-                className={[
-                  "flex min-h-9 w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-[13px] leading-5 transition-colors",
-                  isSelected
-                    ? "bg-primary/[0.10] font-semibold text-primary"
-                    : "text-foreground/88 hover:bg-accent hover:text-accent-foreground",
-                ].join(" ")}
-              >
-                <span>{option.label}</span>
-                {isSelected && <Check className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-};
-
 const TrackingAuditRealEstate = () => {
   const location = useLocation();
   const finalCtaTo = withCampaignSearch(TRACKING_AUDIT_ANCHOR_CTA.to, location.search);
@@ -430,7 +317,6 @@ const TrackingAuditRealEstate = () => {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submittedEmail, setSubmittedEmail] = useState("");
   const [honeypot, setHoneypot] = useState("");
   const formStartAt = useRef(0);
   const formStartTracked = useRef(false);
@@ -560,7 +446,6 @@ const TrackingAuditRealEstate = () => {
         });
       }
 
-      setSubmittedEmail(data.email);
       setIsSubmitted(true);
     } catch {
       toast.error(`Something went wrong. Email us at ${companyProfile.contact.email}`);
@@ -633,23 +518,7 @@ const TrackingAuditRealEstate = () => {
             </motion.div>
 
             <div className="relative w-full lg:sticky lg:top-24">
-              <div
-                className="absolute right-3 -top-5 z-40 sm:-right-3 sm:-top-4"
-                data-human-review-badge
-                aria-label="Human-reviewed audit. Not an automated report."
-              >
-                <div className="relative flex items-center gap-2 rounded-xl border border-amber-200/80 bg-[linear-gradient(135deg,#fff7d6_0%,#f3cf6b_42%,#d99a24_100%)] px-3.5 py-2 text-[10px] font-semibold text-[#3f2a07] shadow-[0_12px_28px_rgba(116,73,8,0.24),0_0_0_1px_rgba(255,255,255,0.35)_inset] sm:text-[11px]">
-                  <ShieldCheck className="h-4 w-4 shrink-0 text-[#795009]" aria-hidden="true" />
-                  <span className="leading-tight">
-                    <span className="block uppercase tracking-[0.12em]">Human-reviewed audit</span>
-                    <span className="mt-0.5 block font-medium tracking-normal text-[#65420a]/85">Not an automated report</span>
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    className="absolute -bottom-1.5 right-4 h-3 w-3 rotate-45 border-b border-r border-[#b97911]/55 bg-[#cf8d1e]"
-                  />
-                </div>
-              </div>
+              <TrackingAuditHumanReviewBadge />
 
               <motion.div
                 id="claim"
@@ -659,20 +528,7 @@ const TrackingAuditRealEstate = () => {
               className="tracking-audit-form-card w-full scroll-mt-24 rounded-[24px] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,0.035)_0%,rgba(255,255,255,0.018)_100%)] p-4 shadow-[0_28px_84px_rgba(0,0,0,0.20)] backdrop-blur-xl sm:p-7 md:p-8 lg:rounded-[28px]"
             >
               {isSubmitted ? (
-                <div className="py-7 text-center" aria-live="polite">
-                  <CheckCircle2 className="mx-auto h-12 w-12 text-primary" aria-hidden="true" />
-                  <h2 className="mt-4 text-2xl font-semibold">Application received.</h2>
-                  <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
-                    Thanks for requesting a Free Conversion Tracking Audit. We’ll review your application to see if the free audit is a good fit. If it is, we’ll confirm what we’ll review and tell you if we need any read-only access. Please do not send passwords or account credentials.
-                  </p>
-                  <p className="mx-auto mt-4 max-w-md text-xs leading-5 text-muted-foreground">
-                    We aim to review applications within one business day, but submitting the form does not automatically mean the audit has been accepted.
-                  </p>
-                  <p className="mt-4 text-xs text-foreground/70">Application contact: {submittedEmail}</p>
-                  <Button asChild variant="ghost" className="mt-6 rounded-xl text-muted-foreground hover:text-foreground">
-                    <Link to="/">Back to site</Link>
-                  </Button>
-                </div>
+                <TrackingAuditSuccessState />
               ) : (
                 <>
                   <div className="mb-5">
@@ -1002,17 +858,7 @@ const TrackingAuditRealEstate = () => {
             </div>
           </div>
 
-          <div className="mt-9 flex justify-center md:mt-11 lg:mt-4 lg:shrink-0 lg:pb-1">
-            <a
-              href="#measurement-journey"
-              className="group inline-flex items-center gap-3 rounded-full border border-primary/20 bg-primary/[0.055] px-4 py-2.5 text-sm font-semibold text-foreground/82 shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:bg-primary/[0.09] hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-            >
-              <span>See what we review</span>
-              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-background/55 text-primary">
-                <ArrowDown className="h-4 w-4 motion-safe:animate-bounce motion-reduce:animate-none" aria-hidden="true" />
-              </span>
-            </a>
-          </div>
+          <TrackingAuditReviewCue />
         </div>
       </section>
 

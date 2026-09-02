@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import { z } from "zod";
 import { toast } from "sonner";
 import {
-  ArrowDown,
   ArrowLeft,
   ArrowRight,
   BarChart3,
@@ -27,15 +26,14 @@ import FAQAccordion, { type FAQItem } from "@/components/shared/FAQAccordion";
 import HeroEyebrow from "@/components/shared/HeroEyebrow";
 import PageSection from "@/components/shared/PageSection";
 import SectionIntro from "@/components/shared/SectionIntro";
+import {
+  TrackingAuditFormSelect as FormSelect,
+  TrackingAuditHumanReviewBadge,
+  TrackingAuditReviewCue,
+  TrackingAuditSuccessState,
+} from "@/components/shared/TrackingAuditShared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { companyProfile } from "@/data/companyProfile";
 import { submitLead } from "@/lib/leads";
 import { withCampaignSearch } from "@/lib/campaignAttribution";
@@ -275,7 +273,7 @@ const fieldClassName =
 
 const Field = ({ label, htmlFor, error, children }: { label: string; htmlFor: string; error?: string; children: ReactNode }) => (
   <div>
-    <label htmlFor={htmlFor} className="mb-1.5 block text-sm font-medium text-foreground/90">
+    <label htmlFor={htmlFor} className="mb-1.5 block text-[12px] font-semibold leading-4 text-foreground/82">
       {label}
     </label>
     {children}
@@ -287,118 +285,12 @@ const Field = ({ label, htmlFor, error, children }: { label: string; htmlFor: st
   </div>
 );
 
-const ChoiceGrid = ({
-  legend,
-  name,
-  value,
-  onChange,
-  options,
-  error,
-  helper,
-  columns = "two",
-}: {
-  legend: string;
-  name: string;
-  value?: string;
-  onChange: (value: string) => void;
-  options: readonly ChoiceOption[];
-  error?: string;
-  helper?: string;
-  columns?: "two" | "three";
-}) => (
-  <fieldset className="space-y-2.5" aria-invalid={!!error} aria-describedby={error ? name + "-err" : undefined}>
-    <legend className="text-sm font-medium text-foreground/90">{legend}</legend>
-    {helper && <p className="text-xs leading-5 text-muted-foreground">{helper}</p>}
-    <div className={columns === "three" ? "grid grid-cols-2 gap-2 sm:grid-cols-3" : "grid grid-cols-2 gap-2"}>
-      {options.map((option) => {
-        const checked = value === option.value;
-        const id = name + "-" + option.value;
-        return (
-          <label
-            key={option.value}
-            htmlFor={id}
-            className={[
-              "flex min-h-11 cursor-pointer items-center justify-center rounded-xl border px-3 py-2 text-center text-xs font-medium leading-4 transition-colors sm:text-[13px]",
-              checked
-                ? "border-primary/45 bg-primary/[0.12] text-primary shadow-[inset_0_0_0_1px_rgba(51,204,153,0.05)]"
-                : "border-white/[0.08] bg-white/[0.025] text-foreground/78 hover:border-white/[0.14] hover:bg-white/[0.045]",
-            ].join(" ")}
-          >
-            <input
-              id={id}
-              type="radio"
-              name={name}
-              value={option.value}
-              checked={checked}
-              onChange={() => onChange(option.value)}
-              className="sr-only"
-            />
-            {option.label}
-          </label>
-        );
-      })}
-    </div>
-    {error && <p id={name + "-err"} role="alert" className="text-xs text-red-400">{error}</p>}
-  </fieldset>
-);
-
-const SingleChoiceChips = ({
-  legend,
-  name,
-  value,
-  onChange,
-  options,
-  error,
-}: {
-  legend: string;
-  name: string;
-  value?: string;
-  onChange: (value: string) => void;
-  options: readonly ChoiceOption[];
-  error?: string;
-}) => (
-  <fieldset className="space-y-2.5" aria-invalid={!!error} aria-describedby={error ? name + "-err" : undefined}>
-    <legend className="text-sm font-medium text-foreground/90">{legend}</legend>
-    <div className="flex flex-wrap gap-2">
-      {options.map((option) => {
-        const checked = value === option.value;
-        const id = name + "-" + option.value;
-        return (
-          <label
-            key={option.value}
-            htmlFor={id}
-            className={[
-              "flex min-h-10 cursor-pointer items-center rounded-full border px-3.5 py-2 text-xs font-medium transition-colors focus-within:ring-1 focus-within:ring-primary/50",
-              checked
-                ? "border-primary/45 bg-primary/[0.12] text-primary"
-                : "border-white/[0.08] bg-white/[0.025] text-foreground/78 hover:border-white/[0.14] hover:bg-white/[0.045]",
-            ].join(" ")}
-          >
-            <input
-              id={id}
-              type="radio"
-              name={name}
-              value={option.value}
-              checked={checked}
-              onChange={() => onChange(option.value)}
-              className="sr-only"
-            />
-            {option.label}
-          </label>
-        );
-      })}
-    </div>
-    {error && <p id={name + "-err"} role="alert" className="text-xs text-red-400">{error}</p>}
-  </fieldset>
-);
-
 const TrackingLandingPage = () => {
   const location = useLocation();
   const finalCtaTo = withCampaignSearch(TRACKING_AUDIT_ANCHOR_CTA.to, location.search);
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submittedEmail, setSubmittedEmail] = useState("");
   const [honeypot, setHoneypot] = useState("");
   const formStartAt = useRef(0);
   const formStartTracked = useRef(false);
@@ -505,7 +397,6 @@ const TrackingLandingPage = () => {
         });
       }
 
-      setSubmittedEmail(data.email);
       setIsSubmitted(true);
     } catch {
       toast.error(`Something went wrong. Email us at ${companyProfile.contact.email}`);
@@ -563,31 +454,20 @@ const TrackingLandingPage = () => {
 
             </motion.div>
 
-            <motion.div
-              id="claim"
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: 0.08 }}
-              className="w-full scroll-mt-24 rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.02)_100%)] p-4 shadow-[0_24px_64px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:p-7 md:p-8 lg:sticky lg:top-24 lg:rounded-[28px]"
-            >
+            <div className="relative w-full lg:sticky lg:top-24">
+              <TrackingAuditHumanReviewBadge />
+              <motion.div
+                id="claim"
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.08 }}
+                className="tracking-audit-form-card w-full scroll-mt-24 rounded-[24px] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,0.035)_0%,rgba(255,255,255,0.018)_100%)] p-4 shadow-[0_28px_84px_rgba(0,0,0,0.20)] backdrop-blur-xl sm:p-7 md:p-8 lg:rounded-[28px]"
+              >
               {isSubmitted ? (
-                <div className="py-7 text-center" aria-live="polite">
-                  <CheckCircle2 className="mx-auto h-12 w-12 text-primary" aria-hidden="true" />
-                  <h2 className="mt-4 text-2xl font-semibold">Application received.</h2>
-                  <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
-                    Thanks for requesting a Free Conversion Tracking Audit. We’ll review your application to see if the free audit is a good fit. If it is, we’ll confirm what we’ll review and tell you if we need any read-only access. Please do not send passwords or account credentials.
-                  </p>
-                  <p className="mx-auto mt-4 max-w-md text-xs leading-5 text-muted-foreground">
-                    We aim to review applications within one business day, but submitting the form does not automatically mean the audit has been accepted.
-                  </p>
-                  <p className="mt-4 text-xs text-foreground/70">Application contact: {submittedEmail}</p>
-                  <Button asChild variant="ghost" className="mt-6 rounded-xl text-muted-foreground hover:text-foreground">
-                    <Link to="/">Back to site</Link>
-                  </Button>
-                </div>
+                <TrackingAuditSuccessState />
               ) : (
                 <>
-                  <div className="mb-6">
+                  <div className="mb-5">
                     <div className="flex min-h-8 items-center justify-between gap-4">
                       {step === 1 ? (
                         <span className="text-xs font-medium text-muted-foreground">Step 1 of 3</span>
@@ -609,14 +489,14 @@ const TrackingLandingPage = () => {
                         style={{ width: `${(step / 3) * 100}%` }}
                       />
                     </div>
-                    <h2 className="mt-5 text-xl font-semibold">
+                    <h2 className="mt-4 text-xl font-semibold">
                       {step === 1
                         ? "Tell us about your business."
                         : step === 2
                           ? "A little about your marketing."
                           : "What do you want to understand?"}
                     </h2>
-                    <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
+                    <p className="mt-1 text-[13px] leading-5 text-muted-foreground">
                       {step === 1
                         ? "We review every application."
                         : step === 2
@@ -629,7 +509,7 @@ const TrackingLandingPage = () => {
                     <input name="tracking-audit-company-website" type="text" tabIndex={-1} autoComplete="off" value={honeypot} onChange={(event) => setHoneypot(event.target.value)} />
                   </div>
 
-                  <form id="tracking-audit-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate aria-label="Request a Free Tracking Audit">
+                  <form id="tracking-audit-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate aria-label="Request a Free Tracking Audit">
                     {step === 1 ? (
                       <motion.div
                         key="tracking-audit-step-1"
@@ -692,107 +572,92 @@ const TrackingLandingPage = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.18 }}
                       >
-                        <section className="space-y-3" aria-labelledby="step2-business-context">
-                          <p id="step2-business-context" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Business context</p>
-                          <div className="grid gap-4 sm:grid-cols-2">
-                            <Field label="Industry" htmlFor="f-industry" error={errors.industry?.message}>
-                              <Controller control={control} name="industry" render={({ field }) => (
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                  <SelectTrigger id="f-industry" className={fieldClassName} aria-invalid={!!errors.industry} aria-describedby={errors.industry ? "f-industry-err" : undefined}>
-                                    <SelectValue placeholder="Select industry" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {INDUSTRY_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
-                                  </SelectContent>
-                                </Select>
-                              )} />
-                            </Field>
-
-                            <Field label="Your role" htmlFor="f-role" error={errors.role?.message}>
-                              <Controller control={control} name="role" render={({ field }) => (
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                  <SelectTrigger id="f-role" className={fieldClassName} aria-invalid={!!errors.role} aria-describedby={errors.role ? "f-role-err" : undefined}>
-                                    <SelectValue placeholder="Select role" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {ROLE_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
-                                  </SelectContent>
-                                </Select>
-                              )} />
-                            </Field>
-                          </div>
-                        </section>
-
-                        <section className="mt-6 space-y-4 border-t border-white/[0.06] pt-5" aria-labelledby="step2-decision-spend">
-                          <p id="step2-decision-spend" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Decision & spend</p>
-                          <Controller control={control} name="decisionInfluence" render={({ field }) => (
-                            <ChoiceGrid
-                              legend="Your role in this decision"
-                              name="decisionInfluence"
-                              value={field.value}
-                              onChange={field.onChange}
-                              options={DECISION_OPTIONS}
-                              error={errors.decisionInfluence?.message}
-                            />
-                          )} />
-
-                          <Field label="Monthly ad spend" htmlFor="f-spend" error={errors.monthlyAdSpendBand?.message}>
-                            <Controller control={control} name="monthlyAdSpendBand" render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <SelectTrigger id="f-spend" className={fieldClassName} aria-invalid={!!errors.monthlyAdSpendBand} aria-describedby={errors.monthlyAdSpendBand ? "f-spend-err" : undefined}>
-                                  <SelectValue placeholder="Select spend range" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {SPEND_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
-                                </SelectContent>
-                              </Select>
+                        <section className="space-y-3.5" aria-labelledby="step2-business-context">
+                          <p id="step2-business-context" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">Business context</p>
+                          <Field label="Industry" htmlFor="f-industry" error={errors.industry?.message}>
+                            <Controller control={control} name="industry" render={({ field }) => (
+                              <FormSelect id="f-industry" label="Industry" value={field.value} onValueChange={field.onChange} options={INDUSTRY_OPTIONS} placeholder="Select industry" error={errors.industry?.message} />
+                            )} />
+                          </Field>
+                          <Field label="Your role" htmlFor="f-role" error={errors.role?.message}>
+                            <Controller control={control} name="role" render={({ field }) => (
+                              <FormSelect id="f-role" label="Your role" value={field.value} onValueChange={field.onChange} options={ROLE_OPTIONS} placeholder="Select role" error={errors.role?.message} />
                             )} />
                           </Field>
                         </section>
 
-                        <section className="mt-6 space-y-3 border-t border-white/[0.06] pt-5" aria-labelledby="step2-advertising">
-                          <p id="step2-advertising" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Advertising</p>
-                          <Controller control={control} name="adPlatforms" render={({ field }) => (
-                            <fieldset aria-invalid={!!errors.adPlatforms} aria-describedby={errors.adPlatforms ? "f-platforms-err" : undefined} className="space-y-2.5">
-                              <legend className="text-sm font-medium text-foreground/90">Where do you advertise?</legend>
-                              <div className="flex flex-wrap gap-2">
-                                {PLATFORM_OPTIONS.map((platform) => {
-                                  const checked = field.value?.includes(platform.value) ?? false;
-                                  return (
-                                    <label
-                                      key={platform.value}
-                                      className={[
-                                        "flex min-h-10 cursor-pointer items-center rounded-full border px-3.5 py-2 text-xs font-medium transition-colors focus-within:ring-1 focus-within:ring-primary/50",
-                                        checked
-                                          ? "border-primary/45 bg-primary/[0.12] text-primary"
-                                          : "border-white/[0.08] bg-white/[0.025] text-foreground/78 hover:border-white/[0.14] hover:bg-white/[0.045]",
-                                      ].join(" ")}
-                                    >
-                                      <input
-                                        type="checkbox"
-                                        checked={checked}
-                                        className="sr-only"
-                                        onChange={() => {
-                                          const current = field.value ?? [];
-                                          if (platform.value === "none_currently") {
-                                            field.onChange(checked ? [] : ["none_currently"]);
-                                            return;
-                                          }
-                                          const withoutNone = current.filter((value) => value !== "none_currently");
-                                          field.onChange(checked ? withoutNone.filter((value) => value !== platform.value) : [...withoutNone, platform.value]);
-                                        }}
-                                      />
-                                      {platform.label}
-                                    </label>
-                                  );
-                                })}
-                              </div>
-                              {errors.adPlatforms && <p id="f-platforms-err" role="alert" className="text-xs text-red-400">{errors.adPlatforms.message}</p>}
-                            </fieldset>
-                          )} />
+                        <section className="mt-4 space-y-3.5 border-t border-white/[0.06] pt-4" aria-labelledby="step2-decision-spend">
+                          <p id="step2-decision-spend" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">Decision & spend</p>
+                          <Field label="Your role in this decision" htmlFor="f-decision" error={errors.decisionInfluence?.message}>
+                            <Controller control={control} name="decisionInfluence" render={({ field }) => (
+                              <FormSelect id="f-decision" label="Your role in this decision" value={field.value} onValueChange={field.onChange} options={DECISION_OPTIONS} placeholder="Select decision role" error={errors.decisionInfluence?.message} />
+                            )} />
+                          </Field>
+                          <Field label="Monthly ad spend" htmlFor="f-spend" error={errors.monthlyAdSpendBand?.message}>
+                            <Controller control={control} name="monthlyAdSpendBand" render={({ field }) => (
+                              <FormSelect id="f-spend" label="Monthly ad spend" value={field.value} onValueChange={field.onChange} options={SPEND_OPTIONS} placeholder="Select spend range" error={errors.monthlyAdSpendBand?.message} />
+                            )} />
+                          </Field>
                         </section>
 
-                        <Button type="button" size="lg" onClick={handleStepTwoContinue} className="mt-6 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
+                        <section className="mt-4 space-y-3.5 border-t border-white/[0.06] pt-4" aria-labelledby="step2-advertising">
+                          <p id="step2-advertising" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/75">Advertising</p>
+                          <Controller control={control} name="adPlatforms" render={({ field }) => {
+                            const selected = field.value ?? [];
+                            const primaryPlatform = selected[0];
+                            const secondPlatform = selected[1];
+                            const secondOptions = PLATFORM_OPTIONS.filter(
+                              (option) => option.value !== "none_currently" && option.value !== primaryPlatform,
+                            );
+                            return (
+                              <div className="space-y-3.5">
+                                <Field label="Main ad platform" htmlFor="f-primary-platform" error={errors.adPlatforms?.message}>
+                                  <FormSelect
+                                    id="f-primary-platform"
+                                    label="Main ad platform"
+                                    value={primaryPlatform}
+                                    onValueChange={(value) => {
+                                      const nextPrimary = value as AuditPlatform;
+                                      if (nextPrimary === "none_currently") {
+                                        field.onChange(["none_currently"]);
+                                        return;
+                                      }
+                                      const nextPlatforms: AuditPlatform[] = [nextPrimary];
+                                      if (secondPlatform && secondPlatform !== nextPrimary && secondPlatform !== "none_currently") {
+                                        nextPlatforms.push(secondPlatform);
+                                      }
+                                      field.onChange(nextPlatforms);
+                                    }}
+                                    options={PLATFORM_OPTIONS}
+                                    placeholder="Select main platform"
+                                    error={errors.adPlatforms?.message}
+                                  />
+                                </Field>
+                                {primaryPlatform && primaryPlatform !== "none_currently" && (
+                                  <Field label="Second platform (optional)" htmlFor="f-second-platform">
+                                    <FormSelect
+                                      id="f-second-platform"
+                                      label="Second platform (optional)"
+                                      value={secondPlatform ?? "no_second_platform"}
+                                      onValueChange={(value) => {
+                                        if (value === "no_second_platform") {
+                                          field.onChange([primaryPlatform]);
+                                          return;
+                                        }
+                                        field.onChange([primaryPlatform, value as AuditPlatform]);
+                                      }}
+                                      options={[{ value: "no_second_platform", label: "No second platform" }, ...secondOptions]}
+                                      placeholder="No second platform"
+                                    />
+                                  </Field>
+                                )}
+                                <p className="-mt-1 text-[11px] leading-4 text-muted-foreground/90">We’ll review up to two paid platforms where relevant.</p>
+                              </div>
+                            );
+                          }} />
+                        </section>
+
+                        <Button type="button" size="lg" onClick={handleStepTwoContinue} className="mt-5 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
                           Continue
                           <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
                         </Button>
@@ -804,72 +669,40 @@ const TrackingLandingPage = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.18 }}
                       >
-                        <section className="space-y-3" aria-labelledby="step3-tracking">
-                          <p id="step3-tracking" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Tracking</p>
-                          <Controller control={control} name="trackingMaturity" render={({ field }) => (
-                            <SingleChoiceChips
-                              legend="How confident are you in your tracking?"
-                              name="trackingMaturity"
-                              value={field.value}
-                              onChange={field.onChange}
-                              options={MATURITY_OPTIONS}
-                              error={errors.trackingMaturity?.message}
-                            />
-                          )} />
-                        </section>
-
-                        <section className="mt-6 space-y-3 border-t border-white/[0.06] pt-5" aria-labelledby="step3-conversion">
-                          <p id="step3-conversion" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Conversion</p>
-                          <Controller control={control} name="primaryConversionType" render={({ field }) => (
-                            <SingleChoiceChips
-                              legend="What matters most?"
-                              name="primaryConversionType"
-                              value={field.value}
-                              onChange={field.onChange}
-                              options={CONVERSION_OPTIONS}
-                              error={errors.primaryConversionType?.message}
-                            />
-                          )} />
-                        </section>
-
-                        <section className="mt-6 space-y-3 border-t border-white/[0.06] pt-5" aria-labelledby="step3-main-issue">
-                          <p id="step3-main-issue" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Main issue</p>
-                          <Field label="What’s going wrong?" htmlFor="f-problem" error={errors.measurementProblem?.message}>
-                            <Controller control={control} name="measurementProblem" render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <SelectTrigger id="f-problem" className={fieldClassName} aria-invalid={!!errors.measurementProblem} aria-describedby={errors.measurementProblem ? "f-problem-err" : undefined}>
-                                  <SelectValue placeholder="Select the closest issue" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {PROBLEM_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
-                                </SelectContent>
-                              </Select>
+                        <div className="space-y-3.5">
+                          <Field label="How confident are you in your tracking?" htmlFor="f-maturity" error={errors.trackingMaturity?.message}>
+                            <Controller control={control} name="trackingMaturity" render={({ field }) => (
+                              <FormSelect id="f-maturity" label="How confident are you in your tracking?" value={field.value} onValueChange={field.onChange} options={MATURITY_OPTIONS} placeholder="Select the closest answer" error={errors.trackingMaturity?.message} />
                             )} />
                           </Field>
-                        </section>
+                          <Field label="What matters most?" htmlFor="f-conversion" error={errors.primaryConversionType?.message}>
+                            <Controller control={control} name="primaryConversionType" render={({ field }) => (
+                              <FormSelect id="f-conversion" label="What matters most?" value={field.value} onValueChange={field.onChange} options={CONVERSION_OPTIONS} placeholder="Select main conversion" error={errors.primaryConversionType?.message} />
+                            )} />
+                          </Field>
+                          <Field label="What’s going wrong?" htmlFor="f-problem" error={errors.measurementProblem?.message}>
+                            <Controller control={control} name="measurementProblem" render={({ field }) => (
+                              <FormSelect id="f-problem" label="What’s going wrong?" value={field.value} onValueChange={field.onChange} options={PROBLEM_OPTIONS} placeholder="Select the closest issue" error={errors.measurementProblem?.message} />
+                            )} />
+                          </Field>
+                          <Field label="How soon do you want this addressed?" htmlFor="f-urgency" error={errors.urgency?.message}>
+                            <Controller control={control} name="urgency" render={({ field }) => (
+                              <FormSelect id="f-urgency" label="How soon do you want this addressed?" value={field.value} onValueChange={field.onChange} options={URGENCY_OPTIONS} placeholder="Select timing" error={errors.urgency?.message} />
+                            )} />
+                          </Field>
+                        </div>
 
-                        <section className="mt-6 space-y-3 border-t border-white/[0.06] pt-5" aria-labelledby="step3-timing">
-                          <p id="step3-timing" className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">Timing</p>
-                          <Controller control={control} name="urgency" render={({ field }) => (
-                            <ChoiceGrid
-                              legend="How soon do you want this addressed?"
-                              name="urgency"
-                              value={field.value}
-                              onChange={field.onChange}
-                              options={URGENCY_OPTIONS}
-                              error={errors.urgency?.message}
-                            />
-                          )} />
-                        </section>
-
-                        <div className="mt-6 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3.5">
+                        <div className="mt-4 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3.5">
                           <div className="flex items-start gap-3">
                             <input type="checkbox" id="f-marketing-opt-in" className="mt-0.5 h-4 w-4 shrink-0 rounded border border-white/20 bg-white/5 accent-primary" {...register("marketingOptIn")} />
-                            <label htmlFor="f-marketing-opt-in" className="cursor-pointer text-[13px] leading-5 text-muted-foreground sm:text-sm">
-                              Send me occasional ATD marketing insights.
-                            </label>
+                            <label htmlFor="f-marketing-opt-in" className="cursor-pointer text-[13px] leading-5 text-muted-foreground sm:text-sm">Send me occasional ATD marketing insights.</label>
                           </div>
                           <p className="mt-1.5 pl-7 text-[11px] leading-4 text-muted-foreground/75">Optional. Not required for the audit.</p>
+                        </div>
+
+                        <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-primary/15 bg-primary/[0.04] px-3 py-2.5">
+                          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                          <p className="text-[11px] leading-4 text-muted-foreground"><span className="font-semibold text-foreground/80">Free audit scope:</span>{" "}Review and recommendations are included. Implementation is separate.</p>
                         </div>
 
                         <Button type="submit" size="lg" disabled={isSubmitting} className="mt-5 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
@@ -881,24 +714,15 @@ const TrackingLandingPage = () => {
                   </form>
                 </>
               )}
-            </motion.div>
+              </motion.div>
+            </div>
           </div>
 
-          <div className="mt-8 flex justify-center md:mt-10 lg:mt-0 lg:shrink-0 lg:pb-1">
-            <a
-              href="#measurement-journey"
-              className="group inline-flex flex-col items-center gap-2 text-center text-xs font-medium tracking-wide text-foreground/55 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 lg:gap-1.5"
-            >
-              <span>See what we review</span>
-              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.02] transition-colors group-hover:border-primary/25 group-hover:bg-primary/[0.05] lg:h-7 lg:w-7">
-                <ArrowDown className="h-4 w-4 motion-safe:animate-bounce motion-reduce:animate-none lg:h-3.5 lg:w-3.5" aria-hidden="true" />
-              </span>
-            </a>
-          </div>
+          <TrackingAuditReviewCue />
         </div>
       </section>
 
-      <PageSection id="measurement-journey" surface="quiet" spacing="spacious" className="scroll-mt-20 py-14 md:py-20" containerClassName="px-5 sm:px-6 lg:px-8">
+      <PageSection id="measurement-journey" surface="quiet" spacing="spacious" className="scroll-mt-20 py-16 md:py-24 lg:py-28" containerClassName="px-5 sm:px-6 lg:px-8">
         <SectionIntro
           eyebrow="What happens after the click"
           title="Your results pass through a few key steps."
