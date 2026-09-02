@@ -41,6 +41,8 @@ import { submitLead } from "@/lib/leads";
 import { withCampaignSearch } from "@/lib/campaignAttribution";
 import { pushLeadSubmissionEvent } from "@/lib/tracking";
 
+const TRACKING_AUDIT_THEME_STORAGE_KEY = "atd-tracking-audit-theme";
+
 const normalizeWebsiteUrl = (value: string) => {
   const trimmed = value.trim();
   if (!trimmed) return "";
