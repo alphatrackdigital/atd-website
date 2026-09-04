@@ -27,7 +27,7 @@ const advanceToStepThree = async (page: import("@playwright/test").Page) => {
   await fillStepOne(page);
   await choose(page, "Your role", "Founder / Director");
   await choose(page, "Are you involved in choosing a provider?", "I help choose");
-  await choose(page, "Rough monthly ad spend", "GHS 3k–6k");
+  await choose(page, "Rough monthly ad spend", "$5k–10k");
   await choose(page, "Main ad platform", "Google");
   await page.getByRole("button", { name: "Continue", exact: true }).click();
   await expect(page.getByText("Step 3 of 3")).toBeVisible();
@@ -61,7 +61,7 @@ test.describe("Education Tracking Audit visual stability", () => {
     await fillStepOne(page);
     await choose(page, "Your role", "Founder / Director");
     await choose(page, "Are you involved in choosing a provider?", "I help choose");
-    await choose(page, "Rough monthly ad spend", "GHS 3k–6k");
+    await choose(page, "Rough monthly ad spend", "$5k–10k");
 
     const before = await page.evaluate(() => ({
       innerWidth: window.innerWidth,

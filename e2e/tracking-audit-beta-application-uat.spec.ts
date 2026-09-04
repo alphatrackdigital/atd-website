@@ -143,7 +143,7 @@ test.describe("Tracking Audit Beta application contract UAT", () => {
     await selectCombobox(page, "Industry", "Other");
     await selectCombobox(page, "Your role", "Founder / CEO");
     await selectCombobox(page, "Your role in this decision", "Final decision maker");
-    await selectCombobox(page, "Monthly ad spend", "GHS 3k–6k");
+    await selectCombobox(page, "Monthly ad spend", "$5k–10k");
     await selectCombobox(page, "Main ad platform", "Meta");
     await page.getByRole("button", { name: "Continue", exact: true }).click();
 
@@ -180,7 +180,7 @@ test.describe("Tracking Audit Beta application contract UAT", () => {
 
     await selectCombobox(page, "Your role", "Founder / Managing Partner");
     await selectCombobox(page, "Are you involved in choosing a provider?", "I help choose");
-    await selectCombobox(page, "Rough monthly ad spend", "GHS 3k–6k");
+    await selectCombobox(page, "Rough monthly ad spend", "$5k–10k");
     await selectCombobox(page, "Main ad platform", "Google");
     await page.getByRole("button", { name: "Continue", exact: true }).click();
 
@@ -217,7 +217,7 @@ test.describe("Tracking Audit Beta application contract UAT", () => {
 
     await selectCombobox(page, "Your role", "Founder / Director");
     await selectCombobox(page, "Are you involved in choosing a provider?", "I help choose");
-    await selectCombobox(page, "Rough monthly ad spend", "GHS 3k–6k");
+    await selectCombobox(page, "Rough monthly ad spend", "$5k–10k");
     await selectCombobox(page, "Main ad platform", "Google");
     await page.getByRole("button", { name: "Continue", exact: true }).click();
 
@@ -254,7 +254,7 @@ test.describe("Tracking Audit Beta application contract UAT", () => {
 
     await selectCombobox(page, "Your role", "Founder / Director");
     await selectCombobox(page, "Are you involved in choosing a provider?", "I help choose");
-    await selectCombobox(page, "Rough monthly ad spend", "GHS 3k–6k");
+    await selectCombobox(page, "Rough monthly ad spend", "$5k–10k");
     await selectCombobox(page, "Main ad platform", "Google");
     await page.getByRole("button", { name: "Continue", exact: true }).click();
 
