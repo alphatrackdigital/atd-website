@@ -120,7 +120,8 @@ const Header = () => {
   const getLinkTarget = (path: string, hash?: string): To =>
     hash ? { pathname: path, hash } : path;
 
-  const headerElevated = scrolled || desktopServicesOpen || desktopExpertiseOpen || mobileOpen;
+  const isTrackingAuditPage = location.pathname.startsWith("/offer/tracking-audit");
+  const headerElevated = isTrackingAuditPage || scrolled || desktopServicesOpen || desktopExpertiseOpen || mobileOpen;
   const strategyCallTo = withCampaignSearch(BOOK_A_FREE_STRATEGY_CALL_CTA.to, location.search);
   const featuredExpertisePages = expertisePages.filter((item) => featuredExpertiseSlugs.includes(item.slug));
 
@@ -129,9 +130,11 @@ const Header = () => {
       <div
         className={cn(
           "transition-all duration-300",
-          headerElevated
-            ? "bg-background/78 shadow-[0_10px_28px_rgba(0,10,28,0.22)] backdrop-blur-xl"
-            : "bg-[linear-gradient(180deg,rgba(7,10,16,0.82)_0%,rgba(7,10,16,0.46)_54%,rgba(7,10,16,0)_100%)]",
+          isTrackingAuditPage
+            ? "bg-[#070a10] shadow-[0_10px_28px_rgba(0,10,28,0.20)]"
+            : headerElevated
+              ? "bg-background/78 shadow-[0_10px_28px_rgba(0,10,28,0.22)] backdrop-blur-xl"
+              : "bg-[linear-gradient(180deg,rgba(7,10,16,0.82)_0%,rgba(7,10,16,0.46)_54%,rgba(7,10,16,0)_100%)]",
         )}
       >
         <div className="container mx-auto px-4 lg:px-8">

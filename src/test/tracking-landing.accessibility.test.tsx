@@ -14,41 +14,112 @@ describe("TrackingLandingPage accessibility", () => {
     expect(screen.getByRole("button", { name: "Continue" })).toBeInTheDocument();
   });
 
-  it("moves to the structured measurement-context step after valid step one", async () => {
+  it("rejects a hostname without a public suffix and validates the website on blur", async () => {
     renderWithPageProviders(<TrackingLandingPage />, { route: "/offer/tracking-audit" });
 
     fireEvent.change(screen.getByLabelText("First Name"), { target: { value: "Jane" } });
     fireEvent.change(screen.getByLabelText("Last Name"), { target: { value: "Smith" } });
     fireEvent.change(screen.getByLabelText("Work Email"), { target: { value: "jane@example.com" } });
     fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Example Ltd" } });
-    fireEvent.change(screen.getByLabelText("Website"), { target: { value: "https://example.com" } });
+
+    const website = screen.getByLabelText("Website");
+    fireEvent.change(website, { target: { value: "AlphaTrackDigital" } });
+    fireEvent.blur(website);
+
+    expect(await screen.findByText("Enter a valid website, e.g. company.com")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(screen.queryByLabelText("Industry")).not.toBeInTheDocument();
+  });
+
+  it("moves to the compact fit-and-spend step after valid step one", async () => {
+    renderWithPageProviders(<TrackingLandingPage />, { route: "/offer/tracking-audit" });
+
+    fireEvent.change(screen.getByLabelText("First Name"), { target: { value: "Jane" } });
+    fireEvent.change(screen.getByLabelText("Last Name"), { target: { value: "Smith" } });
+    fireEvent.change(screen.getByLabelText("Work Email"), { target: { value: "jane@example.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Example Ltd" } });
+    fireEvent.change(screen.getByLabelText("Website"), { target: { value: "example.com" } });
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
     await waitFor(() => {
       expect(screen.getByLabelText("Industry")).toBeInTheDocument();
     });
-    expect(screen.getByLabelText("Your Role")).toBeInTheDocument();
-    expect(screen.getByLabelText("Decision Influence")).toBeInTheDocument();
-    expect(screen.getByLabelText("Monthly Paid-Media Spend")).toBeInTheDocument();
-    expect(screen.getByRole("group", { name: "Paid Channels" })).toBeInTheDocument();
-    expect(screen.getByLabelText("Tracking Maturity")).toBeInTheDocument();
-    expect(screen.getByLabelText("Primary Conversion")).toBeInTheDocument();
-    expect(screen.getByLabelText("Biggest Measurement Problem")).toBeInTheDocument();
-    expect(screen.getByLabelText("Timing / Urgency")).toBeInTheDocument();
-    expect(screen.getByLabelText("Send me occasional ATD marketing insights and updates.")).toBeInTheDocument();
+    expect(screen.getByLabelText("Your role")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Your role in this decision" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Monthly ad spend")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Main ad platform" })).toBeInTheDocument();
+    expect(screen.getByText("Step 2 of 3")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Back" })).toBeInTheDocument();
+    expect(screen.getByText("Business context")).toBeInTheDocument();
+    expect(screen.getByText("Decision & spend")).toBeInTheDocument();
+    expect(screen.getByText("Advertising")).toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: "How confident are you in your tracking?" })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Send me occasional ATD marketing insights.")).not.toBeInTheDocument();
+  });
+
+  it("supports keyboard navigation and selection in shared audit comboboxes", async () => {
+    renderWithPageProviders(<TrackingLandingPage />, { route: "/offer/tracking-audit" });
+
+    fireEvent.change(screen.getByLabelText("First Name"), { target: { value: "Jane" } });
+    fireEvent.change(screen.getByLabelText("Last Name"), { target: { value: "Smith" } });
+    fireEvent.change(screen.getByLabelText("Work Email"), { target: { value: "jane@example.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Example Ltd" } });
+    fireEvent.change(screen.getByLabelText("Website"), { target: { value: "example.com" } });
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    const industry = await screen.findByRole("combobox", { name: "Industry" });
+    industry.focus();
+    fireEvent.keyDown(industry, { key: "ArrowDown" });
+
+    const options = await screen.findAllByRole("option");
+    await waitFor(() => expect(options[0]).toHaveFocus());
+
+    fireEvent.keyDown(options[0], { key: "ArrowDown" });
+    await waitFor(() => expect(options[1]).toHaveFocus());
+
+    const chosenLabel = options[1].textContent ?? "";
+    fireEvent.keyDown(options[1], { key: "Enter" });
+
+    await waitFor(() => {
+      expect(industry).toHaveFocus();
+      expect(industry).toHaveAttribute("aria-expanded", "false");
+      expect(industry).toHaveTextContent(chosenLabel);
+    });
   });
 
   it("presents the application-first audit scope and links the final call to action to the form", () => {
     renderWithPageProviders(<TrackingLandingPage />, { route: "/offer/tracking-audit" });
 
     expect(
-      screen.getByRole("heading", { name: "You should know what your marketing is actually producing." }),
+      screen.getByRole("heading", { name: "Know what your marketing is actually producing." }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Five dimensions of measurement confidence" }),
+      screen.getByRole("heading", { name: "Your results pass through a few key steps." }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "We check five parts of your tracking." }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Illustrative scorecard finding")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "A clear answer to three questions." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "What we found" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Why it matters" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "What to do next" })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { name: "Ad click" })).toHaveLength(2);
+    expect(screen.getAllByRole("heading", { name: "Website" })).toHaveLength(2);
+    expect(screen.getAllByRole("heading", { name: "Lead" })).toHaveLength(2);
+    expect(screen.getAllByRole("heading", { name: "Sale" })).toHaveLength(2);
+    expect(
+      screen.getByRole("heading", { name: "We start with the least access possible." }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Here’s how the audit works." })).toBeInTheDocument();
+    expect(screen.queryByText("Illustrative preview")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "See what we review" })).toHaveAttribute(
+      "href",
+      "#measurement-journey",
+    );
     expect(screen.getByRole("heading", { name: "Common questions" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Request a Free Tracking Audit" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Request My Free Audit" })).toHaveAttribute(
       "href",
       "/offer/tracking-audit#claim",
     );

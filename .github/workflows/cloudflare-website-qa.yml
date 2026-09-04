@@ -64,6 +64,8 @@ jobs:
         run: npm ci
 
       - name: Run canonical release preparation
+        env:
+          VITE_LEADS_ENDPOINT: /api/leads
         run: npm run release:prepare
 
       - name: Embed exact-SHA deployment manifest
@@ -79,6 +81,7 @@ jobs:
             gitSha: process.env.REQUESTED_SHA,
             workerName: process.env.WORKER_NAME,
             runtimeMode: 'workers-static-assets',
+            leadsEndpointMode: 'qa-worker-proxy',
             builtAt: new Date().toISOString(),
             githubRun: `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
           };
