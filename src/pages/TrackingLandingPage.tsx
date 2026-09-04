@@ -86,7 +86,7 @@ const auditSchema = z.object({
     required_error: "Select your decision role",
   }),
   monthlyAdSpendBand: z.enum(
-    ["paused_or_not_spending", "under_1500", "1500_2999", "3000_5999", "6000_14999", "15000_plus", "not_sure"],
+    ["paused_or_not_spending", "5000_9999", "10000_19999", "20000_plus", "not_sure"],
     { required_error: "Select a spend range" },
   ),
   adPlatforms: z.array(z.enum(["meta_ads", "google_ads", "microsoft_ads", "linkedin_ads", "tiktok_ads", "other", "none_currently"])).min(1, "Select at least one option"),
@@ -138,11 +138,9 @@ const DECISION_OPTIONS = [
 
 const SPEND_OPTIONS = [
   { value: "paused_or_not_spending", label: "Not spending" },
-  { value: "under_1500", label: "Under GHS 1.5k" },
-  { value: "1500_2999", label: "GHS 1.5k–3k" },
-  { value: "3000_5999", label: "GHS 3k–6k" },
-  { value: "6000_14999", label: "GHS 6k–15k" },
-  { value: "15000_plus", label: "GHS 15k+" },
+  { value: "5000_9999", label: "$5k–10k" },
+  { value: "10000_19999", label: "$10k–20k" },
+  { value: "20000_plus", label: "$20k+" },
   { value: "not_sure", label: "Not sure" },
 ] as const;
 

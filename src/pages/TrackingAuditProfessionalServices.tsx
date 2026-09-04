@@ -90,7 +90,7 @@ const auditSchema = z.object({
     required_error: "Select your decision role",
   }),
   monthlyAdSpendBand: z.enum(
-    ["paused_or_not_spending", "under_1500", "1500_2999", "3000_5999", "6000_14999", "15000_plus", "not_sure"],
+    ["paused_or_not_spending", "5000_9999", "10000_19999", "20000_plus", "not_sure"],
     { required_error: "Select a spend range" },
   ),
   adPlatforms: z.array(z.enum(["meta_ads", "google_ads", "microsoft_ads", "linkedin_ads", "tiktok_ads", "other", "none_currently"])).min(1, "Select at least one option"),
@@ -129,11 +129,9 @@ const DECISION_OPTIONS = [
 
 const SPEND_OPTIONS = [
   { value: "paused_or_not_spending", label: "Not spending" },
-  { value: "under_1500", label: "Under GHS 1.5k" },
-  { value: "1500_2999", label: "GHS 1.5k–3k" },
-  { value: "3000_5999", label: "GHS 3k–6k" },
-  { value: "6000_14999", label: "GHS 6k–15k" },
-  { value: "15000_plus", label: "GHS 15k+" },
+  { value: "5000_9999", label: "$5k–10k" },
+  { value: "10000_19999", label: "$10k–20k" },
+  { value: "20000_plus", label: "$20k+" },
   { value: "not_sure", label: "Not sure" },
 ] as const;
 
@@ -921,7 +919,7 @@ const TrackingAuditProfessionalServices = () => {
                 >
                   <motion.span
                     data-journey-chip
-                    className="block rounded-full border border-amber-300/25 bg-background/95 px-3 py-1.5 text-[11px] font-semibold text-amber-100/70 shadow-[0_8px_24px_rgba(0,0,0,0.10)] backdrop-blur"
+                    className="block rounded-full border border-amber-300/25 bg-background/95 px-3 py-1.5 text-[11px] font-semibold text-amber-100/95 shadow-[0_8px_24px_rgba(0,0,0,0.10)] backdrop-blur"
                     animate={
                       prefersReducedMotion
                         ? { opacity: 0.9, y: 0 }
@@ -1018,7 +1016,7 @@ const TrackingAuditProfessionalServices = () => {
                   </p>
                   <h3 className="mt-0.5 text-base font-semibold">{title}</h3>
                   {JOURNEY_BREAKS[index] && (
-                    <p className="mt-1.5 text-[11px] text-amber-100/60">{JOURNEY_BREAKS[index].label}</p>
+                    <p className="mt-1.5 text-[11px] text-amber-100/90">{JOURNEY_BREAKS[index].label}</p>
                   )}
                 </div>
               </motion.div>

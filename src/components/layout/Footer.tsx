@@ -274,12 +274,6 @@ const Footer = () => {
           <div className="col-span-2 mt-1 space-y-2.5 md:col-span-2 md:mt-2 md:space-y-4 lg:col-span-1 lg:mt-0">
             <h3 className="text-sm font-semibold text-foreground">Contact</h3>
             <div className="flex flex-col gap-1.5 text-[13px] text-muted-foreground md:gap-2 md:text-sm">
-              <a href={companyProfile.contact.phoneHref} className="transition-colors hover:text-primary">
-                {companyProfile.contact.phoneDisplay}
-              </a>
-              <a href={companyProfile.contact.secondaryPhoneHref} className="transition-colors hover:text-primary">
-                {companyProfile.contact.secondaryPhoneDisplay}
-              </a>
               <a href={`mailto:${companyProfile.contact.email}`} className="transition-colors hover:text-primary">
                 {companyProfile.contact.email}
               </a>

@@ -35,7 +35,7 @@ const completeStepTwo = async (page: Page) => {
   await selectOption(page, "Industry", "Professional services");
   await selectOption(page, "Your role", "Founder / CEO");
   await selectOption(page, "Your role in this decision", "Final decision maker");
-  await selectOption(page, "Monthly ad spend", "GHS 3k–6k");
+  await selectOption(page, "Monthly ad spend", "$5k–10k");
   await selectOption(page, "Main ad platform", "Meta");
   await page.getByRole("button", { name: "Continue" }).click();
 };
