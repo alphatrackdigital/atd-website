@@ -7,8 +7,8 @@ const workflow = readFileSync(workflowPath, "utf8");
 describe("Brevo read-only evidence workflow", () => {
   it("keeps the runner manual, main-only, exact-SHA bound, and read-permission only", () => {
     expect(workflow).toContain("workflow_dispatch:");
-    expect(workflow).not.toMatch(/^\\s*push:/m);
-    expect(workflow).not.toMatch(/^\\s*pull_request:/m);
+    expect(workflow).not.toMatch(/^\s*push:/m);
+    expect(workflow).not.toMatch(/^\s*pull_request:/m);
     expect(workflow).toContain("contents: read");
     expect(workflow).toContain("if: github.ref == 'refs/heads/main'");
     expect(workflow).toContain('DISPATCH_REF: ${{ github.ref }}');
@@ -17,14 +17,22 @@ describe("Brevo read-only evidence workflow", () => {
     expect(workflow).toContain('test "$ACTUAL_SHA" = "$REQUESTED_SHA"');
   });
 
-  it("uses the protected Brevo evidence environment and secret-backed QA identity", () => {
+  it("uses the protected Brevo evidence environment and scopes secrets to local steps", () => {
     expect(workflow).toContain("name: Brevo Read-Only QA");
     expect(workflow).toContain('BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}');
     expect(workflow).toContain(
       'BREVO_EVIDENCE_CONTACT: ${{ secrets.BREVO_EVIDENCE_CONTACT }}',
     );
-    expect(workflow).not.toMatch(/BREVO_API_KEY:\\s*[^$\\n]/);
-    expect(workflow).not.toMatch(/BREVO_EVIDENCE_CONTACT:\\s*[^$\\n]/);
+
+    const jobHeader = workflow.slice(
+      workflow.indexOf("jobs:"),
+      workflow.indexOf("    steps:"),
+    );
+
+    expect(jobHeader).not.toContain("secrets.BREVO_API_KEY");
+    expect(jobHeader).not.toContain("secrets.BREVO_EVIDENCE_CONTACT");
+    expect(workflow).not.toMatch(/BREVO_API_KEY:\s*[^$\n]/);
+    expect(workflow).not.toMatch(/BREVO_EVIDENCE_CONTACT:\s*[^$\n]/);
   });
 
   it("runs only the existing evidence helper for live Brevo access", () => {
@@ -33,10 +41,10 @@ describe("Brevo read-only evidence workflow", () => {
       "npx vitest run src/test/brevo-lifecycle-evidence.test.ts",
     );
 
-    expect(workflow).not.toMatch(/api\\.brevo\\.com/i);
-    expect(workflow).not.toMatch(/\\bcurl\\b/i);
-    expect(workflow).not.toMatch(/\\b(wget|httpie)\\b/i);
-    expect(workflow).not.toMatch(/method:\\s*["']?(POST|PUT|PATCH|DELETE)/i);
+    expect(workflow).not.toMatch(/api\.brevo\.com/i);
+    expect(workflow).not.toMatch(/\bcurl\b/i);
+    expect(workflow).not.toMatch(/\b(wget|httpie)\b/i);
+    expect(workflow).not.toMatch(/method:\s*["']?(POST|PUT|PATCH|DELETE)/i);
   });
 
   it("requires zero side effects and explicit manual workflow evidence", () => {
