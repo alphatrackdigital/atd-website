@@ -22,6 +22,7 @@
     "release:package": "node scripts/package-production-build.mjs",
     "release:prepare": "npm run lint && npm run test && npm run build && npm run release:validate && npm run release:package",
     "release:smoke": "node scripts/smoke-production.mjs",
+    "brevo:evidence": "node scripts/brevo-lifecycle-evidence.mjs",
     "indexnow:submit": "node scripts/submit-indexnow.mjs"
   },
   "dependencies": {
