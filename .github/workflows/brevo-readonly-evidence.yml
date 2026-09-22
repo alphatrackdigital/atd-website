@@ -29,11 +29,6 @@ jobs:
       name: Brevo Read-Only QA
     env:
       REQUESTED_SHA: ${{ inputs.git_sha }}
-      BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
-      BREVO_EVIDENCE_CONTACT: ${{ secrets.BREVO_EVIDENCE_CONTACT }}
-      BREVO_EVIDENCE_EXPECTED_LIST_IDS: ${{ vars.BREVO_EVIDENCE_EXPECTED_LIST_IDS }}
-      BREVO_EVIDENCE_TEMPLATE_IDS: ${{ vars.BREVO_EVIDENCE_TEMPLATE_IDS }}
-      BREVO_EVIDENCE_REQUIRED_ATTRIBUTES: ${{ vars.BREVO_EVIDENCE_REQUIRED_ATTRIBUTES }}
 
     steps:
       - name: Validate dispatch boundary and protected inputs
@@ -42,6 +37,8 @@ jobs:
           DISPATCH_SHA: ${{ github.sha }}
           DISPATCH_REF: ${{ github.ref }}
           REASON: ${{ inputs.reason }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          BREVO_EVIDENCE_CONTACT: ${{ secrets.BREVO_EVIDENCE_CONTACT }}
         run: |
           set -euo pipefail
 
@@ -92,6 +89,12 @@ jobs:
 
       - name: Run merged GET-only Brevo evidence helper
         shell: bash
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          BREVO_EVIDENCE_CONTACT: ${{ secrets.BREVO_EVIDENCE_CONTACT }}
+          BREVO_EVIDENCE_EXPECTED_LIST_IDS: ${{ vars.BREVO_EVIDENCE_EXPECTED_LIST_IDS }}
+          BREVO_EVIDENCE_TEMPLATE_IDS: ${{ vars.BREVO_EVIDENCE_TEMPLATE_IDS }}
+          BREVO_EVIDENCE_REQUIRED_ATTRIBUTES: ${{ vars.BREVO_EVIDENCE_REQUIRED_ATTRIBUTES }}
         run: |
           set -euo pipefail
           install -m 700 -d qa-evidence
@@ -99,6 +102,9 @@ jobs:
 
       - name: Validate live evidence boundaries
         shell: bash
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          BREVO_EVIDENCE_CONTACT: ${{ secrets.BREVO_EVIDENCE_CONTACT }}
         run: |
           set -euo pipefail
           node <<'NODE'
