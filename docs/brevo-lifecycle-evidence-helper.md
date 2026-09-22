@@ -179,3 +179,97 @@ The helper is reusable internally now. Before calling it a client-ready packaged
 - keep workflow UI evidence separate unless Brevo exposes authoritative workflow graph semantics through the client-approved API surface.
 
 Do not copy ATD IDs, list IDs, template IDs, API keys, webhook URLs, QA identities or internal paths into a client deployment.
+
+
+## GitHub Actions read-only evidence runner
+
+The protected runner lives at:
+
+`.github/workflows/brevo-readonly-evidence.yml`
+
+It is intended only for bounded live read-only evidence collection after the helper itself has passed repository QA.
+
+### Required GitHub Environment
+
+Create or maintain a GitHub Environment named exactly:
+
+`Brevo Read-Only QA`
+
+Configure it as a protected evidence environment, not as a general Brevo administration environment.
+
+Recommended controls:
+
+- allow deployments from `main` only;
+- require an ATD reviewer before the job receives environment secrets where the GitHub plan supports it;
+- prevent self-review where an independent reviewer is available;
+- do not place send/mutation-specific credentials or unrelated provider secrets in this environment.
+
+### Required environment secrets
+
+- `BREVO_API_KEY` — Brevo API credential used only by the GET-only helper.
+- `BREVO_EVIDENCE_CONTACT` — one pre-existing QA contact ATD is authorized to inspect.
+
+Do not store the raw QA contact in workflow source or dispatch inputs.
+
+### Optional environment variables
+
+- `BREVO_EVIDENCE_EXPECTED_LIST_IDS` — comma-separated expected list IDs.
+- `BREVO_EVIDENCE_TEMPLATE_IDS` — comma-separated template IDs whose identity/status should be checked.
+- `BREVO_EVIDENCE_REQUIRED_ATTRIBUTES` — comma-separated attribute names; omit to use the helper defaults.
+
+These values are account-specific configuration and must not be treated as universal client defaults.
+
+### Dispatch contract
+
+Run the workflow manually from `main`.
+
+Inputs:
+
+- `git_sha` — the exact lowercase 40-character SHA selected for the `main` workflow dispatch;
+- `reason` — a short operational reason for the bounded check.
+
+The workflow fails before the provider read if:
+
+- it is not dispatched from `main`;
+- `git_sha` is malformed;
+- `git_sha` differs from the SHA selected for the dispatch;
+- the Brevo API secret is absent;
+- the approved QA contact secret is absent.
+
+### Live validation behavior
+
+The runner:
+
+1. checks out the exact approved SHA;
+2. verifies the checked-out SHA;
+3. re-runs the Brevo helper guardrail tests;
+4. runs the existing `npm run brevo:evidence` helper;
+5. validates that the report records GET-only behavior and zero writes/sends/workflow mutations;
+6. requires the approved QA contact to be found;
+7. requires configured expected list memberships to be present;
+8. requires configured template IDs to be present when template checks are requested;
+9. requires workflow graph semantics to remain `MANUAL/UI EVIDENCE REQUIRED`;
+10. verifies that the raw QA contact and API key are absent from the retained report;
+11. uploads only the redacted evidence directory for 14 days.
+
+The workflow does not create contacts, edit lists, change templates, register webhooks, alter CRM records, send messages, activate workflows, publish campaigns or deploy the website.
+
+### Evidence retention
+
+The artifact contains:
+
+- `brevo-evidence-redacted.json`;
+- `run-metadata.json`.
+
+The report is intentionally redacted but still contains internal configuration evidence such as list/template IDs or names where required for QA. Treat it as internal ATD evidence and do not publish it publicly.
+
+### Client replication
+
+For a client deployment, create a separate client environment with:
+
+- a client-owned Brevo API credential;
+- a client-approved QA identity;
+- client-specific expected lists/templates/attributes;
+- client-specific reviewers and revocation ownership.
+
+Never reuse ATD's `Brevo Read-Only QA` environment or its secrets for a client.
