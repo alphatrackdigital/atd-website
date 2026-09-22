@@ -1,0 +1,220 @@
+name: Brevo Read-Only Lifecycle Evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_sha:
+        description: Exact 40-character main SHA to validate against live Brevo read-only evidence
+        required: true
+        type: string
+      reason:
+        description: Short reason for this bounded read-only check
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: brevo-readonly-evidence
+  cancel-in-progress: false
+
+jobs:
+  evidence:
+    name: Run bounded Brevo read-only evidence
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    environment:
+      name: Brevo Read-Only QA
+    env:
+      REQUESTED_SHA: ${{ inputs.git_sha }}
+
+    steps:
+      - name: Validate dispatch boundary and protected inputs
+        shell: bash
+        env:
+          DISPATCH_SHA: ${{ github.sha }}
+          DISPATCH_REF: ${{ github.ref }}
+          REASON: ${{ inputs.reason }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          BREVO_EVIDENCE_CONTACT: ${{ secrets.BREVO_EVIDENCE_CONTACT }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$DISPATCH_REF" != "refs/heads/main" ]]; then
+            echo "Brevo evidence must be dispatched from main." >&2
+            exit 1
+          fi
+
+          if [[ ! "$REQUESTED_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "git_sha must be an exact lowercase 40-character Git SHA." >&2
+            exit 1
+          fi
+
+          if [[ "$REQUESTED_SHA" != "$DISPATCH_SHA" ]]; then
+            echo "git_sha must match the main SHA selected for this workflow dispatch." >&2
+            exit 1
+          fi
+
+          test -n "$REASON"
+          test -n "$BREVO_API_KEY"
+          test -n "$BREVO_EVIDENCE_CONTACT"
+
+      - name: Check out exact requested SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_sha }}
+          fetch-depth: 1
+
+      - name: Verify exact checked-out SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          test "$ACTUAL_SHA" = "$REQUESTED_SHA"
+          echo "Exact main SHA verified: $ACTUAL_SHA"
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Re-run Brevo helper guardrail tests
+        run: npx vitest run src/test/brevo-lifecycle-evidence.test.ts
+
+      - name: Run merged GET-only Brevo evidence helper
+        shell: bash
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          BREVO_EVIDENCE_CONTACT: ${{ secrets.BREVO_EVIDENCE_CONTACT }}
+          BREVO_EVIDENCE_EXPECTED_LIST_IDS: ${{ vars.BREVO_EVIDENCE_EXPECTED_LIST_IDS }}
+          BREVO_EVIDENCE_TEMPLATE_IDS: ${{ vars.BREVO_EVIDENCE_TEMPLATE_IDS }}
+          BREVO_EVIDENCE_REQUIRED_ATTRIBUTES: ${{ vars.BREVO_EVIDENCE_REQUIRED_ATTRIBUTES }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d qa-evidence
+          npm run brevo:evidence -- --output qa-evidence/brevo-evidence-redacted.json >/dev/null
+
+      - name: Validate live evidence boundaries
+        shell: bash
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          BREVO_EVIDENCE_CONTACT: ${{ secrets.BREVO_EVIDENCE_CONTACT }}
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require("fs");
+
+          const path = "qa-evidence/brevo-evidence-redacted.json";
+          const report = JSON.parse(fs.readFileSync(path, "utf8"));
+
+          const fail = (message) => {
+            console.error(message);
+            process.exit(1);
+          };
+
+          if (report?.boundaries?.requestMethod !== "GET only") {
+            fail("Evidence report did not certify GET-only requests.");
+          }
+          if (report?.boundaries?.writesAttempted !== 0) {
+            fail("Evidence report indicates a write attempt.");
+          }
+          if (report?.boundaries?.sendsAttempted !== 0) {
+            fail("Evidence report indicates a send attempt.");
+          }
+          if (report?.boundaries?.workflowMutationsAttempted !== 0) {
+            fail("Evidence report indicates a workflow mutation attempt.");
+          }
+          if (report?.workflowEvidence?.status !== "MANUAL/UI EVIDENCE REQUIRED") {
+            fail("Workflow semantics must remain explicitly manual/UI evidence.");
+          }
+          if (report?.account?.available !== true) {
+            fail("Brevo account read was unavailable.");
+          }
+          if (report?.contact?.found !== true) {
+            fail("Approved QA contact was not found.");
+          }
+
+          const missingMembership = (report?.contact?.expectedMembership || [])
+            .filter((item) => item.member !== true);
+          if (missingMembership.length) {
+            fail("One or more expected list memberships were not verified.");
+          }
+
+          if ((report?.templates?.requestedIds || []).length > 0) {
+            if (report?.templates?.available !== true) {
+              fail("Requested template evidence was unavailable.");
+            }
+            if ((report?.templates?.missingIds || []).length > 0) {
+              fail("One or more requested template IDs were not found.");
+            }
+          }
+
+          const rawContact = String(process.env.BREVO_EVIDENCE_CONTACT || "").trim().toLowerCase();
+          const apiKey = String(process.env.BREVO_API_KEY || "");
+          const serialized = JSON.stringify(report).toLowerCase();
+
+          if (rawContact && serialized.includes(rawContact)) {
+            fail("Raw contact identity appeared in the redacted report.");
+          }
+          if (apiKey && JSON.stringify(report).includes(apiKey)) {
+            fail("Brevo API key appeared in the report.");
+          }
+
+          const metadata = {
+            schemaVersion: 1,
+            verificationType: "Brevo live read-only lifecycle evidence smoke",
+            gitSha: process.env.REQUESTED_SHA,
+            githubRun: `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+            accountAvailable: report.account.available,
+            contactFound: report.contact.found,
+            expectedMembershipChecks: (report.contact.expectedMembership || []).map((item) => ({
+              id: item.id,
+              member: item.member === true,
+            })),
+            requestedTemplateIds: report.templates.requestedIds || [],
+            missingTemplateIds: report.templates.missingIds || [],
+            workflowEvidence: report.workflowEvidence.status,
+            writesAttempted: report.boundaries.writesAttempted,
+            sendsAttempted: report.boundaries.sendsAttempted,
+            workflowMutationsAttempted: report.boundaries.workflowMutationsAttempted,
+          };
+
+          fs.writeFileSync(
+            "qa-evidence/run-metadata.json",
+            JSON.stringify(metadata, null, 2) + "\n",
+            { mode: 0o600 },
+          );
+
+          fs.appendFileSync(
+            process.env.GITHUB_STEP_SUMMARY,
+            [
+              "## Brevo read-only evidence",
+              "",
+              `- Git SHA: \`${metadata.gitSha}\``,
+              `- Account read: **${metadata.accountAvailable ? "PASS" : "FAIL"}**`,
+              `- Approved QA contact found: **${metadata.contactFound ? "PASS" : "FAIL"}**`,
+              `- Expected list memberships: **${metadata.expectedMembershipChecks.every((x) => x.member) ? "PASS" : "FAIL"}**`,
+              `- Requested templates present: **${metadata.missingTemplateIds.length === 0 ? "PASS" : "FAIL"}**`,
+              `- Workflow graph semantics: **${metadata.workflowEvidence}**`,
+              `- Provider writes: **${metadata.writesAttempted}**`,
+              `- Sends: **${metadata.sendsAttempted}**`,
+              `- Workflow mutations: **${metadata.workflowMutationsAttempted}**`,
+              "",
+            ].join("\n"),
+          );
+          NODE
+
+      - name: Upload redacted evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: brevo-readonly-evidence-${{ inputs.git_sha }}
+          path: qa-evidence/
+          if-no-files-found: ignore
+          retention-days: 14
