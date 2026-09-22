@@ -31,8 +31,24 @@ describe("Brevo read-only evidence workflow", () => {
 
     expect(jobHeader).not.toContain("secrets.BREVO_API_KEY");
     expect(jobHeader).not.toContain("secrets.BREVO_EVIDENCE_CONTACT");
-    expect(workflow).not.toMatch(/BREVO_API_KEY:\s*[^$\n]/);
-    expect(workflow).not.toMatch(/BREVO_EVIDENCE_CONTACT:\s*[^$\n]/);
+
+    const apiKeyAssignments =
+      workflow.match(/^\s*BREVO_API_KEY:\s*.+$/gm) ?? [];
+    const contactAssignments =
+      workflow.match(/^\s*BREVO_EVIDENCE_CONTACT:\s*.+$/gm) ?? [];
+
+    expect(apiKeyAssignments).toHaveLength(3);
+    expect(contactAssignments).toHaveLength(3);
+    expect(
+      apiKeyAssignments.every((line) =>
+        line.includes("${{ secrets.BREVO_API_KEY }}"),
+      ),
+    ).toBe(true);
+    expect(
+      contactAssignments.every((line) =>
+        line.includes("${{ secrets.BREVO_EVIDENCE_CONTACT }}"),
+      ),
+    ).toBe(true);
   });
 
   it("runs only the existing evidence helper for live Brevo access", () => {
