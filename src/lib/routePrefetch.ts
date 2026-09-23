@@ -1,5 +1,6 @@
 import { expertisePages } from "@/data/expertise";
 import { supportingServices } from "@/data/services";
+import { products } from "@/data/products";
 
 type RouteImporter = () => Promise<unknown>;
 
@@ -8,6 +9,8 @@ const routeImporters = {
   expertise: () => import("../pages/Expertise"),
   expertiseDetail: () => import("../pages/ExpertiseDetail"),
   services: () => import("../pages/Services"),
+  productLibrary: () => import("../pages/ProductLibrary"),
+  productDetail: () => import("../pages/ProductDetail"),
   contactUs: () => import("../pages/ContactUs"),
   contactUsThankYou: () => import("../pages/ContactUsThankYou"),
   newsletterConfirmed: () => import("../pages/NewsletterConfirmed"),
@@ -43,6 +46,7 @@ const routePrefetchMap: Record<string, RouteImporter[]> = {
   "/about-us": [routeImporters.aboutUs],
   "/expertise": [routeImporters.expertise],
   "/service": [routeImporters.services],
+  "/library": [routeImporters.productLibrary],
   "/service/conversion-tracking": [routeImporters.conversionTracking],
   "/service/marketing-automation": [routeImporters.marketingAutomation],
   "/service/paid-media": [routeImporters.paidMedia],
@@ -69,6 +73,10 @@ expertisePages.forEach((item) => {
 
 supportingServices.forEach((service) => {
   routePrefetchMap[service.path] = [routeImporters.serviceDetail];
+});
+
+products.forEach((product) => {
+  routePrefetchMap[`/library/${product.slug}`] = [routeImporters.productDetail];
 });
 
 export { routeImporters };
