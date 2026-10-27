@@ -1,22 +1,61 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen } from "lucide-react";
-import { motion } from "framer-motion";
 
 import CTASection from "@/components/shared/CTASection";
-import HeroEyebrow from "@/components/shared/HeroEyebrow";
-import SectionIntro from "@/components/shared/SectionIntro";
 import SEO from "@/components/shared/SEO";
-import ProductGroup from "@/components/product/ProductGroup";
-import PublicationStatusBadge from "@/components/product/PublicationStatusBadge";
-import { Button } from "@/components/ui/button";
 import { BOOK_A_FREE_STRATEGY_CALL_CTA } from "@/config/cta";
+import { products } from "@/data/products";
 import { prefetchRoute } from "@/lib/routePrefetch";
-import { featuredProduct, getProductsByGroup } from "@/data/products";
+import { cn } from "@/lib/utils";
+import type { Product, PublicStatus } from "@/types/product";
+
+const SPINE_COLORS = ["#003399", "#00AFEF", "#33CC99", "#F59E0B", "#E4572E", "#8B5CF6", "#0F172A"];
+const colorFor = (product: Product) =>
+  SPINE_COLORS[Math.max(0, products.findIndex((p) => p.id === product.id)) % SPINE_COLORS.length];
+const pathFor = (product: Product) => `/library/${product.slug}`;
+
+const GROUP_LABEL: Record<Product["group"], string> = {
+  featured: "Featured",
+  start_here: "Start here",
+  tools: "Reference & tools",
+};
+
+const STATUS_LABEL: Record<PublicStatus, string> = {
+  coming_soon: "Coming soon",
+  preview: "Preview",
+  available: "Available",
+  archived: "Archived",
+};
+
+const FILTERS = ["all", "featured", "start_here", "tools"] as const;
+
+/** Cover image if one exists, otherwise a typographic cover in the product's color. */
+const Cover = ({ product, className }: { product: Product; className?: string }) => {
+  if (product.cover) {
+    return (
+      <img
+        src={product.cover}
+        alt={product.coverAlt ?? `${product.shortTitle} cover`}
+        className={cn("aspect-[3/4] w-full rounded-md object-cover shadow-xl", className)}
+        loading="lazy"
+      />
+    );
+  }
+  return (
+    <div
+      className={cn("flex aspect-[3/4] w-full flex-col justify-between rounded-md p-4 text-white shadow-xl", className)}
+      style={{ backgroundColor: colorFor(product) }}
+      aria-hidden="true"
+    >
+      <span className="text-[9px] font-semibold uppercase tracking-[0.18em] opacity-70">AlphaTrack Playbook Series</span>
+      <span className="text-lg font-extrabold leading-tight">{product.shortTitle}</span>
+    </div>
+  );
+};
 
 const ProductLibrary = () => {
-  const startHereProducts = getProductsByGroup("start_here");
-  const toolProducts = getProductsByGroup("tools");
-  const featuredPath = featuredProduct ? `/library/${featuredProduct.slug}` : "/library";
+  const [filter, setFilter] = useState<(typeof FILTERS)[number]>("all");
+  const shown = products.filter((p) => filter === "all" || p.group === filter);
 
   return (
     <>
@@ -26,130 +65,83 @@ const ProductLibrary = () => {
         canonicalUrl="/library"
       />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden border-t border-white/10 bg-[#05070d] pb-14 pt-6 text-center md:pb-20 md:pt-10">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,7,13,1)_0%,rgba(7,10,16,0.94)_54%,rgba(5,7,13,1)_100%)]" />
-          <div className="absolute left-1/2 top-[28%] h-[18rem] w-[24rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(0,175,239,0.12)_0%,rgba(51,204,153,0.07)_42%,transparent_74%)] blur-[76px] md:h-[25rem] md:w-[42rem] md:blur-[124px]" />
-        </div>
-        <div className="container relative mx-auto px-6 text-center lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <HeroEyebrow className="mb-5 mx-auto">Product Library</HeroEyebrow>
-            <h1 className="title-safe mx-auto max-w-3xl font-extrabold leading-[1.1] tracking-normal md:text-5xl lg:text-6xl">
-              Working manuals for teams<br className="hidden sm:block" /> that market in{" "}
-              <span className="text-gradient">Africa.</span>
+      <div className="bg-[#faf6ee] text-[#14120e]">
+        <section className="container mx-auto px-6 pb-10 pt-12 lg:px-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#14120e]/50">Product Library</p>
+          <div className="mt-4 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <h1 className="text-[22vw] font-black leading-[0.8] tracking-tighter sm:text-[15vw] lg:text-[11rem]">
+              Play<span className="text-[#003399]">books</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-[1.02rem] leading-8 text-muted-foreground sm:text-lg sm:leading-relaxed">
-              The AlphaTrack Digital Playbook series — practical, repeatable publications documenting the
-              same methods we run for clients. Published by AlphaTrack Digital.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Button
-                asChild
-                size="lg"
-                className="w-full max-w-[17rem] gap-1.5 rounded-xl bg-primary px-8 text-primary-foreground hover:bg-primary/90 sm:w-auto sm:max-w-none"
-              >
-                <Link to={featuredPath} onMouseEnter={() => prefetchRoute(featuredPath)} onFocus={() => prefetchRoute(featuredPath)}>
-                  View the Digital Growth Playbook
-                </Link>
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Featured */}
-      {featuredProduct && (
-        <section className="border-t border-white/10 bg-[#070a10] py-12 md:py-16">
-          <div className="container mx-auto px-6 lg:px-8">
-            <SectionIntro eyebrow="Featured" title="Start here" className="mb-6 md:mb-8" />
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4 }}
-            >
-              <Link
-                to={featuredPath}
-                onMouseEnter={() => prefetchRoute(featuredPath)}
-                onFocus={() => prefetchRoute(featuredPath)}
-                className="group grid grid-cols-1 gap-6 overflow-hidden rounded-2xl border border-primary/20 bg-[linear-gradient(180deg,rgba(0,51,153,0.1)_0%,rgba(0,175,239,0.03)_42%,rgba(51,204,153,0.03)_100%)] p-5 shadow-[0_18px_60px_rgba(0,51,153,0.1)] transition-all duration-300 hover:-translate-y-1 md:grid-cols-[220px_minmax(0,1fr)] md:items-center md:p-8"
-              >
-                <div className="mx-auto flex aspect-[3/4] w-full max-w-[220px] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.02]">
-                  {featuredProduct.cover ? (
-                    <img
-                      src={featuredProduct.cover}
-                      alt={featuredProduct.coverAlt ?? `${featuredProduct.shortTitle} cover`}
-                      className="h-full w-full object-cover"
-                      loading="eager"
-                    />
-                  ) : (
-                    <BookOpen className="h-10 w-10 text-muted-foreground/30" aria-hidden="true" />
-                  )}
-                </div>
-                <div>
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">
-                      {featuredProduct.category}
-                    </span>
-                    <PublicationStatusBadge status={featuredProduct.publicStatus} />
-                  </div>
-                  <h3 className="mt-2.5 text-2xl font-bold leading-tight transition-colors group-hover:text-primary md:text-3xl">
-                    {featuredProduct.shortTitle}
-                  </h3>
-                  {featuredProduct.dek && (
-                    <p className="mt-3 max-w-xl text-sm leading-7 text-muted-foreground md:text-[15px]">
-                      {featuredProduct.dek}
-                    </p>
-                  )}
-                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary transition-colors">
-                    View the playbook &rarr;
+            <div className="flex items-end gap-2 sm:gap-3" role="list" aria-label="The series, as book spines">
+              {products.map((product, i) => (
+                <Link
+                  key={product.id}
+                  to={pathFor(product)}
+                  role="listitem"
+                  title={product.shortTitle}
+                  onMouseEnter={() => prefetchRoute(pathFor(product))}
+                  onFocus={() => prefetchRoute(pathFor(product))}
+                  className="group flex w-9 items-start justify-center rounded-t-sm pt-3 text-white shadow-md transition-transform duration-300 hover:-translate-y-3 sm:w-12"
+                  style={{ backgroundColor: colorFor(product), height: `${12 + ((i * 37) % 5) * 1.1}rem` }}
+                >
+                  <span className="text-[11px] font-semibold tracking-wide [text-orientation:mixed] [writing-mode:vertical-rl]">
+                    {product.shortTitle}
                   </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+          <p className="mt-8 max-w-xl text-lg leading-8 text-[#14120e]/70">
+            Working manuals for teams that market in Africa — practical publications documenting the methods we run for
+            clients.
+          </p>
+        </section>
+
+        <section className="container mx-auto px-6 pb-20 lg:px-8">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-y border-[#14120e]/15 py-4">
+            <div className="flex flex-wrap gap-2">
+              {FILTERS.map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setFilter(key)}
+                  aria-pressed={filter === key}
+                  className={cn(
+                    "rounded-full border px-4 py-1.5 text-sm transition-colors",
+                    filter === key
+                      ? "border-[#14120e] bg-[#14120e] text-white"
+                      : "border-[#14120e]/20 hover:border-[#14120e]/60",
+                  )}
+                >
+                  {key === "all" ? "All titles" : GROUP_LABEL[key]}
+                </button>
+              ))}
+            </div>
+            <span className="text-sm text-[#14120e]/50">{shown.length} titles</span>
+          </div>
+
+          <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-3 lg:grid-cols-4">
+            {shown.map((product) => (
+              <Link
+                key={product.id}
+                to={pathFor(product)}
+                onMouseEnter={() => prefetchRoute(pathFor(product))}
+                onFocus={() => prefetchRoute(pathFor(product))}
+                className="group block"
+              >
+                <div className="rounded-lg bg-[#efe8d8] p-5 transition-colors group-hover:bg-[#e6dcc6]">
+                  <Cover product={product} className="transition-transform duration-300 group-hover:-translate-y-1" />
                 </div>
+                <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#14120e]/50">
+                  {GROUP_LABEL[product.group]} · {STATUS_LABEL[product.publicStatus]}
+                </p>
+                <h3 className="mt-1 text-base font-bold leading-snug group-hover:underline">{product.shortTitle}</h3>
+                {product.dek && <p className="mt-1 line-clamp-2 text-sm text-[#14120e]/60">{product.dek}</p>}
               </Link>
-            </motion.div>
+            ))}
           </div>
         </section>
-      )}
-
-      {/* Start here */}
-      <section className="border-t border-white/10 bg-[#080b10] py-12 md:py-16">
-        <div className="container mx-auto px-6 lg:px-8">
-          <ProductGroup
-            eyebrow="Start here"
-            title="The fast on-ramp"
-            description="A quick way into the method before working through the full Playbook."
-            products={startHereProducts}
-          />
-        </div>
-      </section>
-
-      {/* Reference & execution tools */}
-      <section className="border-t border-white/10 bg-[#070a10] py-12 md:py-16">
-        <div className="container mx-auto px-6 lg:px-8">
-          <ProductGroup
-            eyebrow="Reference & execution tools"
-            title="Companions to the Playbook"
-            description="Field references, worksheets, and indexes used while the work is happening — not separate courses."
-            products={toolProducts}
-          />
-        </div>
-      </section>
-
-      {/* Suite relationship */}
-      <section className="border-t border-white/10 bg-[#080b10] py-12 md:py-20">
-        <div className="container mx-auto px-6 lg:px-8">
-          <SectionIntro
-            eyebrow="One suite"
-            mode="content"
-            title="Seven distinct jobs, one method."
-            description="The Digital Growth Playbook is the operating system — strategy through measurement, end to end. The companion titles sit alongside it: a fast on-ramp, field references for ad specs and KPIs, worksheets for the recurring work, a prompt library for safe AI use, and an index of the tools and sources we rely on. You can start anywhere, but each title assumes the same underlying method."
-            maxWidth="lg"
-            titleClassName="text-[1.65rem] leading-[1.12] md:text-4xl"
-            descriptionClassName="max-w-2xl text-sm leading-6 md:text-base md:leading-7"
-          />
-        </div>
-      </section>
+      </div>
 
       <CTASection
         title={
