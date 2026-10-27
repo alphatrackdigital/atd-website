@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, type To } from "react-router-dom";
-import { Menu, X, ChevronDown, ArrowRight, BriefcaseBusiness, GraduationCap, ShoppingCart, Building2 } from "lucide-react";
+import { Menu, X, ChevronDown, ArrowRight, BriefcaseBusiness, GraduationCap, ShoppingCart, Building2, BookOpen, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BOOK_A_FREE_STRATEGY_CALL_CTA } from "@/config/cta";
 import { withCampaignSearch } from "@/lib/campaignAttribution";
@@ -21,7 +21,12 @@ const navLinks: Array<{
   { label: "Expertise", path: "/expertise", menuType: "expertise", hash: undefined },
   { label: "Results", path: "/results", menuType: undefined, hash: undefined },
   { label: "About Us", path: "/about-us", menuType: undefined, hash: undefined },
-  { label: "Blog", path: "/blog", menuType: undefined, hash: undefined },
+  { label: "Resources", path: "/library", menuType: "resources", hash: undefined },
+];
+
+const resourceLinks = [
+  { label: "Product Library", path: "/library", icon: BookOpen },
+  { label: "Blog", path: "/blog", icon: Newspaper },
 ];
 
 const featuredExpertiseSlugs = ["saas", "ecommerce-retail", "education", "real-estate"];
@@ -36,8 +41,10 @@ const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const [mobileExpertiseOpen, setMobileExpertiseOpen] = useState(false);
+  const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
   const [desktopServicesOpen, setDesktopServicesOpen] = useState(false);
   const [desktopExpertiseOpen, setDesktopExpertiseOpen] = useState(false);
+  const [desktopResourcesOpen, setDesktopResourcesOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const desktopNavRef = useRef<HTMLElement | null>(null);
@@ -46,8 +53,10 @@ const Header = () => {
     setMobileOpen(false);
     setMobileServicesOpen(false);
     setMobileExpertiseOpen(false);
+    setMobileResourcesOpen(false);
     setDesktopServicesOpen(false);
     setDesktopExpertiseOpen(false);
+    setDesktopResourcesOpen(false);
   }, [location.pathname, location.hash]);
 
   useEffect(() => {
@@ -74,12 +83,13 @@ const Header = () => {
   }, [mobileOpen]);
 
   useEffect(() => {
-    if (!desktopServicesOpen && !desktopExpertiseOpen) return;
+    if (!desktopServicesOpen && !desktopExpertiseOpen && !desktopResourcesOpen) return;
 
     const onPointerDown = (event: MouseEvent) => {
       if (!desktopNavRef.current?.contains(event.target as Node)) {
         setDesktopServicesOpen(false);
         setDesktopExpertiseOpen(false);
+        setDesktopResourcesOpen(false);
       }
     };
 
@@ -87,6 +97,7 @@ const Header = () => {
       if (event.key === "Escape") {
         setDesktopServicesOpen(false);
         setDesktopExpertiseOpen(false);
+        setDesktopResourcesOpen(false);
       }
     };
 
@@ -97,7 +108,7 @@ const Header = () => {
       window.removeEventListener("mousedown", onPointerDown);
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [desktopServicesOpen, desktopExpertiseOpen]);
+  }, [desktopServicesOpen, desktopExpertiseOpen, desktopResourcesOpen]);
 
   const isActive = (path: string, hash?: string) => {
     if (hash) return location.pathname === path && location.hash === hash;
@@ -115,13 +126,15 @@ const Header = () => {
     setMobileOpen(false);
     setMobileServicesOpen(false);
     setMobileExpertiseOpen(false);
+    setMobileResourcesOpen(false);
   };
 
   const getLinkTarget = (path: string, hash?: string): To =>
     hash ? { pathname: path, hash } : path;
 
   const isTrackingAuditPage = location.pathname.startsWith("/offer/tracking-audit");
-  const headerElevated = isTrackingAuditPage || scrolled || desktopServicesOpen || desktopExpertiseOpen || mobileOpen;
+  const headerElevated =
+    isTrackingAuditPage || scrolled || desktopServicesOpen || desktopExpertiseOpen || desktopResourcesOpen || mobileOpen;
   const strategyCallTo = withCampaignSearch(BOOK_A_FREE_STRATEGY_CALL_CTA.to, location.search);
   const featuredExpertisePages = expertisePages.filter((item) => featuredExpertiseSlugs.includes(item.slug));
 
@@ -160,6 +173,7 @@ const Header = () => {
               onMouseLeave={() => {
                 setDesktopServicesOpen(false);
                 setDesktopExpertiseOpen(false);
+                setDesktopResourcesOpen(false);
               }}
             >
               {navLinks.map((link) => {
@@ -176,7 +190,21 @@ const Header = () => {
 
                 if (link.menuType) {
                   const isServicesMenu = link.menuType === "services";
-                  const menuOpen = isServicesMenu ? desktopServicesOpen : desktopExpertiseOpen;
+                  const isExpertiseMenu = link.menuType === "expertise";
+                  const isResourcesMenu = link.menuType === "resources";
+                  const menuOpen = isServicesMenu
+                    ? desktopServicesOpen
+                    : isExpertiseMenu
+                      ? desktopExpertiseOpen
+                      : desktopResourcesOpen;
+                  const resourcesActive =
+                    isResourcesMenu && (location.pathname.startsWith("/library") || location.pathname.startsWith("/blog"));
+
+                  const openThisMenu = () => {
+                    setDesktopServicesOpen(isServicesMenu);
+                    setDesktopExpertiseOpen(isExpertiseMenu);
+                    setDesktopResourcesOpen(isResourcesMenu);
+                  };
 
                   return (
                     <div key={link.path} className="relative">
@@ -188,29 +216,27 @@ const Header = () => {
                         aria-haspopup="true"
                         className={cn(
                           "relative flex items-center gap-1.5 py-2 text-sm font-medium transition-colors duration-200 hover:text-foreground",
-                          isActive(link.path, link.hash) || menuOpen
+                          isActive(link.path, link.hash) || resourcesActive || menuOpen
                             ? "text-primary after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-px after:bg-primary"
                             : "text-muted-foreground/90",
                         )}
                         onMouseEnter={() => {
                           prefetchRoute(link.path);
-                          setDesktopServicesOpen(isServicesMenu);
-                          setDesktopExpertiseOpen(!isServicesMenu);
+                          openThisMenu();
                         }}
                         onClick={() => {
                           prefetchRoute(link.path);
-                          if (isServicesMenu) {
-                            setDesktopServicesOpen((prev) => !prev);
-                            setDesktopExpertiseOpen(false);
-                          } else {
-                            setDesktopExpertiseOpen((prev) => !prev);
+                          if (menuOpen) {
                             setDesktopServicesOpen(false);
+                            setDesktopExpertiseOpen(false);
+                            setDesktopResourcesOpen(false);
+                          } else {
+                            openThisMenu();
                           }
                         }}
                         onFocus={() => {
                           prefetchRoute(link.path);
-                          setDesktopServicesOpen(isServicesMenu);
-                          setDesktopExpertiseOpen(!isServicesMenu);
+                          openThisMenu();
                         }}
                       >
                         {link.label}
@@ -266,7 +292,40 @@ const Header = () => {
                           </div>
                         )}
 
-                        {!isServicesMenu && desktopExpertiseOpen && (
+                        {isResourcesMenu && desktopResourcesOpen && (
+                          <div className="absolute left-1/2 top-full z-50 w-[min(240px,calc(100vw-3rem))] -translate-x-1/2 pt-3">
+                            <motion.div
+                              id="desktop-resources-menu"
+                              data-testid="desktop-resources-menu"
+                              initial={{ opacity: 0, y: 8, scale: 0.99 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              exit={{ opacity: 0, y: 8, scale: 0.99 }}
+                              transition={{ duration: 0.18, ease: "easeOut" }}
+                              className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[#070a10] p-4 shadow-[0_12px_28px_rgba(0,8,22,0.28)]"
+                            >
+                              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/35 to-transparent" />
+                              <div className="space-y-1">
+                                {resourceLinks.map((item) => (
+                                  <Link
+                                    key={item.path}
+                                    to={item.path}
+                                    {...getPrefetchHandlers(item.path)}
+                                    className="group flex min-h-11 items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-white/[0.045]"
+                                  >
+                                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-white/[0.07] bg-white/[0.025]">
+                                      <item.icon className="h-3.5 w-3.5 text-primary" />
+                                    </span>
+                                    <span className="text-sm font-semibold leading-snug text-foreground">
+                                      {item.label}
+                                    </span>
+                                  </Link>
+                                ))}
+                              </div>
+                            </motion.div>
+                          </div>
+                        )}
+
+                        {isExpertiseMenu && desktopExpertiseOpen && (
                           <div className="absolute left-1/2 top-full z-50 w-[min(292px,calc(100vw-3rem))] -translate-x-1/2 pt-3">
                             <motion.div
                               id="desktop-expertise-menu"
@@ -381,122 +440,143 @@ const Header = () => {
                     {link.label}
                   </div>
                 ) : link.menuType ? (
-                  <div key={link.path} className="border-b border-white/[0.055] pb-1">
-                    <button
-                      type="button"
-                      data-testid={`mobile-${link.menuType}-trigger`}
-                      aria-expanded={link.menuType === "services" ? mobileServicesOpen : mobileExpertiseOpen}
-                      aria-controls={`mobile-${link.menuType}-links`}
-                      onClick={() => {
-                        prefetchRoute(link.path);
-                        if (link.menuType === "services") {
-                          setMobileServicesOpen((prev) => !prev);
-                          setMobileExpertiseOpen(false);
-                        } else {
-                          setMobileExpertiseOpen((prev) => !prev);
-                          setMobileServicesOpen(false);
-                        }
-                      }}
-                      className={cn(
-                        "flex min-h-12 w-full items-center justify-between rounded-lg px-3 py-3 text-left text-sm font-semibold transition-colors",
-                        isActive(link.path, link.hash) ||
-                          (link.menuType === "services" ? mobileServicesOpen : mobileExpertiseOpen)
-                          ? "bg-primary/[0.07] text-primary"
-                          : "text-muted-foreground hover:bg-white/[0.035] hover:text-foreground",
-                      )}
-                    >
-                      <span>{link.label}</span>
-                      <ChevronDown
-                        className={cn(
-                          "h-4 w-4 transition-transform duration-200",
-                          (link.menuType === "services" ? mobileServicesOpen : mobileExpertiseOpen) &&
-                            "rotate-180",
-                        )}
-                      />
-                    </button>
+                  (() => {
+                    const isServicesMenu = link.menuType === "services";
+                    const isExpertiseMenu = link.menuType === "expertise";
+                    const mobileMenuOpen = isServicesMenu
+                      ? mobileServicesOpen
+                      : isExpertiseMenu
+                        ? mobileExpertiseOpen
+                        : mobileResourcesOpen;
 
-                    <AnimatePresence initial={false}>
-                      {(link.menuType === "services" ? mobileServicesOpen : mobileExpertiseOpen) && (
-                        <motion.div
-                          id={`mobile-${link.menuType}-links`}
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2, ease: "easeInOut" }}
-                          className="overflow-hidden"
+                    return (
+                      <div key={link.path} className="border-b border-white/[0.055] pb-1">
+                        <button
+                          type="button"
+                          data-testid={`mobile-${link.menuType}-trigger`}
+                          aria-expanded={mobileMenuOpen}
+                          aria-controls={`mobile-${link.menuType}-links`}
+                          onClick={() => {
+                            prefetchRoute(link.path);
+                            setMobileServicesOpen(isServicesMenu ? (prev) => !prev : false);
+                            setMobileExpertiseOpen(isExpertiseMenu ? (prev) => !prev : false);
+                            setMobileResourcesOpen(!isServicesMenu && !isExpertiseMenu ? (prev) => !prev : false);
+                          }}
+                          className={cn(
+                            "flex min-h-12 w-full items-center justify-between rounded-lg px-3 py-3 text-left text-sm font-semibold transition-colors",
+                            isActive(link.path, link.hash) || mobileMenuOpen
+                              ? "bg-primary/[0.07] text-primary"
+                              : "text-muted-foreground hover:bg-white/[0.035] hover:text-foreground",
+                          )}
                         >
-                          <div className="space-y-4 pb-4 pl-3 pr-1 pt-2">
-                            {link.menuType === "services" ? (
-                              <>
-                                <Link
-                                  to="/service"
-                                  onClick={closeMobileMenu}
-                                  onTouchStart={() => prefetchRoute("/service")}
-                                  onFocus={() => prefetchRoute("/service")}
-                                  className="mb-3 flex min-h-11 items-center justify-between rounded-lg border border-primary/15 bg-primary/[0.08] px-3 text-sm font-bold text-primary transition-colors hover:bg-primary/[0.12]"
-                                >
-                                  <span>View all services</span>
-                                  <ArrowRight className="h-4 w-4" />
-                                </Link>
+                          <span>{link.label}</span>
+                          <ChevronDown
+                            className={cn("h-4 w-4 transition-transform duration-200", mobileMenuOpen && "rotate-180")}
+                          />
+                        </button>
 
-                                <div>
-                                  <p className="px-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary/75">
-                                    Core Services
-                                  </p>
-                                  <div className="mt-2">
-                                    {primaryServices.map((service) => (
+                        <AnimatePresence initial={false}>
+                          {mobileMenuOpen && (
+                            <motion.div
+                              id={`mobile-${link.menuType}-links`}
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2, ease: "easeInOut" }}
+                              className="overflow-hidden"
+                            >
+                              <div className="space-y-4 pb-4 pl-3 pr-1 pt-2">
+                                {isServicesMenu ? (
+                                  <>
+                                    <Link
+                                      to="/service"
+                                      onClick={closeMobileMenu}
+                                      onTouchStart={() => prefetchRoute("/service")}
+                                      onFocus={() => prefetchRoute("/service")}
+                                      className="mb-3 flex min-h-11 items-center justify-between rounded-lg border border-primary/15 bg-primary/[0.08] px-3 text-sm font-bold text-primary transition-colors hover:bg-primary/[0.12]"
+                                    >
+                                      <span>View all services</span>
+                                      <ArrowRight className="h-4 w-4" />
+                                    </Link>
+
+                                    <div>
+                                      <p className="px-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary/75">
+                                        Core Services
+                                      </p>
+                                      <div className="mt-2">
+                                        {primaryServices.map((service) => (
+                                          <Link
+                                            key={service.path}
+                                            to={service.path}
+                                            onClick={closeMobileMenu}
+                                            onTouchStart={() => prefetchRoute(service.path)}
+                                            onFocus={() => prefetchRoute(service.path)}
+                                            className="block rounded-md border-t border-white/[0.045] px-2 py-2.5 text-sm font-medium text-muted-foreground transition-colors first:border-t-0 hover:bg-white/[0.035] hover:text-foreground"
+                                          >
+                                            {service.title}
+                                          </Link>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </>
+                                ) : isExpertiseMenu ? (
+                                  <div>
+                                    <Link
+                                      to="/expertise"
+                                      onClick={closeMobileMenu}
+                                      onTouchStart={() => prefetchRoute("/expertise")}
+                                      onFocus={() => prefetchRoute("/expertise")}
+                                      className="mb-3 flex min-h-11 items-center justify-between rounded-lg border border-primary/15 bg-primary/[0.08] px-3 text-sm font-bold text-primary transition-colors hover:bg-primary/[0.12]"
+                                    >
+                                      <span>View all expertise</span>
+                                      <ArrowRight className="h-4 w-4" />
+                                    </Link>
+                                    {featuredExpertisePages.map((item) => {
+                                      const ExpertiseIcon = expertiseMenuIcons[item.slug as keyof typeof expertiseMenuIcons] ?? BriefcaseBusiness;
+
+                                      return (
+                                        <Link
+                                          key={item.slug}
+                                          to={`/expertise/${item.slug}`}
+                                          onClick={closeMobileMenu}
+                                          onTouchStart={() => prefetchRoute(`/expertise/${item.slug}`)}
+                                          onFocus={() => prefetchRoute(`/expertise/${item.slug}`)}
+                                          className="flex items-center gap-3 rounded-md border-t border-white/[0.045] px-2 py-2.5 text-sm font-medium text-muted-foreground transition-colors first:border-t-0 hover:bg-white/[0.035] hover:text-foreground"
+                                        >
+                                          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-white/[0.07] bg-white/[0.025]">
+                                            <ExpertiseIcon className="h-3.5 w-3.5 text-primary" />
+                                          </span>
+                                          <span>{item.name}</span>
+                                        </Link>
+                                      );
+                                    })}
+                                  </div>
+                                ) : (
+                                  <div>
+                                    {resourceLinks.map((item) => (
                                       <Link
-                                        key={service.path}
-                                        to={service.path}
+                                        key={item.path}
+                                        to={item.path}
                                         onClick={closeMobileMenu}
-                                        onTouchStart={() => prefetchRoute(service.path)}
-                                        onFocus={() => prefetchRoute(service.path)}
-                                        className="block rounded-md border-t border-white/[0.045] px-2 py-2.5 text-sm font-medium text-muted-foreground transition-colors first:border-t-0 hover:bg-white/[0.035] hover:text-foreground"
+                                        onTouchStart={() => prefetchRoute(item.path)}
+                                        onFocus={() => prefetchRoute(item.path)}
+                                        className="flex items-center gap-3 rounded-md border-t border-white/[0.045] px-2 py-2.5 text-sm font-medium text-muted-foreground transition-colors first:border-t-0 hover:bg-white/[0.035] hover:text-foreground"
                                       >
-                                        {service.title}
+                                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-white/[0.07] bg-white/[0.025]">
+                                          <item.icon className="h-3.5 w-3.5 text-primary" />
+                                        </span>
+                                        <span>{item.label}</span>
                                       </Link>
                                     ))}
                                   </div>
-                                </div>
-                              </>
-                            ) : (
-                              <div>
-                                <Link
-                                  to="/expertise"
-                                  onClick={closeMobileMenu}
-                                  onTouchStart={() => prefetchRoute("/expertise")}
-                                  onFocus={() => prefetchRoute("/expertise")}
-                                  className="mb-3 flex min-h-11 items-center justify-between rounded-lg border border-primary/15 bg-primary/[0.08] px-3 text-sm font-bold text-primary transition-colors hover:bg-primary/[0.12]"
-                                >
-                                  <span>View all expertise</span>
-                                  <ArrowRight className="h-4 w-4" />
-                                </Link>
-                                {featuredExpertisePages.map((item) => {
-                                  const ExpertiseIcon = expertiseMenuIcons[item.slug as keyof typeof expertiseMenuIcons] ?? BriefcaseBusiness;
-
-                                  return (
-                                    <Link
-                                      key={item.slug}
-                                      to={`/expertise/${item.slug}`}
-                                      onClick={closeMobileMenu}
-                                      onTouchStart={() => prefetchRoute(`/expertise/${item.slug}`)}
-                                      onFocus={() => prefetchRoute(`/expertise/${item.slug}`)}
-                                      className="flex items-center gap-3 rounded-md border-t border-white/[0.045] px-2 py-2.5 text-sm font-medium text-muted-foreground transition-colors first:border-t-0 hover:bg-white/[0.035] hover:text-foreground"
-                                    >
-                                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-white/[0.07] bg-white/[0.025]">
-                                        <ExpertiseIcon className="h-3.5 w-3.5 text-primary" />
-                                      </span>
-                                      <span>{item.name}</span>
-                                    </Link>
-                                  );
-                                })}
+                                )}
                               </div>
-                            )}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })()
                 ) : (
                   <Link
                     key={link.path}
