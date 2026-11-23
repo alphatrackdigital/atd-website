@@ -20,6 +20,8 @@ export interface LeadCapturePayload {
   lastName: string;
   email: string;
   optIn?: boolean;
+  /** Single-use Turnstile token. Only supplied by the newsletter form when configured. */
+  turnstileToken?: string;
   company?: string;
   message?: string;
   websiteUrl?: string;
