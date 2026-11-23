@@ -1,8 +1,11 @@
 import { useState } from "react";
+import NewsletterTurnstile from "./NewsletterTurnstile";
 import { Mail, CheckCircle2, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { submitLead } from "@/lib/leads";
 import { pushLeadSubmissionEvent } from "@/lib/tracking";
+
+const newsletterTurnstileSiteKey = (import.meta.env.VITE_TURNSTILE_NEWSLETTER_SITE_KEY || "").trim();
 
 interface NewsletterSectionProps {
   className?: string;
@@ -10,6 +13,8 @@ interface NewsletterSectionProps {
 
 const NewsletterSection = ({ className }: NewsletterSectionProps) => {
   const [email, setEmail] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileResetNonce, setTurnstileResetNonce] = useState(0);
   const [optIn, setOptIn] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [pendingConfirmation, setPendingConfirmation] = useState(false);
@@ -26,6 +31,10 @@ const NewsletterSection = ({ className }: NewsletterSectionProps) => {
       setErrorMsg("Please confirm you want to receive newsletter emails.");
       return;
     }
+    if (newsletterTurnstileSiteKey && !turnstileToken) {
+      setErrorMsg("Please complete the newsletter verification challenge.");
+      return;
+    }
     setErrorMsg("");
     setStatus("loading");
     try {
@@ -35,6 +44,7 @@ const NewsletterSection = ({ className }: NewsletterSectionProps) => {
         lastName: "",
         email: trimmed,
         optIn,
+        ...(newsletterTurnstileSiteKey ? { turnstileToken } : {}),
       });
       setPendingConfirmation(result.pendingConfirmation === true);
       setStatus("success");
@@ -48,6 +58,10 @@ const NewsletterSection = ({ className }: NewsletterSectionProps) => {
         });
       }
     } catch {
+      if (newsletterTurnstileSiteKey) {
+        setTurnstileToken("");
+        setTurnstileResetNonce((value) => value + 1);
+      }
       setStatus("error");
       setErrorMsg("Something went wrong. Please try again.");
     }
@@ -123,6 +137,13 @@ const NewsletterSection = ({ className }: NewsletterSectionProps) => {
                     )}
                   </button>
                 </div>
+                {newsletterTurnstileSiteKey && (
+                  <NewsletterTurnstile
+                    siteKey={newsletterTurnstileSiteKey}
+                    onTokenChange={setTurnstileToken}
+                    resetNonce={turnstileResetNonce}
+                  />
+                )}
                 {(errorMsg || status === "error") && (
                   <p className="text-xs text-destructive">
                     {errorMsg || "Something went wrong. Please try again."}
